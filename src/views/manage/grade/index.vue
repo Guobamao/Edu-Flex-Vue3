@@ -228,7 +228,7 @@ const collegeList = ref([]);
 function getCollegeList() {
   listCollege(loadAllParams).then(response => {
     // 过滤掉根节点
-    collegeList.value = response.data.filter(item => item.parentId !== 0);
+    collegeList.value = response.rows.filter(item => item.parentId !== 0);
   })
 }
 

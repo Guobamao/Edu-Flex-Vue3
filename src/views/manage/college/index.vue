@@ -98,7 +98,7 @@ const { queryParams, form, rules } = toRefs(data);
 function getList() {
   loading.value = true;
   listCollege(queryParams.value).then(response => {
-    collegeList.value = proxy.handleTree(response.data, "id");
+    collegeList.value = proxy.handleTree(response.rows, "id");
     loading.value = false;
   });
 }
@@ -140,7 +140,7 @@ function resetQuery() {
 function handleAdd(row) {
   reset();
   listCollege().then(response => {
-    collegeOptions.value = proxy.handleTree(response.data, 'id');
+    collegeOptions.value = proxy.handleTree(response.rows, 'id');
   });
   if (row != undefined) {
     form.value.parentId = row.id;
@@ -153,7 +153,7 @@ function handleAdd(row) {
 function handleUpdate(row) {
   reset();
   listCollegeExcludeChild(row.id).then(response => {
-    collegeOptions.value = proxy.handleTree(response.data, 'id');
+    collegeOptions.value = proxy.handleTree(response.rows, 'id');
   });
   const _id = row.id || ids.value
   getCollege(_id).then(response => {
