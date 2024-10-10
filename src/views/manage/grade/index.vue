@@ -2,7 +2,8 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" @submit.prevent>
       <el-form-item label="所属学院" prop="collegeId">
-        <el-select v-model="queryParams.collegeId" placeholder="请选择所属学院" clearable style="width: 240px;" @change="handleQuery">
+        <el-select v-model="queryParams.collegeId" placeholder="请选择所属学院" clearable style="width: 240px;"
+          @change="handleQuery">
           <el-option v-for="item in collegeList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
@@ -37,10 +38,15 @@
     <el-table v-loading="loading" :data="gradeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
-      <el-table-column label="班级名称" align="center" prop="name" />
+      <el-table-column label="班级名称" align="center" prop="name">
+        <template #default="scope">
+          <el-button type="text" @click="getGradeStudents(scope.row)"
+            v-hasPermi="['manage:user:list']">{{ scope.row.name }}</el-button>
+        </template>
+      </el-table-column>
       <el-table-column label="所属学院" align="center" prop="collegeId">
         <template #default="scope">
-          <div v-for="item in collegeList" :key="item.id" >
+          <div v-for="item in collegeList" :key="item.id">
             <span v-if="scope.row.collegeId === item.id">{{ item.name }}</span>
           </div>
         </template>
@@ -63,8 +69,8 @@
       <el-form ref="gradeRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="所属学院" prop="collegeId">
           <el-select v-model="form.collegeId" placeholder="请选择所属学院" clearable>
-          <el-option v-for="item in collegeList" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
+            <el-option v-for="item in collegeList" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="班级名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入班级名称" />
@@ -86,6 +92,8 @@ import { loadAllParams } from '@/api/page';
 import { listCollege } from '@/api/manage/college';
 
 const { proxy } = getCurrentInstance();
+
+const router = useRouter();
 
 const gradeList = ref([]);
 const open = ref(false);
@@ -230,6 +238,11 @@ function getCollegeList() {
     // 过滤掉根节点
     collegeList.value = response.rows.filter(item => item.parentId !== 0);
   })
+}
+
+function getGradeStudents(row) {
+  const _gradeId = row.id;
+  router.push("/base/grade-students/" + _gradeId);
 }
 
 getCollegeList();

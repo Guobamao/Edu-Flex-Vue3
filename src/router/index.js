@@ -157,6 +157,20 @@ export const dynamicRoutes = [
         meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
       }
     ]
+  },
+  {
+    path: '/base/grade-students',
+    component: Layout,
+    hidden: true,
+    permissions: ['system:user:list'],
+    children: [
+      {
+        path: ':gradeId(\\d+)',
+        component: () => import('@/views/manage/grade/gradeStudents'),
+        name: 'GradeStudent',
+        meta: { title: '班级学生', activeMenu: '/base/grade' }
+      }
+    ]
   }
 ]
 
