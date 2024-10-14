@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询课程-班级关系列表
+// 查询班级课程管理列表
 export function listCourseGrade(query) {
   return request({
     url: '/manage/courseGrade/list',
@@ -9,7 +9,7 @@ export function listCourseGrade(query) {
   })
 }
 
-// 查询课程-班级关系详细
+// 查询班级课程管理详细
 export function getCourseGrade(id) {
   return request({
     url: '/manage/courseGrade/' + id,
@@ -17,7 +17,7 @@ export function getCourseGrade(id) {
   })
 }
 
-// 新增课程-班级关系
+// 新增班级课程管理
 export function addCourseGrade(data) {
   return request({
     url: '/manage/courseGrade',
@@ -26,7 +26,7 @@ export function addCourseGrade(data) {
   })
 }
 
-// 修改课程-班级关系
+// 修改班级课程管理
 export function updateCourseGrade(data) {
   return request({
     url: '/manage/courseGrade',
@@ -35,7 +35,7 @@ export function updateCourseGrade(data) {
   })
 }
 
-// 删除课程-班级关系
+// 删除班级课程管理
 export function delCourseGrade(id) {
   return request({
     url: '/manage/courseGrade/' + id,
