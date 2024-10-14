@@ -1,6 +1,7 @@
 import { createWebHistory, createRouter } from 'vue-router'
 /* Layout */
 import Layout from '@/layout'
+import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
 
 /**
  * Note: 路由配置项
@@ -169,6 +170,20 @@ export const dynamicRoutes = [
         component: () => import('@/views/manage/grade/gradeStudents'),
         name: 'GradeStudent',
         meta: { title: '班级学生', activeMenu: '/base/grade' }
+      }
+    ]
+  },
+  {
+    path: '/base/course-chapters',
+    component: Layout,
+    hidden: true,
+    permissions: ['manage:chapter:list'],
+    children: [
+      {
+        path: ':courseId(\\d+)',
+        component: () => import('@/views/manage/course/courseChapter'),
+        name: 'CourseChapter',
+        meta: { title: '课程章节管理', active: '/base/course' }
       }
     ]
   }

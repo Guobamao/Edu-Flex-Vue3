@@ -37,7 +37,12 @@
     <el-table v-loading="loading" :data="courseList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
-      <el-table-column label="课程名称" align="center" prop="name" />
+      <el-table-column label="课程名称" align="center" prop="name">
+        <template #default="scope">
+          <el-button type="text" @click="getCourseChapters(scope.row)"
+            v-hasPermi="['manage:chapter:list']">{{ scope.row.name }}</el-button>
+        </template>
+      </el-table-column>
       <el-table-column label="任课老师" align="center" prop="teacherId">
         <template #default="scope">
           <div v-for="item in teacherList" :key="item.userId">
@@ -117,6 +122,7 @@ import { listCourse, getCourse, delCourse, addCourse, updateCourse } from "@/api
 import { listTeacher } from "@/api/manage/teacher";
 import { loadAllParams } from '@/api/page';
 
+const router = useRouter();
 const { proxy } = getCurrentInstance();
 const { course_status } = proxy.useDict("course_status");
 
@@ -291,6 +297,10 @@ function handleDateChange(value) {
   }
 }
 
+function getCourseChapters(row) {
+  const _courseId = row.id;
+  router.push("/base/course-chapters/" + _courseId);
+}
 getTeacherList();
 getList();
 </script>
