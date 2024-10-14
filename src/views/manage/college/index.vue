@@ -2,7 +2,8 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" @submit.prevent>
       <el-form-item label="学院名称" prop="name">
-        <el-input v-model="queryParams.name" placeholder="请输入学院名称" clearable @keyup.enter="handleQuery" @clear="handleQuery" />
+        <el-input v-model="queryParams.name" placeholder="请输入学院名称" clearable @keyup.enter="handleQuery"
+          @clear="handleQuery" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -33,6 +34,8 @@
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:college:edit']">修改</el-button>
+          <el-button link type="primary" icon="Plus" @click="handleAdd(scope.row)"
+            v-hasPermi="['manage:college:add']">新增</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
             v-hasPermi="['manage:college:remove']">删除</el-button>
         </template>
@@ -153,7 +156,7 @@ function handleAdd(row) {
 function handleUpdate(row) {
   reset();
   listCollegeExcludeChild(row.id).then(response => {
-    collegeOptions.value = proxy.handleTree(response.rows, 'id');
+    collegeOptions.value = proxy.handleTree(response.data, 'id');
   });
   const _id = row.id || ids.value
   getCollege(_id).then(response => {
