@@ -21,7 +21,7 @@
     <div class="el-upload__tip" v-if="showTip">
       请上传
       <template v-if="fileSize"> 大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b> </template>
-      <template v-if="fileType"> 格式为 <b style="color: #f56c6c">{{ fileType.join("/") }}</b> </template>
+      <template v-if="fileType"><br> 格式为 <b style="color: #f56c6c">视频/图片/纯文本文件/幻灯片/PDF文档</b> </template>
       的文件
     </div>
     <!-- 文件列表 -->
@@ -46,17 +46,17 @@ const props = defineProps({
   // 数量限制
   limit: {
     type: Number,
-    default: 5,
+    default: 1,
   },
   // 大小限制(MB)
   fileSize: {
     type: Number,
-    default: 5,
+    default: 1024,
   },
   // 文件类型, 例如['png', 'jpg', 'jpeg']
   fileType: {
     type: Array,
-    default: () => ["doc", "xls", "ppt", "txt", "pdf"],
+    default: () => ["doc", "docx", "ppt", "pptx", "txt", "pdf", "mp4", "avi", "jpg", "jpeg", "png", "gif", "bmp"],
   },
   // 是否显示提示
   isShowTip: {
@@ -158,6 +158,7 @@ function uploadedSuccessfully() {
     uploadList.value = [];
     number.value = 0;
     emit("update:modelValue", listToString(fileList.value));
+    emit("fileList", fileList.value);
     proxy.$modal.closeLoading();
   }
 }
