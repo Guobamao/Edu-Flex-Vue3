@@ -2,10 +2,12 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="课程名称" prop="courseName">
-        <el-input v-model="queryParams.courseName" style="width: 200px" placeholder="请输入课程名称" clearable @keyup.enter="handleQuery" />
+        <el-input v-model="queryParams.courseName" style="width: 200px" placeholder="请输入课程名称" clearable
+          @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="班级名称" prop="gradeName">
-        <el-input v-model="queryParams.gradeName" style="width: 200px" placeholder="请输入班级名称" clearable @keyup.enter="handleQuery" />
+        <el-input v-model="queryParams.gradeName" style="width: 200px" placeholder="请输入班级名称" clearable
+          @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -15,20 +17,18 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd"
-          v-hasPermi="['manage:courseGrade:add']">新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasRole="['admin']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['manage:courseGrade:edit']">修改</el-button>
+          v-hasRole="['admin']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['manage:courseGrade:remove']">删除</el-button>
+          v-hasRole="['admin']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport"
-          v-hasPermi="['manage:courseGrade:export']">导出</el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasRole="['admin']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -41,9 +41,9 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['manage:courseGrade:edit']">修改</el-button>
+            v-hasRole="['admin']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['manage:courseGrade:remove']">删除</el-button>
+            v-hasRole="['admin']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

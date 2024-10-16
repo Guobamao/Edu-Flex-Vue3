@@ -3,7 +3,7 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Plus" @click="handleChapterAdd"
-          v-hasPermi="['manage:chapter:add']">新增</el-button>
+          v-hasRole="['admin', 'teacher']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="info" plain icon="Sort" @click="toggleExpandAll">展开/折叠</el-button>
@@ -11,9 +11,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-if="refreshTable"  v-loading="loading" :data="chapterList" row-key="id" lazy :load="loadMaterials"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :default-expand-all="isExpandAll"
-      @expand-change="handleExpandChange">
+    <el-table ref="tableRef" v-if="refreshTable" v-loading="loading" :data="chapterList" row-key="id" lazy
+      :load="loadMaterials" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      :default-expand-all="isExpandAll">
       <el-table-column label="章节名称" align="left" prop="name">
         <template #default="scope">
           <!-- 判断为章节 -->
@@ -34,23 +34,22 @@
       <el-table-column label="操作" align="left" width="400" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleChapterUpdate(scope.row)"
-            v-hasPermi="['manage:chapter:edit']" v-if="!scope.row.chapterId">修改章节</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">修改章节</el-button>
           <el-button link type="primary" icon="Edit" @click="handleMaterialUpdate(scope.row)"
-            v-hasPermi="['manage:material:edit']" v-else>修改资料</el-button>
+            v-hasRole="['admin', 'teacher']" v-else>修改资料</el-button>
 
-          <el-button link type="primary" icon="View" @click="getChapterInfo(scope.row)"
-            v-hasPermi="['manage:material:query']" v-if="scope.row.chapterId">查看资料</el-button>
+          <el-button link type="primary" icon="View" @click="getChapterInfo(scope.row)" v-hasRole="['admin', 'teacher']"
+            v-if="scope.row.chapterId">查看资料</el-button>
 
           <el-button link type="primary" icon="Plus" @click="handleChapterAdd(scope.row)"
-            v-hasPermi="['manage:chapter:add']" v-if="scope.row.parentId === 0 && !scope.row.chapterId">新增小节</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId === 0 && !scope.row.chapterId">新增小节</el-button>
           <el-button link type="primary" icon="Plus" @click="handleMaterialAdd(scope.row)"
-            v-hasPermi="['manage:material:add']"
-            v-if="scope.row.parentId !== 0 && !scope.row.chapterId">新增资料</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId !== 0 && !scope.row.chapterId">新增资料</el-button>
 
           <el-button link type="primary" icon="Delete" @click="handleChapterDelete(scope.row)"
-            v-hasPermi="['manage:chapter:remove']" v-if="!scope.row.chapterId">删除</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">删除</el-button>
           <el-button link type="primary" icon="Delete" @click="handleMaterialDelete(scope.row)"
-            v-hasPermi="['manage:material:remove']" v-else>删除</el-button>
+            v-hasRole="['admin', 'teacher']" v-else>删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -114,6 +113,7 @@ import { listMaterial, getMaterial, delMaterial, addMaterial, updateMaterial } f
 
 const { proxy } = getCurrentInstance();
 const route = useRoute();
+const baseUrl = import.meta.env.VITE_APP_BASE_API;
 
 const { material_type } = proxy.useDict("material_type");
 
@@ -127,10 +127,13 @@ const title = ref("");
 const isExpandAll = ref(false);
 const refreshTable = ref(true);
 
+const tableRef = ref(null);
+
 const data = reactive({
   chapterForm: {},
   materialForm: {},
   queryParams: {
+    courseId: route.params.courseId
   },
   rules: {
     name: [
@@ -289,25 +292,13 @@ function submitMaterialForm() {
         updateMaterial(materialForm.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           materialOpen.value = false;
-          getList();
-          // 重新获取资料数据
-          listMaterial({ chapterId: materialForm.value.chapterId }).then(response => {
-            response.rows.map(item => {
-              item.id = item.id + '-' + materialForm.value.chapterId
-            })
-            // 过滤出ChapterList中id = chapterId的数据并设置其children
-            chapterList.value.map(item => {
-              if (item.id == materialForm.value.chapterId) {
-                item.children = response.rows
-              }
-            })
-          })
+          refreshTableData(materialForm.value.chapterId);
         });
       } else {
         addMaterial(materialForm.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           materialOpen.value = false;
-          getList();
+          refreshTableData(materialForm.value.chapterId);
         })
       }
     }
@@ -324,22 +315,45 @@ function handleChapterDelete(row) {
   }).catch(() => { });
 }
 
+/** 删除资料操作 */
+function handleMaterialDelete(row) {
+  const _id = row.id.split("-")[0];
+  proxy.$modal.confirm('是否确认删除课程资料编号为"' + _id + '"的数据项？').then(function () {
+    return delMaterial(_id);
+  }).then(() => {
+    refreshTableData(row.chapterId);
+    proxy.$modal.msgSuccess("删除成功");
+  }).catch(() => { });
+}
+
+// 存储懒加载的数据
+const maps = new Map();
 function loadMaterials(row, treeNode, resolve) {
   const _chapterId = row.id;
+  // 懒加载时，将数据存储到maps中
+  maps.set(_chapterId, { row, treeNode, resolve });
+
   listMaterial({ chapterId: _chapterId }).then(response => {
-    response.rows.map(item => {
-      item.id = item.id + '-' + _chapterId
-    })
-
-    if (!row.children) {
-      row.children = [];
+    if (response.rows.length > 0) {
+      response.rows.forEach(item => {
+        item.id = item.id + '-' + _chapterId
+      })
+      resolve(response.rows)
+    } else {
+      tableRef.value.store.states.lazyTreeNodeMap.value[_chapterId] = []
     }
-
-    row.children.push(...response.rows);
-    resolve(response.rows);
   })
 }
 
+// 刷新表格
+function refreshTableData(chapterId) {
+  getList();
+  const map = maps.get(chapterId);
+  if (map) {
+    const { row, treeNode, resolve } = map;
+    loadMaterials(row, treeNode, resolve);
+  }
+}
 // 获取子组件传出的上传文件列表
 function getUploadFileList(fileList) {
   const file = fileList[0];
@@ -375,16 +389,7 @@ function getUploadFileList(fileList) {
 }
 
 function getChapterInfo(row) {
-  // 外连接跳转，只浏览，不下载
-  window.open(row.url)
-}
-
-function handleExpandChange(row, expanded) {
-  // 如果为展开状态，修改为不展开
-  const table = tableRef.value;
-  if (expanded) {
-    table.toggleRowExpansion(row, false);
-  }
+  window.open(baseUrl + row.url, '__blank')
 }
 getList();
 </script>
