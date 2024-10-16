@@ -18,19 +18,18 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['manage:grade:add']">新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasRole="['admin']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['manage:grade:edit']">修改</el-button>
+          v-hasRole="['admin']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['manage:grade:remove']">删除</el-button>
+          v-hasRole="['admin']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport"
-          v-hasPermi="['manage:grade:export']">导出</el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasRole="['admin']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -41,7 +40,7 @@
       <el-table-column label="班级名称" align="center" prop="name">
         <template #default="scope">
           <el-button type="text" @click="getGradeStudents(scope.row)"
-            v-hasPermi="['manage:user:list']">{{ scope.row.name }}</el-button>
+            v-hasRole="['admin']">{{ scope.row.name }}</el-button>
         </template>
       </el-table-column>
       <el-table-column label="所属学院" align="center" prop="collegeId">
@@ -54,9 +53,9 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['manage:grade:edit']">修改</el-button>
+            v-hasRole="['admin']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['manage:grade:remove']">删除</el-button>
+            v-hasRole="['admin']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

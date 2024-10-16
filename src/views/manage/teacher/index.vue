@@ -21,20 +21,18 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd"
-          v-hasPermi="['manage:teacher:add']">新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasRole="['admin']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['manage:teacher:edit']">修改</el-button>
+          v-hasRole="['admin']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['manage:teacher:remove']">删除</el-button>
+          v-hasRole="['admin']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport"
-          v-hasPermi="['manage:teacher:export']">导出</el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasRole="['admin']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -46,7 +44,7 @@
       <el-table-column label="手机号码" align="center" prop="phonenumber" />
       <el-table-column label="所属学院" align="center" prop="collegeId">
         <template #default="scope">
-          <div v-for="item in collegeList" :key="item.id" >
+          <div v-for="item in collegeList" :key="item.id">
             <span v-if="scope.row.collegeId === item.id">{{ item.name }}</span>
           </div>
         </template>
@@ -54,9 +52,9 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['manage:teacher:edit']">修改</el-button>
+            v-hasRole="['admin']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['manage:teacher:remove']">删除</el-button>
+            v-hasRole="['admin']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -68,10 +66,10 @@
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="teacherRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="教师登录名" prop="userName">
-          <el-input v-model="form.userName" placeholder="请输入教师登录名" :disabled="form.userId"/>
+          <el-input v-model="form.userName" placeholder="请输入教师登录名" :disabled="form.userId" />
         </el-form-item>
         <el-form-item label="密码" prop="password" v-if="!form.userId">
-          <el-input v-model="form.password" placeholder="请输入密码" type="password" show-password/>
+          <el-input v-model="form.password" placeholder="请输入密码" type="password" show-password />
         </el-form-item>
         <el-form-item label="教师姓名" prop="nickName">
           <el-input v-model="form.nickName" placeholder="请输入教师姓名" />

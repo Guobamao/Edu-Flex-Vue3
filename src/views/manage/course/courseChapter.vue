@@ -3,7 +3,7 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Plus" @click="handleChapterAdd"
-          v-hasPermi="['manage:chapter:add']">新增</el-button>
+          v-hasRole="['admin', 'teacher']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="info" plain icon="Sort" @click="toggleExpandAll">展开/折叠</el-button>
@@ -11,9 +11,8 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-if="refreshTable"  v-loading="loading" :data="chapterList" row-key="id" lazy :load="loadMaterials"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :default-expand-all="isExpandAll"
-      @expand-change="handleExpandChange">
+    <el-table v-if="refreshTable" v-loading="loading" :data="chapterList" row-key="id" lazy :load="loadMaterials"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :default-expand-all="isExpandAll">
       <el-table-column label="章节名称" align="left" prop="name">
         <template #default="scope">
           <!-- 判断为章节 -->
@@ -34,23 +33,22 @@
       <el-table-column label="操作" align="left" width="400" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleChapterUpdate(scope.row)"
-            v-hasPermi="['manage:chapter:edit']" v-if="!scope.row.chapterId">修改章节</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">修改章节</el-button>
           <el-button link type="primary" icon="Edit" @click="handleMaterialUpdate(scope.row)"
-            v-hasPermi="['manage:material:edit']" v-else>修改资料</el-button>
+            v-hasRole="['admin', 'teacher']" v-else>修改资料</el-button>
 
-          <el-button link type="primary" icon="View" @click="getChapterInfo(scope.row)"
-            v-hasPermi="['manage:material:query']" v-if="scope.row.chapterId">查看资料</el-button>
+          <el-button link type="primary" icon="View" @click="getChapterInfo(scope.row)" v-hasRole="['admin', 'teacher']"
+            v-if="scope.row.chapterId">查看资料</el-button>
 
           <el-button link type="primary" icon="Plus" @click="handleChapterAdd(scope.row)"
-            v-hasPermi="['manage:chapter:add']" v-if="scope.row.parentId === 0 && !scope.row.chapterId">新增小节</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId === 0 && !scope.row.chapterId">新增小节</el-button>
           <el-button link type="primary" icon="Plus" @click="handleMaterialAdd(scope.row)"
-            v-hasPermi="['manage:material:add']"
-            v-if="scope.row.parentId !== 0 && !scope.row.chapterId">新增资料</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId !== 0 && !scope.row.chapterId">新增资料</el-button>
 
           <el-button link type="primary" icon="Delete" @click="handleChapterDelete(scope.row)"
-            v-hasPermi="['manage:chapter:remove']" v-if="!scope.row.chapterId">删除</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">删除</el-button>
           <el-button link type="primary" icon="Delete" @click="handleMaterialDelete(scope.row)"
-            v-hasPermi="['manage:material:remove']" v-else>删除</el-button>
+            v-hasRole="['admin', 'teacher']" v-else>删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -302,6 +300,7 @@ function submitMaterialForm() {
               }
             })
           })
+          proxy.$treeTable.refresh();
         });
       } else {
         addMaterial(materialForm.value).then(response => {
@@ -377,14 +376,6 @@ function getUploadFileList(fileList) {
 function getChapterInfo(row) {
   // 外连接跳转，只浏览，不下载
   window.open(row.url)
-}
-
-function handleExpandChange(row, expanded) {
-  // 如果为展开状态，修改为不展开
-  const table = tableRef.value;
-  if (expanded) {
-    table.toggleRowExpansion(row, false);
-  }
 }
 getList();
 </script>
