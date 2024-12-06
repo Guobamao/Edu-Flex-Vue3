@@ -42,7 +42,7 @@
             v-if="scope.row.chapterId">查看资料</el-button>
 
           <el-button link type="primary" icon="Plus" @click="handleChapterAdd(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId === 0 && !scope.row.chapterId">新增小节</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">新增小节</el-button>
           <el-button link type="primary" icon="Plus" @click="handleMaterialAdd(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId !== 0 && !scope.row.chapterId">新增资料</el-button>
 
@@ -167,7 +167,7 @@ function getList() {
 
 /** 查询课程内容章节管理下拉树结构 */
 function getTreeselect() {
-  listChapter().then(response => {
+  listChapter(queryParams.value).then(response => {
     chapterOptions.value = [];
     chapterOptions.value = proxy.handleTree(response.data, "id", "parentId");
   });
@@ -241,6 +241,7 @@ async function handleChapterUpdate(row) {
   reset();
   getTreeselect();
   if (row != null) {
+    console.log(row)
     chapterForm.value.parentId = row.parentId;
   }
   getChapter(row.id).then(response => {
@@ -248,7 +249,7 @@ async function handleChapterUpdate(row) {
     if (chapterForm.value.parentId == 0) {
       chapterForm.value.parentId = null;
     }
-    open.value = true;
+    materialOpen.value = true;
     title.value = "修改课程内容章节管理";
   });
 }
