@@ -105,6 +105,9 @@
         <el-form-item label="课程描述" prop="description">
           <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
         </el-form-item>
+        <el-form-item label="课程封面" prop="cover">
+          <image-upload v-model="form.cover" :limit="1" :file-type="['image/jpeg', 'image/png']" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">

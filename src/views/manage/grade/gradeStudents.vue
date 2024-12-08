@@ -199,6 +199,7 @@ const data = reactive({
     phonenumber: null,
     sex: null,
     gradeId: route.params && route.params.gradeId,
+    collegeId: route.query && route.query.collegeId,
   },
   rules: {
     userName: [{ required: true, message: "学号不能为空", trigger: "blur" }],
@@ -232,7 +233,7 @@ function cancel() {
 function reset() {
   form.value = {
     stuId: null,
-    collegeId: null,
+    collegeId: route.query && route.query.collegeId,
     collegeName: null,
     gradeId: route.params && route.params.gradeId,
     gradeName: null,
@@ -277,7 +278,7 @@ function handleAdd() {
 function handleUpdate(row) {
   reset();
   const _stuId = row.id
-  getStudent(_id).then(response => {
+  getStudent(_stuId).then(response => {
     form.value = response.data;
     open.value = true;
     title.value = "修改学生信息";
@@ -289,7 +290,7 @@ function handleUpdate(row) {
 function submitForm() {
   proxy.$refs["studentRef"].validate(valid => {
     if (valid) {
-      if (form.value.stuId != undefined) {
+      if (form.value.id != undefined) {
         updateStudent(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;

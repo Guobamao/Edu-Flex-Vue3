@@ -2,10 +2,8 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" @submit.prevent>
       <el-form-item label="所属学院" prop="collegeId">
-        <el-select v-model="queryParams.collegeId" placeholder="请选择所属学院" clearable style="width: 200px;"
-          @change="handleQuery" @clear="handleQuery">
-          <el-option v-for="item in collegeList" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
+        <el-tree-select v-model="queryParams.collegeId" :data="collegeOptions" style="width: 250px;" filterable clearable
+          :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择所属学院" />
       </el-form-item>
       <el-form-item label="教师姓名" prop="nickName">
         <el-input v-model="queryParams.nickName" placeholder="请输入教师姓名" clearable @keyup.enter="handleQuery" />
@@ -118,6 +116,7 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+const collegeOptions = ref([]);
 
 const data = reactive({
   form: {},
@@ -272,6 +271,9 @@ function getCollegeList() {
     // 过滤掉根节点
     collegeList.value = response.rows.filter(item => item.parentId !== 0);
   });
+  listCollege().then(res => {
+    collegeOptions.value = proxy.handleTree(res.rows, 'id')
+  })
 }
 getCollegeList();
 getList();

@@ -2,10 +2,8 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" @submit.prevent>
       <el-form-item label="所属学院" prop="collegeId">
-        <el-select v-model="queryParams.collegeId" placeholder="请选择所属学院" clearable style="width: 240px;"
-          @change="handleQuery">
-          <el-option v-for="item in collegeList" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
+        <el-tree-select v-model="queryParams.collegeId" :data="collegeOptions" style="width: 250px;" filterable clearable
+          :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择所属学院" />
       </el-form-item>
       <el-form-item label="班级名称" prop="name">
         <el-input v-model="queryParams.name" placeholder="请输入班级名称" clearable @keyup.enter="handleQuery" />
@@ -95,6 +93,7 @@ const { proxy } = getCurrentInstance();
 const router = useRouter();
 
 const gradeList = ref([]);
+const collegeOptions = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -237,11 +236,14 @@ function getCollegeList() {
     // 过滤掉根节点
     collegeList.value = response.rows.filter(item => item.parentId !== 0);
   })
+  listCollege().then(res => {
+    collegeOptions.value = proxy.handleTree(res.rows, 'id')
+  })
 }
 
 function getGradeStudents(row) {
   const _gradeId = row.id;
-  router.push("/base/grade-students/" + _gradeId);
+  router.push({ path: "/base/grade-students/" + _gradeId, query: { collegeId: row.collegeId }});
 }
 
 getCollegeList();

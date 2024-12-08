@@ -241,15 +241,15 @@ async function handleChapterUpdate(row) {
   reset();
   getTreeselect();
   if (row != null) {
-    console.log(row)
     chapterForm.value.parentId = row.parentId;
   }
-  getChapter(row.id).then(response => {
-    chapterForm.value = response.data;
+  getChapter(row.id).then(res => {
+    chapterForm.value = res.data;
+    console.log(chapterForm.value)
     if (chapterForm.value.parentId == 0) {
       chapterForm.value.parentId = null;
     }
-    materialOpen.value = true;
+    chapterOpen.value = true;
     title.value = "修改课程内容章节管理";
   });
 }

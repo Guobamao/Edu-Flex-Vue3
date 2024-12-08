@@ -169,7 +169,8 @@ export const dynamicRoutes = [
         path: ':gradeId(\\d+)',
         component: () => import('@/views/manage/grade/gradeStudents'),
         name: 'GradeStudent',
-        meta: { title: '班级学生', activeMenu: '/base/grade' }
+        meta: { title: '班级学生', activeMenu: '/base/grade' },
+        params: true
       }
     ]
   },

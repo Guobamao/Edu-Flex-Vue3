@@ -192,6 +192,7 @@ function handleQuery() {
 /** 重置按钮操作 */
 function resetQuery() {
   proxy.resetForm("queryRef");
+  dateRange.value = [];
   handleQuery();
 }
 
