@@ -11,9 +11,9 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table ref="tableRef" v-if="refreshTable" v-loading="loading" :data="chapterList" row-key="id" lazy
-      :load="loadMaterials" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-      :default-expand-all="isExpandAll">
+    <el-table v-if="refreshTable"  v-loading="loading" :data="chapterList" row-key="id" lazy :load="loadMaterials"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :default-expand-all="isExpandAll"
+      @expand-change="handleExpandChange">
       <el-table-column label="章节名称" align="left" prop="name">
         <template #default="scope">
           <!-- 判断为章节 -->
@@ -42,7 +42,7 @@
             v-if="scope.row.chapterId">查看资料</el-button>
 
           <el-button link type="primary" icon="Plus" @click="handleChapterAdd(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">新增小节</el-button>
+            v-hasPermi="['manage:chapter:add']" v-if="scope.row.parentId === 0 && !scope.row.chapterId">新增小节</el-button>
           <el-button link type="primary" icon="Plus" @click="handleMaterialAdd(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId !== 0 && !scope.row.chapterId">新增资料</el-button>
 
@@ -293,7 +293,19 @@ function submitMaterialForm() {
         updateMaterial(materialForm.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           materialOpen.value = false;
-          refreshTableData(materialForm.value.chapterId);
+          getList();
+          // 重新获取资料数据
+          listMaterial({ chapterId: materialForm.value.chapterId }).then(response => {
+            response.rows.map(item => {
+              item.id = item.id + '-' + materialForm.value.chapterId
+            })
+            // 过滤出ChapterList中id = chapterId的数据并设置其children
+            chapterList.value.map(item => {
+              if (item.id == materialForm.value.chapterId) {
+                item.children = response.rows
+              }
+            })
+          })
         });
       } else {
         addMaterial(materialForm.value).then(response => {
@@ -390,7 +402,16 @@ function getUploadFileList(fileList) {
 }
 
 function getChapterInfo(row) {
-  window.open(baseUrl + row.url, '__blank')
+  // 外连接跳转，只浏览，不下载
+  window.open(row.url)
+}
+
+function handleExpandChange(row, expanded) {
+  // 如果为展开状态，修改为不展开
+  const table = tableRef.value;
+  if (expanded) {
+    table.toggleRowExpansion(row, false);
+  }
 }
 getList();
 </script>
