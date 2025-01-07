@@ -46,6 +46,10 @@ import DictTag from '@/components/DictTag'
 
 const app = createApp(App)
 
+// 全局变量挂在
+app.config.globalProperties.$uploadUrl = import.meta.env.VITE_APP_BASE_API + "/common/upload"
+app.config.globalProperties.$previewUrl = import.meta.env.VITE_APP_BASE_API + "/common/preview/"
+
 // 全局方法挂载
 app.config.globalProperties.useDict = useDict
 app.config.globalProperties.download = download

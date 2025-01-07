@@ -11,7 +11,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-if="refreshTable"  v-loading="loading" :data="chapterList" row-key="id" lazy :load="loadMaterials"
+    <el-table v-if="refreshTable" v-loading="loading" :data="chapterList" row-key="id" lazy :load="loadMaterials"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :default-expand-all="isExpandAll"
       @expand-change="handleExpandChange">
       <el-table-column label="章节名称" align="left" prop="name">
@@ -42,10 +42,9 @@
             v-if="scope.row.chapterId">查看资料</el-button>
 
           <el-button link type="primary" icon="Plus" @click="handleChapterAdd(scope.row)"
-            v-hasPermi="['manage:chapter:add']" v-if="scope.row.parentId === 0 && !scope.row.chapterId">新增小节</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId === '0' && !scope.row.chapterId">新增小节</el-button>
           <el-button link type="primary" icon="Plus" @click="handleMaterialAdd(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId !== 0 && !scope.row.chapterId">新增资料</el-button>
-
+            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId !== '0' && !scope.row.chapterId">新增资料</el-button>
           <el-button link type="primary" icon="Delete" @click="handleChapterDelete(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">删除</el-button>
           <el-button link type="primary" icon="Delete" @click="handleMaterialDelete(scope.row)"
@@ -87,8 +86,8 @@
         <el-form-item label="资料名称" prop="name">
           <el-input v-model="materialForm.name" placeholder="请输入资料名称" />
         </el-form-item>
-        <el-form-item label="上传文件" prop="url">
-          <file-upload v-model="materialForm.url" @fileList="getUploadFileList" />
+        <el-form-item label="上传文件" prop="fileId">
+          <file-upload v-model="materialForm.fileId" @fileList="getUploadFileList" />
         </el-form-item>
         <el-form-item label="文件类型" prop="materialType">
           <el-select v-model="materialForm.materialType" placeholder="请选择文件类型">
@@ -113,7 +112,6 @@ import { listMaterial, getMaterial, delMaterial, addMaterial, updateMaterial } f
 
 const { proxy } = getCurrentInstance();
 const route = useRoute();
-const baseUrl = import.meta.env.VITE_APP_BASE_API;
 
 const { material_type } = proxy.useDict("material_type");
 
@@ -145,7 +143,7 @@ const data = reactive({
     name: [
       { required: true, message: "资料名称不能为空", trigger: "blur" }
     ],
-    url: [
+    fileId: [
       { required: true, message: "链接不能为空", trigger: "blur" }
     ],
     materialType: [
@@ -198,7 +196,7 @@ function reset() {
     id: null,
     chapterId: null,
     name: null,
-    url: null
+    fileId: null
   }
   proxy.resetForm("materialRef");
   proxy.resetForm("chapterRef");
@@ -369,7 +367,11 @@ function refreshTableData(chapterId) {
 }
 // 获取子组件传出的上传文件列表
 function getUploadFileList(fileList) {
+  console.log("fileList", fileList)
   const file = fileList[0];
+  if (!materialForm.value.name) {
+    materialForm.value.name = file.name;
+  }
   const fileType = file.name.split('.').pop().toLowerCase();
   switch (fileType) {
     // 图片类型
@@ -402,8 +404,7 @@ function getUploadFileList(fileList) {
 }
 
 function getChapterInfo(row) {
-  // 外连接跳转，只浏览，不下载
-  window.open(row.url)
+  console.log(row)
 }
 
 function handleExpandChange(row, expanded) {

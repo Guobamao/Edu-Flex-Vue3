@@ -2,7 +2,7 @@
   <div class="component-upload-image">
     <el-upload
       multiple
-      :action="uploadImgUrl"
+      :action="$uploadUrl"
       list-type="picture-card"
       :on-success="handleUploadSuccess"
       :before-upload="handleBeforeUpload"
@@ -79,7 +79,6 @@ const uploadList = ref([]);
 const dialogImageUrl = ref("");
 const dialogVisible = ref(false);
 const baseUrl = import.meta.env.VITE_APP_BASE_API;
-const uploadImgUrl = ref(import.meta.env.VITE_APP_BASE_API + "/common/upload"); // 上传的图片服务器地址
 const headers = ref({ Authorization: "Bearer " + getToken() });
 const fileList = ref([]);
 const showTip = computed(
@@ -93,11 +92,9 @@ watch(() => props.modelValue, val => {
     // 然后将数组转为对象数组
     fileList.value = list.map(item => {
       if (typeof item === "string") {
-        if (item.indexOf(baseUrl) === -1) {
-          item = { name: baseUrl + item, url: baseUrl + item };
-        } else {
-          item = { name: item, url: item };
-        }
+        console.log("is String")
+        item = { name: item, url: proxy.$previewUrl + item }
+        console.log(item);
       }
       return item;
     });
@@ -148,7 +145,7 @@ function handleExceed() {
 // 上传成功回调
 function handleUploadSuccess(res, file) {
   if (res.code === 200) {
-    uploadList.value.push({ name: res.fileName, url: res.fileName });
+    uploadList.value.push({ id: res.fileId, name: file.name, url: file.url });
     uploadedSuccessfully();
   } else {
     number.value--;
@@ -197,8 +194,8 @@ function listToString(list, separator) {
   let strs = "";
   separator = separator || ",";
   for (let i in list) {
-    if (undefined !== list[i].url && list[i].url.indexOf("blob:") !== 0) {
-      strs += list[i].url.replace(baseUrl, "") + separator;
+    if (undefined !== list[i].url) {
+      strs += list[i].id + separator;
     }
   }
   return strs != "" ? strs.substr(0, strs.length - 1) : "";
