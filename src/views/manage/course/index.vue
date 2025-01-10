@@ -4,6 +4,10 @@
       <el-form-item label="课程名称" prop="name">
         <el-input v-model="queryParams.name" placeholder="请输入课程名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
+      <el-form-item label="课程分类" prop="categoryId">
+        <el-tree-select v-model="queryParams.categoryId" :data="categoryOptions" style="width: 200px;" filterable clearable
+          :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择课程分类" check-strictly />
+      </el-form-item>
       <el-form-item label="时间范围">
         <el-date-picker clearable v-model="dateRange" value-format="YYYY-MM-DD" type="daterange" range-separator="-"
           start-placeholder="开始日期" end-placeholder="结束日期">
@@ -36,6 +40,11 @@
     <el-table v-loading="loading" :data="courseList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
+      <el-table-column label="课程封面" align="center" prop="cover">
+        <template #default="scope">
+          <img :src="scope.row.cover" width="40%" height="10%" />
+        </template>
+      </el-table-column>
       <el-table-column label="课程名称" align="center" prop="name">
         <template #default="scope">
           <el-button type="text" @click="getCourseChapters(scope.row)"
@@ -46,6 +55,13 @@
         <template #default="scope">
           <div v-for="item in teacherList" :key="item.userId">
             <span v-if="scope.row.teacherId === item.userId">{{ item.nickName }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="课程分类" align="center" prop="categoryId">
+        <template #default="scope">
+          <div v-for="item in categoryList" :key="item.id">
+            <span v-if="scope.row.categoryId === item.id">{{ item.name }}</span>
           </div>
         </template>
       </el-table-column>
@@ -82,6 +98,10 @@
       <el-form ref="courseRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="课程名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入课程名称" />
+        </el-form-item>
+        <el-form-item label="课程分类" prop="categoryId">
+          <el-tree-select v-model="form.categoryId" :data="categoryOptions"
+            :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择课程分类" />
         </el-form-item>
         <el-form-item label="任课老师" prop="teacherId">
           <el-select v-model=form.teacherId placeholder="请选择任课老师" clearable>
@@ -123,12 +143,14 @@
 import { listCourse, getCourse, delCourse, addCourse, updateCourse } from "@/api/manage/course";
 import { listTeacher } from "@/api/manage/teacher";
 import { loadAllParams } from '@/api/page';
+import { listCategory } from "@/api/manage/category";
 
 const router = useRouter();
 const { proxy } = getCurrentInstance();
 const { course_status } = proxy.useDict("course_status");
 
 const courseList = ref([]);
+const categoryOptions = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -146,6 +168,7 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     name: null,
+    categoryId: null,
     startTime: null,
     endTime: null,
     status: null,
@@ -156,6 +179,9 @@ const data = reactive({
     ],
     teacherId: [
       { required: true, message: "任课老师不能为空", trigger: "blur" }
+    ],
+    categoryId: [
+      { required: true, message: "课程分类不能为空", trigger: "blur" }
     ],
     startTime: [
       { required: true, message: "开始时间不能为空", trigger: "blur" }
@@ -181,6 +207,9 @@ function getList() {
   }
   listCourse(queryParams.value).then(response => {
     courseList.value = response.rows;
+    courseList.value.forEach(item => {
+      item.cover = proxy.$previewUrl + item.cover
+    })
     total.value = response.total;
     loading.value = false;
   });
@@ -231,6 +260,7 @@ function handleSelectionChange(selection) {
 /** 新增按钮操作 */
 function handleAdd() {
   reset();
+  getTreeselect()
   open.value = true;
   title.value = "添加课程管理";
 }
@@ -238,6 +268,7 @@ function handleAdd() {
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
+  getTreeselect()
   const _id = row.id || ids.value
   getCourse(_id).then(response => {
     form.value = response.data;
@@ -299,10 +330,28 @@ function handleDateChange(value) {
   }
 }
 
+// 跳转到课程章节
 function getCourseChapters(row) {
   const _courseId = row.id;
   router.push("/base/course-chapters/" + _courseId);
 }
+
+/** 查询课程分类下拉树结构 */
+function getTreeselect() {
+  listCategory().then(response => {
+    categoryOptions.value = proxy.handleTree(response.rows, "id");
+  });
+}
+
+const categoryList = ref([]);
+function getCategoryList() {
+  listCategory().then(response => {
+    categoryList.value = response.rows;
+  })
+}
+
 getTeacherList();
+getTreeselect();
+getCategoryList();
 getList();
 </script>

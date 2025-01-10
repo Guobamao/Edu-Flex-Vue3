@@ -5,15 +5,12 @@
         <el-button type="primary" plain icon="Plus" @click="handleChapterAdd"
           v-hasRole="['admin', 'teacher']">新增</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button type="info" plain icon="Sort" @click="toggleExpandAll">展开/折叠</el-button>
-      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-if="refreshTable" v-loading="loading" :data="chapterList" row-key="id" lazy :load="loadMaterials"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :default-expand-all="isExpandAll"
-      @expand-change="handleExpandChange">
+    <el-table ref="tableRef" v-if="refreshTable" v-loading="loading" :data="chapterList" row-key="id" lazy
+      :load="loadMaterials" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      @row-click="handleRowClick">
       <el-table-column label="章节名称" align="left" prop="name">
         <template #default="scope">
           <!-- 判断为章节 -->
@@ -33,21 +30,21 @@
       </el-table-column>
       <el-table-column label="操作" align="left" width="400" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleChapterUpdate(scope.row)"
+          <el-button link type="primary" icon="Edit" @click.stop="handleChapterUpdate(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">修改章节</el-button>
-          <el-button link type="primary" icon="Edit" @click="handleMaterialUpdate(scope.row)"
+          <el-button link type="primary" icon="Edit" @click.stop="handleMaterialUpdate(scope.row)"
             v-hasRole="['admin', 'teacher']" v-else>修改资料</el-button>
 
-          <el-button link type="primary" icon="View" @click="getChapterInfo(scope.row)" v-hasRole="['admin', 'teacher']"
-            v-if="scope.row.chapterId">查看资料</el-button>
+          <el-button link type="primary" icon="View" @click.stop="getChapterInfo(scope.row)"
+            v-hasRole="['admin', 'teacher']" v-if="scope.row.chapterId">查看资料</el-button>
 
-          <el-button link type="primary" icon="Plus" @click="handleChapterAdd(scope.row)"
+          <el-button link type="primary" icon="Plus" @click.stop="handleChapterAdd(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId === '0' && !scope.row.chapterId">新增小节</el-button>
-          <el-button link type="primary" icon="Plus" @click="handleMaterialAdd(scope.row)"
+          <el-button link type="primary" icon="Plus" @click.stop="handleMaterialAdd(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId !== '0' && !scope.row.chapterId">新增资料</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleChapterDelete(scope.row)"
+          <el-button link type="primary" icon="Delete" @click.stop="handleChapterDelete(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">删除</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleMaterialDelete(scope.row)"
+          <el-button link type="primary" icon="Delete" @click.stop="handleMaterialDelete(scope.row)"
             v-hasRole="['admin', 'teacher']" v-else>删除</el-button>
         </template>
       </el-table-column>
@@ -59,7 +56,7 @@
         <el-form-item label="父级章节" prop="parentId">
           <el-tree-select v-model="chapterForm.parentId" :data="chapterOptions"
             :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择父级章节"
-            check-strictly />
+            check-strictly clearable />
         </el-form-item>
         <el-form-item label="章节名称" prop="name">
           <el-input v-model="chapterForm.name" placeholder="请输入章节名称" />
@@ -103,6 +100,11 @@
         </div>
       </template>
     </el-dialog>
+
+    <div class="demo-image__preview">
+      <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
+        :url-list="previewList" />
+    </div>
   </div>
 </template>
 
@@ -122,7 +124,6 @@ const materialOpen = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
 const title = ref("");
-const isExpandAll = ref(false);
 const refreshTable = ref(true);
 
 const tableRef = ref(null);
@@ -152,13 +153,16 @@ const data = reactive({
   }
 });
 
+const showViewer = ref(false);
+const previewList = ref([])
+
 const { queryParams, chapterForm, materialForm, rules } = toRefs(data);
 
 /** 查询课程内容章节管理列表 */
 function getList() {
   loading.value = true;
   listChapter(queryParams.value).then(response => {
-    chapterList.value = proxy.handleTree(response.data, "id", "parentId");
+    chapterList.value = response.data
     loading.value = false;
   });
 }
@@ -223,15 +227,6 @@ function handleMaterialAdd(row) {
   }
   materialOpen.value = true;
   title.value = "添加课程资料";
-}
-
-/** 展开/折叠操作 */
-function toggleExpandAll() {
-  refreshTable.value = false;
-  isExpandAll.value = !isExpandAll.value;
-  nextTick(() => {
-    refreshTable.value = true;
-  });
 }
 
 /** 修改按钮操作 */
@@ -341,14 +336,12 @@ function handleMaterialDelete(row) {
 const maps = new Map();
 function loadMaterials(row, treeNode, resolve) {
   const _chapterId = row.id;
+
   // 懒加载时，将数据存储到maps中
   maps.set(_chapterId, { row, treeNode, resolve });
 
   listMaterial({ chapterId: _chapterId }).then(response => {
     if (response.rows.length > 0) {
-      response.rows.forEach(item => {
-        item.id = item.id + '-' + _chapterId
-      })
       resolve(response.rows)
     } else {
       tableRef.value.store.states.lazyTreeNodeMap.value[_chapterId] = []
@@ -367,7 +360,6 @@ function refreshTableData(chapterId) {
 }
 // 获取子组件传出的上传文件列表
 function getUploadFileList(fileList) {
-  console.log("fileList", fileList)
   const file = fileList[0];
   if (!materialForm.value.name) {
     materialForm.value.name = file.name;
@@ -403,15 +395,24 @@ function getUploadFileList(fileList) {
   }
 }
 
+// 查看资料
 function getChapterInfo(row) {
-  console.log(row)
+  if (row.materialType === '1') {
+    // 图片类型
+    previewList.value = [proxy.$previewUrl + row.fileId]
+    showViewer.value = true
+  }
 }
 
-function handleExpandChange(row, expanded) {
-  // 如果为展开状态，修改为不展开
-  const table = tableRef.value;
-  if (expanded) {
-    table.toggleRowExpansion(row, false);
+function handleRowClick(row, column, event) {
+  row.expanded = !row.expanded;
+  if (row.hasChildren) {
+    const expandBtn = event.currentTarget.querySelector('.el-table__expand-icon')
+    if (expandBtn) {
+      expandBtn.click()
+    }
+  } else {
+    tableRef.value.toggleRowExpansion(row, row.expanded)
   }
 }
 getList();
