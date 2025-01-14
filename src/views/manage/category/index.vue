@@ -12,15 +12,13 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd"
-          v-hasPermi="['Category:category:add']">新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasRole="['admin']">新增</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-if="refreshTable" v-loading="loading" :data="categoryList" row-key="id" ref="tableRef"
-    :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-      @row-click="handleRowClick">
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" @row-click="handleRowClick">
       <el-table-column label="分类名称" prop="name" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template #default="scope">
@@ -30,11 +28,10 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['Category:category:edit']">修改</el-button>
-          <el-button link type="primary" icon="Plus" @click="handleAdd(scope.row)"
-            v-hasPermi="['Category:category:add']">新增</el-button>
+            v-hasRole="['admin']">修改</el-button>
+          <el-button link type="primary" icon="Plus" @click="handleAdd(scope.row)" v-hasRole="['admin']">新增</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['Category:category:remove']">删除</el-button>
+            v-hasRole="['admin']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
