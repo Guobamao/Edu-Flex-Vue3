@@ -2,20 +2,24 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="关联课程" prop="courseId">
-        <el-select v-model="queryParams.courseId" placeholder="请选择关联课程" clearable @change="getKnowledgeList"
+        <el-select v-model="queryParams.courseId" placeholder="请选择关联课程" clearable @change="handleQuery"
           style="width: 150px;">
           <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
-      </el-form-item>
-      <el-form-item label="知识点" prop="knowledgeId" v-if="queryParams.courseId !== null && queryParams.courseId !== undefined">
-        <el-tree-select v-model="queryParams.knowledgeId" :data="knowledgeList" filterable clearable
-          :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择关联知识点"
-          check-strictly @change="handleQuery" style="width: 200px;" />
       </el-form-item>
       <el-form-item label="题目类型" prop="type" style="width: 250px;">
         <el-select v-model="queryParams.type" placeholder="请选择题目类型" clearable @change="handleQuery">
           <el-option v-for="dict in question_type" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
+      </el-form-item>
+      <el-form-item label="难易程度" prop="difficulty" style="width: 250px;">
+        <el-select v-model="queryParams.difficulty" placeholder="请选择难易程度" clearable @change="handleQuery">
+          <el-option v-for="dict in question_difficulty" :key="dict.value" :label="dict.label" :value="dict.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="题目内容" prop="title" style="width: 250px;">
+        <el-input v-model="queryParams.title" placeholder="请输入题目内容" clearable @keyup.enter="handleQuery"
+          style="width: 200px;" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -53,6 +57,11 @@
       </el-table-column>
       <el-table-column label="正确答案" align="center" prop="answer" show-overflow-tooltip />
       <el-table-column label="答案解析" align="center" prop="analysis" show-overflow-tooltip />
+      <el-table-column label="难易程度" align="center" prop="difficulty">
+        <template #default="scope">
+          <dict-tag :options="question_difficulty" :value="scope.row.difficulty" />
+        </template>
+      </el-table-column>
       <el-table-column label="关联课程" align="center" prop="courseId">
         <template #default="scope">
           <div v-for="item in courseOptions" :key="item.id">
@@ -82,7 +91,7 @@
         <el-form-item label="题目类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择题目类型" @change="handleTypeChange">
             <el-option v-for="dict in question_type" :key="dict.value" :label="dict.label"
-              :value="parseInt(dict.value)"></el-option>
+              :value="parseInt(dict.value)" />
           </el-select>
         </el-form-item>
         <el-form-item v-if="showOptions" label="题目选项" prop="options">
@@ -120,16 +129,15 @@
         <el-form-item label="答案解析" prop="analysis">
           <el-input v-model="form.analysis" type="textarea" placeholder="请输入答案解析" />
         </el-form-item>
-        <el-form-item label="关联课程" prop="courseId">
-          <el-select v-model="form.courseId" placeholder="请选择关联课程" clearable @change="handleCourseChange">
-            <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id">
-            </el-option>
+        <el-form-item label="难易程度" prop="difficulty">
+          <el-select v-model="form.difficulty" placeholder="请选择难易程度">
+            <el-option v-for="dict in question_difficulty" :key="dict.value" :label="dict.label" :value="parseInt(dict.value)" />
           </el-select>
         </el-form-item>
-        <el-form-item label="关联知识点" prop="knowledgeId" v-if="form.courseId !== null">
-          <el-tree-select v-model="form.knowledgeId" :data="knowledgeOptions" filterable clearable
-            :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择关联知识点"
-            check-strictly />
+        <el-form-item label="关联课程" prop="courseId">
+          <el-select v-model="form.courseId" placeholder="请选择关联课程" clearable>
+            <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -145,12 +153,12 @@
 <script setup name="Question">
 import { listQuestion, getQuestion, delQuestion, addQuestion, updateQuestion } from "@/api/manage/question";
 import { listCourse } from '@/api/manage/course';
-import { listKnowledge } from '@/api/manage/knowledge';
 import { loadAllParams } from '@/api/page';
 import { computed } from "vue";
 
 const { proxy } = getCurrentInstance();
 const { question_type } = proxy.useDict('question_type');
+const { question_difficulty } = proxy.useDict('question_difficulty');
 
 const questionList = ref([]);
 const open = ref(false);
@@ -169,8 +177,8 @@ const data = reactive({
     pageSize: 10,
     title: null,
     type: null,
-    knowledgeId: null,
     courseId: null,
+    difficulty: null
   },
   rules: {
     title: [
@@ -182,15 +190,18 @@ const data = reactive({
     answer: [
       { required: true, message: "正确答案不能为空", trigger: "change" }
     ],
+    difficulty: [
+      { required: true, message: "难易程度不能为空", trigger: "change" }
+    ],
+    courseId: [
+      { required: true, message: "关联课程不能为空", trigger: "change" }
+    ]
   }
 });
 
 const { queryParams, form, rules } = toRefs(data);
 
 const courseOptions = ref([]);
-
-const knowledgeOptions = ref([]);
-const knowledgeList = ref([]);
 
 const showOptions = computed(() => {
   return [1, 2].includes(parseInt(form.value.type))
@@ -220,13 +231,8 @@ function reset() {
     options: [],
     answer: [],
     analysis: null,
-    knowledgeId: null,
     courseId: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
-    deleted: null
+    difficulty: null
   };
   proxy.resetForm("questionRef");
 }
@@ -267,13 +273,6 @@ function handleUpdate(row) {
     form.value.type = parseInt(form.value.type)
     form.value.answer = form.value.type === 2 ? JSON.parse(form.value.answer) : JSON.parse(form.value.answer)[0];
 
-    const params = {
-      courseId: form.value.courseId,
-      ...loadAllParams
-    }
-    listKnowledge(params).then(res => {
-      knowledgeOptions.value = res.data
-    })
     open.value = true;
     title.value = "修改题目管理";
   });
@@ -349,28 +348,6 @@ function handleTypeChange() {
   }
 }
 
-// 关联课程改变
-function handleCourseChange() {
-  form.value.knowledgeId = null
-  const params = {
-    courseId: form.value.courseId,
-    ...loadAllParams
-  }
-  listKnowledge(params).then(res => {
-    knowledgeOptions.value = res.data
-  })
-}
-
-function getKnowledgeList() {
-  const params = {
-    courseId: queryParams.value.courseId,
-    ...loadAllParams
-  }
-  listKnowledge(params).then(res => {
-    knowledgeList.value = res.data
-  })
-  handleQuery()
-}
 getList();
 getCourseList();
 </script>
