@@ -35,10 +35,9 @@
     <el-table v-loading="loading" :data="gradeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
-      <el-table-column label="班级名称" align="center" prop="name">
+      <el-table-column label="班级名称" align="center" prop="name" show-overflow-tooltip>
         <template #default="scope">
-          <el-button type="text" @click="getGradeStudents(scope.row)"
-            v-hasRole="['admin']">{{ scope.row.name }}</el-button>
+          <el-link type="primary" @click="getGradeStudents(scope.row)" v-hasRole="['admin']">{{ scope.row.name }}</el-link>
         </template>
       </el-table-column>
       <el-table-column label="所属学院" align="center" prop="collegeId">

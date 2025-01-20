@@ -187,6 +187,19 @@ export const dynamicRoutes = [
         meta: { title: '课程章节管理', active: '/base/course' }
       }
     ]
+  },
+  {
+    path: '/base/paper-compose',
+    hidden: true,
+    permissions: ['manage:paper:list'],
+    children: [
+      {
+        path: ':paperId(\\d+)',
+        component: () => import('@/views/manage/paper/paperCompose'),
+        name: 'PaperCompose',
+        meta: { title: '试卷试题管理', active: '/base/paper' }
+      }
+    ]
   }
 ]
 

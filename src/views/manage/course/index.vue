@@ -47,8 +47,7 @@
       </el-table-column>
       <el-table-column label="课程名称" align="center" prop="name">
         <template #default="scope">
-          <el-button type="text" @click="getCourseChapters(scope.row)"
-            v-hasRole="['admin', 'teacher']">{{ scope.row.name }}</el-button>
+          <el-link type="primary" @click="getCourseChapters(scope.row)" v-hasRole="['admin', 'teacher']">{{ scope.row.name }}</el-link>
         </template>
       </el-table-column>
       <el-table-column label="任课老师" align="center" prop="teacherId">
@@ -321,13 +320,6 @@ function getTeacherList() {
   listTeacher(loadAllParams).then(resposne => {
     teacherList.value = resposne.rows;
   })
-}
-
-function handleDateChange(value) {
-  if (value) {
-    queryParams.value.startTime = value[0];
-    queryParams.value.endTime = value[1];
-  }
 }
 
 // 跳转到课程章节

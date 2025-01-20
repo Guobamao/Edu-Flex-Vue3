@@ -34,11 +34,19 @@
 
     <el-table v-loading="loading" :data="paperList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="试卷ID" align="center" prop="id" />
-      <el-table-column label="试卷名称" align="center" prop="title" />
+      <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
+      <el-table-column label="试卷名称" align="center" prop="title">
+        <template #default="scope">
+          <el-link type="primary" @click="goToCompose(scope.row)" v-hasRole="['admin', 'teacher']">{{ scope.row.title }}</el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="总分" align="center" prop="totalScore" />
       <el-table-column label="考试时长" align="center" prop="duration" />
-      <el-table-column label="是否发布" align="center" prop="isPublished" />
+      <el-table-column label="是否发布" align="center" prop="isPublished">
+        <template #default="scope">
+          <dict-tag :options="paper_published" :value="scope.row.isPublished" />
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -65,7 +73,9 @@
           <el-input v-model="form.duration" placeholder="请输入考试时长" />
         </el-form-item>
         <el-form-item label="是否发布" prop="isPublished">
-          <el-input v-model="form.isPublished" placeholder="请输入是否发布" />
+          <el-select v-model="form.isPublished" placeholder="请选择是否发布" clearable>
+            <el-option v-for="dict in paper_published" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -80,9 +90,12 @@
 
 <script setup name="Paper">
 import { listPaper, getPaper, delPaper, addPaper, updatePaper } from "@/api/manage/paper";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const { proxy } = getCurrentInstance();
 
+const { paper_published } = proxy.useDict('paper_published')
 const paperList = ref([]);
 const open = ref(false);
 const loading = ref(true);
@@ -226,6 +239,11 @@ function handleExport() {
   proxy.download('manage/paper/export', {
     ...queryParams.value
   }, `paper_${new Date().getTime()}.xlsx`)
+}
+
+function goToCompose(row) {
+  const _paperId = row.id
+  router.push("/base/paper-compose/" + _paperId);
 }
 
 getList();

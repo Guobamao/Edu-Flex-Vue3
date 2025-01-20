@@ -42,3 +42,20 @@ export function delPaper(id) {
     method: 'delete'
   })
 }
+
+// 组卷——添加题目
+export function addPaperQuestion(data) {
+  return request({
+    url: '/manage/paper/question',
+    method: 'post',
+    data: data
+  })
+}
+
+// 获取试卷题目列表
+export function getPaperQuestions(id) {
+  return request({
+    url: '/manage/paper/question/' + id,
+    method: 'get'
+  })
+}
