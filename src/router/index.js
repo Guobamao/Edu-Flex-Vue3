@@ -185,6 +185,34 @@ export const dynamicRoutes = [
         meta: { title: '试卷试题管理', active: '/base/paper' }
       }
     ]
+  },
+  {
+    path: '/base/user-comments',
+    hidden: true,
+    component: Layout,
+    permissions: ['manage:comment:list'],
+    children: [
+      {
+        path: ':userId(\\d+)',
+        component: () => import('@/views/manage/comments/userComments'),
+        name: 'UserComments',
+        meta: { title: '用户评论管理', active: '/base/comment' }
+      }
+    ]
+  },
+  {
+    path: '/base/course-comments',
+    hidden: true,
+    component: Layout,
+    permissions: ['manage:comment:list'],
+    children: [
+      {
+        path: ':courseId(\\d+)',
+        component: () => import('@/views/manage/comments/courseComments'),
+        name: 'CourseComments',
+        meta: { title: '课程评论管理', active: '/base/comment' }
+      }
+    ]
   }
 ]
 
