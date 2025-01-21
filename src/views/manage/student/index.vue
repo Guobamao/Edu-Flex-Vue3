@@ -1,16 +1,6 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" @submit.prevent>
-      <el-form-item label="所属学院" prop="collegeId">
-        <el-tree-select v-model="queryParams.collegeId" :data="collegeOptions" style="width: 250px;" filterable clearable
-          :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择所属学院" />
-      </el-form-item>
-      <el-form-item label="所属班级" prop="gradeId">
-        <el-select v-model="queryParams.gradeId" placeholder="请选择所属班级" clearable style="width: 240px;"
-          @change="handleQuery" @clear="handleQuery">
-          <el-option v-for="item in gradeList" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
-      </el-form-item>
       <el-form-item label="登录名" prop="userName">
         <el-input v-model="queryParams.userName" placeholder="请输入学生登录名" clearable @keyup.enter="handleQuery" />
       </el-form-item>
@@ -46,20 +36,8 @@
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
       <el-table-column label="登录名" align="center" prop="userName" />
       <el-table-column label="学生姓名" align="center" prop="nickName" />
-      <el-table-column label="所属学院" align="center" prop="collegeId">
-        <template #default="scope">
-          <div v-for="item in collegeList" :key="item.id">
-            <span v-if="scope.row.collegeId === item.id">{{ item.name }}</span>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="所属班级" align="center" prop="gradeId">
-        <template #default="scope">
-          <div v-for="item in gradeList" :key="item.id">
-            <span v-if="scope.row.gradeId === item.id">{{ item.name }}</span>
-          </div>
-        </template>
-      </el-table-column>
+      <el-table-column label="手机号码" align="center" prop="phonenumber" />
+      <el-table-column label="邮箱" align="center" prop="email" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="300">
         <template #default="scope">
           <el-button link type="primary" icon="View" @click="getStudentInfo(scope.row)"
@@ -87,16 +65,6 @@
         </el-form-item>
         <el-form-item label="学生姓名" prop="nickName">
           <el-input v-model="form.nickName" placeholder="请输入学生姓名" />
-        </el-form-item>
-        <el-form-item label="所属学院" prop="collegeId">
-          <el-select v-model="form.collegeId" placeholder="请选择所属学院" clearable @change="getGradeOption()">
-            <el-option v-for="item in collegeList" :key="item.id" :label="item.name" :value="item.id" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="所属班级" prop="gradeId">
-          <el-select v-model="form.gradeId" placeholder="请选择所属班级" clearable>
-            <el-option v-for="item in gradeOption" :key="item.id" :label="item.name" :value="item.id" />
-          </el-select>
         </el-form-item>
         <el-form-item label="手机号码" prop="phonenumber">
           <el-input v-model="form.phonenumber" placeholder="请输入手机号码" />
@@ -129,8 +97,6 @@
         <el-descriptions-item label="姓名">{{ form.nickName }}</el-descriptions-item>
         <el-descriptions-item label="手机号码">{{ form.phonenumber ? form.phonenumber : '暂未设置' }}</el-descriptions-item>
         <el-descriptions-item label="邮箱">{{ form.email ? form.email : '暂未设置' }}</el-descriptions-item>
-        <el-descriptions-item label="所属学院">{{ form.collegeName }}</el-descriptions-item>
-        <el-descriptions-item label="所属班级">{{ form.gradeName }}</el-descriptions-item>
         <el-descriptions-item label="性别">
           <dict-tag :options="sys_user_sex" :value="form.sex" />
         </el-descriptions-item>
@@ -142,15 +108,13 @@
 
 <script setup name="Student">
 import { listStudent, getStudent, delStudent, addStudent, updateStudent, resetStudentPwd } from "@/api/manage/student";
-import { listCollege } from '@/api/manage/college';
 import { loadAllParams } from '@/api/page';
-import { listGrade } from '@/api/manage/grade';
 
 const { proxy } = getCurrentInstance();
 const { sys_user_sex } = proxy.useDict("sys_user_sex");
 
 const studentList = ref([]);
-const collegeOptions = ref([]);
+
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -165,8 +129,6 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    collegeId: null,
-    gradeId: null,
     userName: null,
     nickName: null
   },
@@ -177,12 +139,6 @@ const data = reactive({
     nickName: [
       { required: true, message: "学生姓名不能为空", trigger: "blur" }
     ],
-    collegeId: [
-      { required: true, message: "所属学院不能为空", trigger: "blur" }
-    ],
-    gradeId: [
-      { required: true, message: "所属班级不能为空", trigger: "blur" }
-    ]
   }
 });
 
@@ -209,8 +165,6 @@ function reset() {
   form.value = {
     id: null,
     userId: null,
-    collegeId: null,
-    gradeId: null
   };
   proxy.resetForm("studentRef");
 }
@@ -244,7 +198,6 @@ function handleAdd() {
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  getGradeOption();
   const _id = row.id || ids.value
   getStudent(_id).then(response => {
     form.value = response.data;
@@ -292,36 +245,6 @@ function handleExport() {
   }, `student_${new Date().getTime()}.xlsx`)
 }
 
-/** 获取学院列表 */
-const collegeList = ref([]);
-function getCollegeList() {
-  listCollege(loadAllParams).then(response => {
-    // 过滤掉根节点
-    collegeList.value = response.rows.filter(item => item.parentId !== 0);
-  })
-  listCollege().then(res => {
-    collegeOptions.value = proxy.handleTree(res.rows, 'id')
-  })
-}
-
-/** 获取班级列表 */
-const gradeList = ref([]);
-function getGradeList() {
-  const _collegeId = queryParams.value.collegeId
-  listGrade({ collegeId: _collegeId }).then(response => {
-    gradeList.value = response.rows;
-  })
-}
-
-/** 获取班级列表 - 用于新增/修改 */
-const gradeOption = ref([]);
-function getGradeOption() {
-  const _collegeId = form.value.collegeId
-  listGrade({ collegeId: _collegeId }).then(response => {
-    gradeOption.value = response.rows;
-  })
-}
-
 /** 重置学生密码 */
 // 密码默认为 Axy+学号(登录名)
 function resetPwd(row) {
@@ -343,7 +266,5 @@ function getStudentInfo(row) {
     stuInfoOpen.value = true
   })
 }
-getCollegeList();
-getGradeList();
 getList();
 </script>

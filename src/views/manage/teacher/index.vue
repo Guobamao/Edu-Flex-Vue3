@@ -1,10 +1,6 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" @submit.prevent>
-      <el-form-item label="所属学院" prop="collegeId">
-        <el-tree-select v-model="queryParams.collegeId" :data="collegeOptions" style="width: 250px;" filterable clearable
-          :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择所属学院" />
-      </el-form-item>
       <el-form-item label="教师姓名" prop="nickName">
         <el-input v-model="queryParams.nickName" placeholder="请输入教师姓名" clearable @keyup.enter="handleQuery" />
       </el-form-item>
@@ -40,13 +36,6 @@
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
       <el-table-column label="教师名称" align="center" prop="nickName" />
       <el-table-column label="手机号码" align="center" prop="phonenumber" />
-      <el-table-column label="所属学院" align="center" prop="collegeId">
-        <template #default="scope">
-          <div v-for="item in collegeList" :key="item.id">
-            <span v-if="scope.row.collegeId === item.id">{{ item.name }}</span>
-          </div>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -72,11 +61,6 @@
         <el-form-item label="教师姓名" prop="nickName">
           <el-input v-model="form.nickName" placeholder="请输入教师姓名" />
         </el-form-item>
-        <el-form-item label="所属学院" prop="collegeId">
-          <el-select v-model="form.collegeId" placeholder="请选择所属学院" clearable>
-            <el-option v-for="item in collegeList" :key="item.id" :label="item.name" :value="item.id" />
-          </el-select>
-        </el-form-item>
         <el-form-item label="手机号码" prop="phonenumber">
           <el-input v-model="form.phonenumber" placeholder="请输入手机号码" maxlength="11" />
         </el-form-item>
@@ -101,8 +85,6 @@
 
 <script setup name="Teacher">
 import { listTeacher, getTeacher, delTeacher, addTeacher, updateTeacher } from "@/api/manage/teacher";
-import { listCollege } from '@/api/manage/college';
-import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 const { sys_user_sex } = proxy.useDict("sys_user_sex");
@@ -116,21 +98,16 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
-const collegeOptions = ref([]);
 
 const data = reactive({
   form: {},
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    collegeId: null, // 所属学院ID
     nickName: null, // 教师姓名
     phonenumber: null, // 手机号
   },
   rules: {
-    collegeId: [
-      { required: true, message: "所属学院ID不能为空", trigger: "blur" }
-    ],
     userName: [
       { required: true, message: "用户名不能为空", trigger: "blur" }
     ],
@@ -176,7 +153,6 @@ function reset() {
   form.value = {
     id: null,
     userId: null,
-    collegeId: null,
     userName: null,
     nickName: null,
     email: null,
@@ -264,17 +240,5 @@ function handleExport() {
   }, `teacher_${new Date().getTime()}.xlsx`)
 }
 
-/** 获取学院列表 */
-const collegeList = ref([]);
-function getCollegeList() {
-  listCollege(loadAllParams).then(response => {
-    // 过滤掉根节点
-    collegeList.value = response.rows.filter(item => item.parentId !== 0);
-  });
-  listCollege().then(res => {
-    collegeOptions.value = proxy.handleTree(res.rows, 'id')
-  })
-}
-getCollegeList();
 getList();
 </script>
