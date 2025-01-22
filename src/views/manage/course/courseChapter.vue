@@ -54,8 +54,8 @@
     <el-dialog :title="title" v-model="chapterOpen" width="500px" append-to-body>
       <el-form ref="chapterRef" :model="chapterForm" :rules="rules" label-width="80px">
         <el-form-item label="父级章节" prop="parentId">
-          <el-tree-select v-model="chapterForm.parentId" :data="chapterOptions"
-            :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择父级章节"
+          <el-tree-select v-model="chapterForm.parentId" :data="chapterList"
+            :props="{ label: 'name', children: 'children', isLeaf: 'hasChildren' }" value-key="id" placeholder="请选择父级章节"
             check-strictly clearable />
         </el-form-item>
         <el-form-item label="章节名称" prop="name">
@@ -77,7 +77,7 @@
     <el-dialog :title="title" v-model="materialOpen" width="500px" append-to-body>
       <el-form ref="materialRef" :model="materialForm" :rules="rules" label-width="80px">
         <el-form-item label="关联章节" prop="chapterId">
-          <el-tree-select v-model="materialForm.chapterId" :data="chapterOptions"
+          <el-tree-select v-model="materialForm.chapterId" :data="chapterList"
             :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择关联章节" />
         </el-form-item>
         <el-form-item label="资料名称" prop="name">
@@ -86,7 +86,7 @@
         <el-form-item label="上传文件" prop="fileId">
           <file-upload v-model="materialForm.fileId" @fileList="getUploadFileList" />
         </el-form-item>
-        <el-form-item label="文件类型" prop="materialType">
+        <el-form-item label="文件类型" prop="materialType" v-if="materialForm.fileId">
           <el-select v-model="materialForm.materialType" placeholder="请选择文件类型">
             <el-option v-for="dict in material_type" :key="dict.value" :label="dict.label"
               :value="dict.value"></el-option>
@@ -118,7 +118,6 @@ const route = useRoute();
 const { material_type } = proxy.useDict("material_type");
 
 const chapterList = ref([]);
-const chapterOptions = ref([]);
 const chapterOpen = ref(false);
 const materialOpen = ref(false);
 const loading = ref(true);
@@ -145,7 +144,7 @@ const data = reactive({
       { required: true, message: "资料名称不能为空", trigger: "blur" }
     ],
     fileId: [
-      { required: true, message: "链接不能为空", trigger: "blur" }
+      { required: true, message: "文件不能为空", trigger: "blur" }
     ],
     materialType: [
       { required: true, message: "文件类型不能为空", trigger: "blur" }
@@ -164,14 +163,6 @@ function getList() {
   listChapter(queryParams.value).then(response => {
     chapterList.value = response.data
     loading.value = false;
-  });
-}
-
-/** 查询课程内容章节管理下拉树结构 */
-function getTreeselect() {
-  listChapter(queryParams.value).then(response => {
-    chapterOptions.value = [];
-    chapterOptions.value = proxy.handleTree(response.data, "id", "parentId");
   });
 }
 
@@ -210,7 +201,6 @@ function reset() {
 /** 新增按钮操作 */
 function handleChapterAdd(row) {
   reset();
-  getTreeselect();
   if (row != null && row.id) {
     chapterForm.value.parentId = row.id;
   }
@@ -221,7 +211,6 @@ function handleChapterAdd(row) {
 
 function handleMaterialAdd(row) {
   reset();
-  getTreeselect();
   if (row != null && row.id) {
     materialForm.value.chapterId = row.id;
   }
@@ -232,13 +221,11 @@ function handleMaterialAdd(row) {
 /** 修改按钮操作 */
 async function handleChapterUpdate(row) {
   reset();
-  getTreeselect();
   if (row != null) {
     chapterForm.value.parentId = row.parentId;
   }
   getChapter(row.id).then(res => {
     chapterForm.value = res.data;
-    console.log(chapterForm.value)
     if (chapterForm.value.parentId == 0) {
       chapterForm.value.parentId = null;
     }
@@ -249,7 +236,6 @@ async function handleChapterUpdate(row) {
 
 function handleMaterialUpdate(row) {
   reset();
-  getTreeselect();
   const _id = row.id.split("-")[0];
   getMaterial(_id).then(response => {
     materialForm.value = response.data;
@@ -361,38 +347,8 @@ function refreshTableData(chapterId) {
 // 获取子组件传出的上传文件列表
 function getUploadFileList(fileList) {
   const file = fileList[0];
-  if (!materialForm.value.name) {
-    materialForm.value.name = file.name;
-  }
-  const fileType = file.name.split('.').pop().toLowerCase();
-  switch (fileType) {
-    // 图片类型
-    case 'jpg':
-    case 'jpeg':
-    case 'png':
-    case 'gif':
-    case 'bmp':
-      materialForm.value.materialType = '1';
-      break;
-    case 'pdf':
-      materialForm.value.materialType = '4';
-      break;
-    case 'doc':
-    case 'docx':
-    case 'txt':
-      materialForm.value.materialType = '2';
-      break;
-    case 'ppt':
-    case 'pptx':
-      materialForm.value.materialType = '3';
-      break;
-    case 'mp4':
-    case 'avi':
-      materialForm.value.materialType = '0';
-      break;
-    default:
-      break;
-  }
+  materialForm.value.name = file.name;
+  materialForm.value.materialType = file.type.toString()
 }
 
 // 查看资料

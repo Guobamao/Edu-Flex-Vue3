@@ -21,7 +21,6 @@
     <div class="el-upload__tip" v-if="showTip">
       请上传
       <template v-if="fileSize"> 大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b> </template>
-      <template v-if="fileType"><br> 格式为 <b style="color: #f56c6c">视频/图片/纯文本文件/幻灯片/PDF文档</b> </template>
       的文件
     </div>
     <!-- 文件列表 -->
@@ -53,11 +52,6 @@ const props = defineProps({
     type: Number,
     default: 1024,
   },
-  // 文件类型, 例如['png', 'jpg', 'jpeg']
-  fileType: {
-    type: Array,
-    default: () => ["doc", "docx", "ppt", "pptx", "txt", "pdf", "mp4", "avi", "jpg", "jpeg", "png", "gif", "bmp"],
-  },
   // 是否显示提示
   isShowTip: {
     type: Boolean,
@@ -73,21 +67,11 @@ const baseUrl = import.meta.env.VITE_APP_BASE_API;
 const headers = ref({ Authorization: "Bearer " + getToken() });
 const fileList = ref([]);
 const showTip = computed(
-  () => props.isShowTip && (props.fileType || props.fileSize)
+  () => props.isShowTip && props.fileSize
 );
 
 // 上传前校检格式和大小
 function handleBeforeUpload(file) {
-  // 校检文件类型
-  if (props.fileType.length) {
-    const fileName = file.name.split('.');
-    const fileExt = fileName[fileName.length - 1];
-    const isTypeOk = props.fileType.indexOf(fileExt) >= 0;
-    if (!isTypeOk) {
-      proxy.$modal.msgError(`文件格式不正确, 请上传${props.fileType.join("/")}格式文件!`);
-      return false;
-    }
-  }
   // 校检文件大小
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize;
@@ -114,7 +98,7 @@ function handleUploadError(err) {
 // 上传成功回调
 function handleUploadSuccess(res, file) {
   if (res.code === 200) {
-    uploadList.value.push({ id: res.fileId, name: file.raw.name });
+    uploadList.value.push({ id: res.fileId, name: file.raw.name, type: res.type });
     uploadedSuccessfully();
   } else {
     number.value--;
@@ -167,6 +151,9 @@ function listToString(list, separator) {
 </script>
 
 <style scoped lang="scss">
+.upload-file {
+  flex: 1;
+}
 .upload-file-uploader {
   margin-bottom: 5px;
 }

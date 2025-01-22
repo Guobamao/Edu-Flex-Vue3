@@ -388,3 +388,16 @@ export function isNumberStr(str) {
   return /^[+-]?(0|([1-9]\d*))(\.\d+)?$/g.test(str)
 }
  
+export function getFileSize(fileByte) {
+  if (fileByte < 1024) {
+    return fileByte + 'B'
+  } else if (fileByte < 1024 * 1024) {
+    return (fileByte / 1024).toFixed(2) + 'KB'
+  } else if (fileByte < 1024 * 1024 * 1024) {
+    return (fileByte / (1024 * 1024)).toFixed(2) + 'MB'
+  } else if (fileByte < 1024 * 1024 * 1024 * 1024) {
+    return (fileByte / (1024 * 1024 * 1024)).toFixed(2) + 'GB'
+  } else {
+    return "文件超过1TB"
+  }
+}
