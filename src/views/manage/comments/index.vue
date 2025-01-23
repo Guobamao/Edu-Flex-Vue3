@@ -264,13 +264,13 @@ function onSearchStudent(keyword) {
 // 查看课程所有评论
 function goToCourse(row) {
   const _courseId = row.courseId
-  router.push("/base/course-comments/" + _courseId)
+  router.push("/comments/course-comments/" + _courseId)
 }
 
 // 查看用户所有评论
 function goToUser(row) {
   const _userId = row.userId
-  router.push("/base/user-comments/" + _userId);
+  router.push("/comments/user-comments/" + _userId);
 }
 getList();
 </script>

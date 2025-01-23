@@ -160,7 +160,7 @@ export const dynamicRoutes = [
     ]
   },
   {
-    path: '/base/course-chapters',
+    path: '/course/course-chapters',
     component: Layout,
     hidden: true,
     permissions: ['manage:chapter:list'],
@@ -169,12 +169,12 @@ export const dynamicRoutes = [
         path: ':courseId(\\d+)',
         component: () => import('@/views/manage/course/courseChapter'),
         name: 'CourseChapter',
-        meta: { title: '课程章节管理', active: '/base/course' }
+        meta: { title: '课程章节管理', activeMenu: '/course/course' }
       }
     ]
   },
   {
-    path: '/base/paper-compose',
+    path: '/course/paper-compose',
     hidden: true,
     permissions: ['manage:paper:list'],
     children: [
@@ -182,12 +182,12 @@ export const dynamicRoutes = [
         path: ':paperId(\\d+)',
         component: () => import('@/views/manage/paper/paperCompose'),
         name: 'PaperCompose',
-        meta: { title: '试卷试题管理', active: '/base/paper' }
+        meta: { title: '试卷试题管理', activeMenu: '/question_bank/paper' }
       }
     ]
   },
   {
-    path: '/base/user-comments',
+    path: '/comments/user-comments',
     hidden: true,
     component: Layout,
     permissions: ['manage:comment:list'],
@@ -196,12 +196,12 @@ export const dynamicRoutes = [
         path: ':userId(\\d+)',
         component: () => import('@/views/manage/comments/userComments'),
         name: 'UserComments',
-        meta: { title: '用户评论管理', active: '/base/comment' }
+        meta: { title: '用户评论管理', activeMenu: '/comments/comments' }
       }
     ]
   },
   {
-    path: '/base/course-comments',
+    path: '/comments/course-comments',
     hidden: true,
     component: Layout,
     permissions: ['manage:comment:list'],
@@ -210,7 +210,7 @@ export const dynamicRoutes = [
         path: ':courseId(\\d+)',
         component: () => import('@/views/manage/comments/courseComments'),
         name: 'CourseComments',
-        meta: { title: '课程评论管理', active: '/base/comment' }
+        meta: { title: '课程评论管理', activeMenu: '/comments/comments' }
       }
     ]
   }

@@ -35,7 +35,7 @@
           <el-button link type="primary" icon="Edit" @click.stop="handleMaterialUpdate(scope.row)"
             v-hasRole="['admin', 'teacher']" v-else>修改资料</el-button>
 
-          <el-button link type="primary" icon="View" @click.stop="getChapterInfo(scope.row)"
+          <el-button link type="primary" icon="View" @click.stop="viewMaterial(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="scope.row.chapterId">查看资料</el-button>
 
           <el-button link type="primary" icon="Plus" @click.stop="handleChapterAdd(scope.row)"
@@ -352,7 +352,7 @@ function getUploadFileList(fileList) {
 }
 
 // 查看资料
-function getChapterInfo(row) {
+function viewMaterial(row) {
   if (row.materialType === '1') {
     // 图片类型
     previewList.value = [proxy.$previewUrl + row.fileId]
@@ -360,6 +360,7 @@ function getChapterInfo(row) {
   }
 }
 
+// 树形列表点击事件 
 function handleRowClick(row, column, event) {
   row.expanded = !row.expanded;
   if (row.hasChildren) {

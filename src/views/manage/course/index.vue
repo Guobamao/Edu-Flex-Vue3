@@ -47,7 +47,7 @@
       </el-table-column>
       <el-table-column label="课程名称" align="center" prop="name">
         <template #default="scope">
-          <el-link type="primary" @click="getCourseChapters(scope.row)" v-hasRole="['admin', 'teacher']">{{ scope.row.name }}</el-link>
+          <el-link type="primary" @click="goToCourseChapters(scope.row)" v-hasRole="['admin', 'teacher']">{{ scope.row.name }}</el-link>
         </template>
       </el-table-column>
       <el-table-column label="任课老师" align="center" prop="teacherId">
@@ -323,9 +323,9 @@ function getTeacherList() {
 }
 
 // 跳转到课程章节
-function getCourseChapters(row) {
+function goToCourseChapters(row) {
   const _courseId = row.id;
-  router.push("/base/course-chapters/" + _courseId);
+  router.push("/course/course-chapters/" + _courseId);
 }
 
 /** 查询课程分类下拉树结构 */

@@ -53,7 +53,7 @@
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="teacherRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="教师登录名" prop="userName">
-          <el-input v-model="form.userName" placeholder="请输入教师登录名" :disabled="form.userId" />
+          <el-input v-model="form.userName" placeholder="请输入教师登录名" :disabled="!!form.userId" />
         </el-form-item>
         <el-form-item label="密码" prop="password" v-if="!form.userId">
           <el-input v-model="form.password" placeholder="请输入密码" type="password" show-password />

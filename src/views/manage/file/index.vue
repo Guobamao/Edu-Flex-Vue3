@@ -19,14 +19,14 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasAnyRole="['admin']">修改</el-button>
+          v-hasRole="['admin']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasAnyRole="['admin']">删除</el-button>
+          v-hasRole="['admin']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasAnyRole="['admin']">导出</el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport" v-hasRole="['admin']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -49,9 +49,9 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['manage:file:edit']">修改</el-button>
+            v-hasRole="['manage:file:edit']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['manage:file:remove']">删除</el-button>
+            v-hasRole="['manage:file:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -92,7 +92,7 @@
 </template>
 
 <script setup name="File">
-import { listFile, getFile, delFile, addFile, updateFile } from "@/api/manage/file";
+import { listFile, getFile, delFile, updateFile } from "@/api/manage/file";
 import { getFileSize } from "@/utils/index"
 
 const { proxy } = getCurrentInstance();
@@ -196,7 +196,7 @@ function submitForm() {
           open.value = false;
           getList();
         });
-      } 
+      }
     }
   });
 }

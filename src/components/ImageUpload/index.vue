@@ -92,9 +92,7 @@ watch(() => props.modelValue, val => {
     // 然后将数组转为对象数组
     fileList.value = list.map(item => {
       if (typeof item === "string") {
-        console.log("is String")
         item = { name: item, url: proxy.$previewUrl + item }
-        console.log(item);
       }
       return item;
     });

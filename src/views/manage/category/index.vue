@@ -27,10 +27,10 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+          <el-button link type="primary" icon="Edit" @click.stop="handleUpdate(scope.row)"
             v-hasRole="['admin']">修改</el-button>
-          <el-button link type="primary" icon="Plus" @click="handleAdd(scope.row)" v-hasRole="['admin']">新增</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+          <el-button link type="primary" icon="Plus" @click.stop="handleAdd(scope.row)" v-hasRole="['admin']">新增</el-button>
+          <el-button link type="primary" icon="Delete" @click.stop="handleDelete(scope.row)"
             v-hasRole="['admin']">删除</el-button>
         </template>
       </el-table-column>
@@ -105,6 +105,11 @@ function getList() {
 /** 查询课程分类下拉树结构 */
 function getTreeselect() {
   listCategory().then(response => {
+    response.rows.unshift({
+      id: 0,
+      name: "顶级分类",
+      children: []
+    });
     categoryOptions.value = proxy.handleTree(response.rows, "id");
   });
 }
@@ -157,6 +162,11 @@ function handleAdd(row) {
 function handleUpdate(row) {
   reset();
   listCategoryExcludeChild(row.id).then(response => {
+    response.data.unshift({
+      id: "0",
+      name: "顶级分类",
+      children: []
+    });
     categoryOptions.value = proxy.handleTree(response.data, 'id');
   })
   getCategory(row.id).then(response => {
