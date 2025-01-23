@@ -34,7 +34,11 @@
     <el-table v-loading="loading" :data="fileList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" width="50" type="index" align="center" prop="id" />
-      <el-table-column label="文件名" align="center" prop="originName" />
+      <el-table-column label="文件名" align="center" prop="originName">
+        <template #default="scope">
+          <el-link type="primary" @click="handlePreview(scope.row)">{{ scope.row.originName }}</el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="库文件名" align="center" prop="name" show-overflow-tooltip />
       <el-table-column label="文件类型" align="center" prop="fileType">
         <template #default="scope">
@@ -48,6 +52,8 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
+          <el-button link type="primary" icon="View" @click="handlePreview(scope.row)">预览</el-button>
+          <el-button link type="primary" icon="Download" @click="downloadFile(scope.row)">下载</el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasRole="['manage:file:edit']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -88,6 +94,11 @@
         </div>
       </template>
     </el-dialog>
+
+    <div>
+      <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
+        :url-list="previewList" />
+    </div>
   </div>
 </template>
 
@@ -124,6 +135,9 @@ const data = reactive({
     fileType: [{ required: true, message: "文件类型不能为空", trigger: "blur" }]
   }
 });
+
+const showViewer = ref(false);
+const previewList = ref([])
 
 const { queryParams, form, rules } = toRefs(data);
 
@@ -219,5 +233,18 @@ function handleExport() {
   }, `file_${new Date().getTime()}.xlsx`)
 }
 
+// 预览资料
+function handlePreview(row) {
+  if (row.fileType === 2) {
+    // 图片类型
+    previewList.value = [proxy.$previewUrl + row.id]
+    showViewer.value = true
+  }
+}
+
+// 下载
+function downloadFile(row) {
+  proxy.download('/common/download/' + row.id, {}, row.originName)
+}
 getList();
 </script>

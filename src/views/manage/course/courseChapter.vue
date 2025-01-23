@@ -101,7 +101,7 @@
       </template>
     </el-dialog>
 
-    <div class="demo-image__preview">
+    <div>
       <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
         :url-list="previewList" />
     </div>
@@ -353,7 +353,7 @@ function getUploadFileList(fileList) {
 
 // 查看资料
 function viewMaterial(row) {
-  if (row.materialType === '1') {
+  if (row.materialType === "2") {
     // 图片类型
     previewList.value = [proxy.$previewUrl + row.fileId]
     showViewer.value = true
