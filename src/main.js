@@ -49,6 +49,7 @@ const app = createApp(App)
 // 全局变量挂在
 app.config.globalProperties.$uploadUrl = import.meta.env.VITE_APP_BASE_API + "/common/upload"
 app.config.globalProperties.$previewUrl = import.meta.env.VITE_APP_BASE_API + "/common/preview/"
+app.config.globalProperties.$previewFileUrl = import.meta.env.VITE_APP_BASE_API + "/manage/files/previewFile/"
 
 // 全局方法挂载
 app.config.globalProperties.useDict = useDict

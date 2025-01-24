@@ -111,6 +111,7 @@
 <script setup name="Chapter">
 import { listChapter, getChapter, delChapter, addChapter, updateChapter } from "@/api/manage/chapter";
 import { listMaterial, getMaterial, delMaterial, addMaterial, updateMaterial } from "@/api/manage/material";
+import { previewFile } from "@/api/manage/file";
 
 const { proxy } = getCurrentInstance();
 const route = useRoute();
@@ -353,7 +354,13 @@ function getUploadFileList(fileList) {
 
 // 查看资料
 function viewMaterial(row) {
-  if (row.materialType === "2") {
+  if (row.materialType === "1" || row.materialType === "4" || row.materialType === "5") {
+    previewFile(row.fileId).then(res => {
+      const ids = res.data.map(item => item.id)
+      previewList.value = ids.map(id => proxy.$previewFileUrl + id)
+      showViewer.value = true
+    })
+  } else if (row.materialType === "2") {
     // 图片类型
     previewList.value = [proxy.$previewUrl + row.fileId]
     showViewer.value = true

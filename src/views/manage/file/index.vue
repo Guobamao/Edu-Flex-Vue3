@@ -103,7 +103,7 @@
 </template>
 
 <script setup name="File">
-import { listFile, getFile, delFile, updateFile } from "@/api/manage/file";
+import { listFile, getFile, delFile, updateFile, previewFile } from "@/api/manage/file";
 import { getFileSize } from "@/utils/index"
 
 const { proxy } = getCurrentInstance();
@@ -235,7 +235,15 @@ function handleExport() {
 
 // 预览资料
 function handlePreview(row) {
-  if (row.fileType === 2) {
+  if (row.fileType === 1 || row.fileType === 4 || row.fileType === 5) {
+    // 文本类型（Word、Json、Excel、HTML、CSS）
+    previewFile(row.id).then(res => {
+      const ids = res.data.map(item => item.id)
+      previewList.value = ids.map(id => proxy.$previewFileUrl + id)
+      showViewer.value = true
+    })
+  }
+  else if (row.fileType === 2) {
     // 图片类型
     previewList.value = [proxy.$previewUrl + row.id]
     showViewer.value = true

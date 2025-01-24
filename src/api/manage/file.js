@@ -33,3 +33,10 @@ export function delFile(id) {
     method: 'delete'
   })
 }
+
+export function previewFile(id) {
+  return request({
+    url: '/manage/files/preview/' + id,
+    method: 'get'
+  })
+}
