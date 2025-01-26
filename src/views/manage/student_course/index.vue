@@ -187,10 +187,10 @@ const data = reactive({
   },
   rules: {
     userId: [
-      { required: true, message: "学生ID不能为空", trigger: "change" }
+      { required: true, message: "关联学生不能为空", trigger: "change" }
     ],
     courseId: [
-      { required: true, message: "课程ID不能为空", trigger: "blur" }
+      { required: true, message: "关联课程不能为空", trigger: "change" }
     ],
     progress: [
       { required: true, message: "学习进度(%)不能为空", trigger: "blur" }
@@ -266,10 +266,11 @@ function handleAdd() {
 function handleUpdate(row) {
   reset();
   const _id = row.id || ids.value
+  listStudent(loadAllParams).then(res => {
+    studentOptions.value = res.rows;
+  })
+
   getStudentCourse(_id).then(response => {
-    listStudent(loadAllParams).then(res => {
-      studentOptions.value = res.rows;
-    })
     response.data.progress = response.data.progress.toFixed(2)
     form.value = response.data;
     open.value = true;
