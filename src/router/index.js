@@ -214,6 +214,20 @@ export const dynamicRoutes = [
       }
     ]
   },
+  {
+    path: '/study/goal/student',
+    hidden: true,
+    component: Layout,
+    permissions: ['manage:goal:list', 'manage:student:list'],
+    children: [
+      {
+        path: ':goalId(\\d+)',
+        component: () => import('@/views/manage/goal/goal_student'),
+        name: 'GoalStudent',
+        meta: { title: '学习目标-学生关联管理', activeMenu: '/study/goal' }
+      }
+    ]
+  }
 ]
 
 const router = createRouter({
