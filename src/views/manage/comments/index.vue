@@ -9,9 +9,12 @@
       </el-form-item>
       <el-form-item label="关联用户" prop="userId">
         <el-select v-model="queryParams.userId" placeholder="请选择关联用户" clearable @change="handleQuery"
-          :options="studentOptions" style="width: 150px;" filterable remote :remote-method="onSearchStudent"
+          :options="studentOptions" style="width: 250px;" filterable remote :remote-method="onSearchStudent"
           :loading="stuLoading">
-          <el-option v-for="item in studentOptions" :key="item.id" :label="item.nickName" :value="item.userId" />
+          <el-option v-for="item in studentOptions" :key="item.id" :label="item.nickName" :value="item.userId">
+            <span style="float: left;">{{ item.nickName }}</span>
+            <span style="float: right; color: #8492a6;">{{ item.userName }}</span>
+          </el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -215,7 +218,7 @@ function submitForm() {
           open.value = false;
           getList();
         });
-      } 
+      }
     }
   });
 }

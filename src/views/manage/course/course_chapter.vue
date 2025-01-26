@@ -108,7 +108,7 @@
   </div>
 </template>
 
-<script setup name="Chapter">
+<script setup name="CourseChapter">
 import { listChapter, getChapter, delChapter, addChapter, updateChapter } from "@/api/manage/chapter";
 import { listMaterial, getMaterial, delMaterial, addMaterial, updateMaterial } from "@/api/manage/material";
 import { previewFile } from "@/api/manage/file";

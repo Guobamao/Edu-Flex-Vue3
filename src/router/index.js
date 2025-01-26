@@ -167,7 +167,7 @@ export const dynamicRoutes = [
     children: [
       {
         path: ':courseId(\\d+)',
-        component: () => import('@/views/manage/course/courseChapter'),
+        component: () => import('@/views/manage/course/course_chapter'),
         name: 'CourseChapter',
         meta: { title: '课程章节管理', activeMenu: '/course/course' }
       }
@@ -213,7 +213,7 @@ export const dynamicRoutes = [
         meta: { title: '课程评论管理', activeMenu: '/comments/comments' }
       }
     ]
-  }
+  },
 ]
 
 const router = createRouter({
