@@ -253,6 +253,7 @@ function onSearchStudent(keyword) {
     }
 }
 
+// 获取所有学生
 function getAllStudent() {
     listStudent(formQueryParams.value).then(res => {
         allStudentList.value = res.rows;
