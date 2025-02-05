@@ -68,15 +68,56 @@
 
         <!-- 添加或修改学生学习目标对话框 -->
         <el-dialog :title="title" v-model="open" width="700px" append-to-body>
-            <el-table v-loading="dialogLoading" :data="allStudentList" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="55" align="center" />
-                <el-table-column label="序号" width="50" type="index" align="center" prop="id" />
-                <el-table-column label="学号" align="center" prop="userName" />
-                <el-table-column label="姓名" align="center" prop="nickName" />
-            </el-table>
+            <template v-if="flag === 1">
+                <!-- 新增 -->
+                <el-form :model="formQueryParams" ref="formQueryRef" :inline="true" label-width="68px">
+                    <el-form-item label="学号" prop="userName">
+                        <el-input v-model="formQueryParams.userName" placeholder="请输入学生学号" clearable
+                            @keyup.enter="handleFormQuery" />
+                    </el-form-item>
+                    <el-form-item label="姓名" prop="nickName">
+                        <el-input v-model="formQueryParams.nickName" placeholder="请输入学生姓名" clearable
+                            @keyup.enter="handleFormQuery" />
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" icon="Search" @click="handleFormQuery">搜索</el-button>
+                        <el-button icon="Refresh" @click="handleResetQuery">重置</el-button>
+                    </el-form-item>
+                </el-form>
+                <el-table ref="studentFormRef" v-loading="dialogLoading" :data="allStudentList"
+                    @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" width="55" align="center" :selectable="isSelectable" />
+                    <el-table-column label="序号" width="50" type="index" align="center" prop="id" />
+                    <el-table-column label="学号" align="center" prop="userName" />
+                    <el-table-column label="姓名" align="center" prop="nickName" />
+                </el-table>
 
-            <pagination v-show="formTotal > 0" :total="formTotal" v-model:page="formQueryParams.pageNum"
-                v-model:limit="formQueryParams.pageSize" @pagination="getAllStudent" />
+                <pagination v-show="formTotal > 0" :total="formTotal" v-model:page="formQueryParams.pageNum"
+                    v-model:limit="formQueryParams.pageSize" @pagination="getAllStudent" />
+            </template>
+
+            <template v-else>
+                <!-- 修改 -->
+                <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+                    <el-form-item label="关联学生" prop="nickName">
+                        <el-input v-model="form.nickName" disabled/>
+                    </el-form-item>
+                    <el-form-item label="关联学习目标" prop="goalName">
+                        <el-input v-model="form.goalName" disabled/>
+                    </el-form-item>
+                    <el-form-item label="状态" prop="status">
+                        <el-select v-model="form.status" placeholder="请选择状态">
+                            <el-option v-for="dict in study_status" :key="dict.value" :label="dict.label" :value="dict.value"/>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="进度" prop="progress" v-if="parseInt(form.status) !== 0">
+                        <el-input v-model="form.progress" placeholder="请输入进度" clearable />
+                    </el-form-item>
+                    <el-form-item label="结束时间" prop="deadline" v-if="parseInt(form.status) !== 0">
+                        <el-date-picker clearable v-model="form.deadline" type="date" value-format="YYYY-MM-DD" placeholder="请选择结束时间" />
+                    </el-form-item>
+                </el-form>
+            </template>
             <template #footer>
                 <div class="dialog-footer">
                     <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -89,8 +130,7 @@
 
 <script setup name="GoalStudent">
 import { listGoalStudent, getGoalStudent, addGoalStudent, updateGoalStudent, delGoalStudent } from "@/api/manage/goal_student";
-import { listStudent } from "@/api/manage/student";
-import { loadAllParams } from '@/api/page';
+import { listStudent, listStudentWithGoal } from "@/api/manage/student";
 import { useRoute } from "vue-router";
 
 const { proxy } = getCurrentInstance();
@@ -119,6 +159,8 @@ const dialogLoading = ref(false);
 const allStudentList = ref([]);
 const formTotal = ref(0);
 
+const flag = ref(0);
+
 const data = reactive({
     form: {},
     queryParams: {
@@ -132,10 +174,24 @@ const data = reactive({
     formQueryParams: {
         pageNum: 1,
         pageSize: 10,
+        goalId: route.params.goalId,
+        userName: null,
+        nickName: null
     },
+    rules: {
+        userId: [
+            { required: true, message: "关联学生不能为空", trigger: "change" }
+        ],
+        status: [
+            { required: true, message: "状态不能为空", trigger: "change" }
+        ],
+        progress: [
+            { required: true, message: "进度不能为空", trigger: "blur" }
+        ]
+    }
 });
 
-const { queryParams, form, formQueryParams } = toRefs(data);
+const { queryParams, formQueryParams, rules, form } = toRefs(data);
 
 /** 查询学习目标关联学生列表 */
 function getList() {
@@ -157,12 +213,13 @@ function cancel() {
 function reset() {
     form.value = {
         id: null,
-        userId: null,
-        goalId: route.params.goalId,
+        nickName: null,
+        goalName: null,
         status: '0',
-        progress: null
-    };
-    proxy.resetForm("studentRef");
+        progress: null,
+        deadline: null
+    }
+    proxy.resetForm("formRef");
 }
 
 /** 搜索按钮操作 */
@@ -179,26 +236,24 @@ function resetQuery() {
 
 // 多选框选中数据
 function handleSelectionChange(selection) {
-    ids.value = selection.map(item => item.id);
+    ids.value = selection.map(item => item.userId);
     single.value = selection.length != 1;
     multiple.value = !selection.length;
 }
 
 /** 新增按钮操作 */
 function handleAddUser() {
-    reset();
     getAllStudent();
+    flag.value = 1;
     open.value = true;
     title.value = "添加关联学生";
 }
 
 /** 修改按钮操作 */
 function handleUpdate(row) {
+    flag.value = 0;
     reset();
     const _id = row.id || ids.value
-    listStudent(loadAllParams).then(res => {
-        studentOptions.value = res.rows;
-    })
     getGoalStudent(_id).then(response => {
         form.value = response.data;
         open.value = true;
@@ -208,23 +263,26 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
-    proxy.$refs["studentRef"].validate(valid => {
-        if (valid) {
-            if (form.value.id != null) {
-                updateGoalStudent(form.value).then(response => {
-                    proxy.$modal.msgSuccess("修改成功");
-                    open.value = false;
-                    getList();
-                });
-            } else {
-                addGoalStudent(form.value).then(response => {
-                    proxy.$modal.msgSuccess("新增成功");
-                    open.value = false;
-                    getList();
-                });
+    if (ids.value.length === 0) {
+        // 更新
+        updateGoalStudent(form.value).then(res => {
+            proxy.$modal.msgSuccess("修改成功");
+            open.value = false;
+            getList();
+        });
+    } else {
+        ids.value.forEach(item => {
+            const data = {
+                userId: item,
+                goalId: route.params.goalId,
             }
-        }
-    });
+            addGoalStudent(data).then(res => {
+                proxy.$modal.msgSuccess("关联成功")
+                open.value = false
+                getList()
+            })
+        })
+    }
 }
 
 /** 删除按钮操作 */
@@ -255,10 +313,24 @@ function onSearchStudent(keyword) {
 
 // 获取所有学生
 function getAllStudent() {
-    listStudent(formQueryParams.value).then(res => {
+    listStudentWithGoal(formQueryParams.value).then(res => {
         allStudentList.value = res.rows;
         formTotal.value = res.total;
     })
+}
+
+function isSelectable(row) {
+    return !row.isSelected;
+}
+
+function handleFormQuery() {
+    formQueryParams.value.pageNum = 1;
+    getAllStudent();
+}
+
+function handleResetQuery() {
+    proxy.resetForm("formQueryRef")
+    handleFormQuery();
 }
 
 getList();
@@ -269,7 +341,7 @@ getList();
     margin-right: 8px;
 }
 
-::v-deep .el-pagination {
+:deep(.el-pagination) {
     margin-right: 20px;
 }
 </style>

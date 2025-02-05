@@ -51,3 +51,12 @@ export function resetStudentPwd(data) {
     data: data
   })
 }
+
+// 查询学生列表 - 学习目标
+export function listStudentWithGoal(query) {
+  return request({
+    url: '/manage/student/goal/list',
+    method: 'get',
+    params: query
+  })
+}
