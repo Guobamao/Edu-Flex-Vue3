@@ -9,11 +9,29 @@ export function listCourse(query) {
   })
 }
 
+// 查询课程列表 - 学习路线
+export function listCourseForRoute(query) {
+  return request({
+    url: '/manage/course/route/list',
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询课程管理详细
 export function getCourse(id) {
   return request({
     url: '/manage/course/' + id,
     method: 'get'
+  })
+}
+
+// 根据id查询课程管理详细
+export function listCourseByIds(ids) {
+  return request({
+    url: '/manage/course/listByIds',
+    method: 'post',
+    data: ids
   })
 }
 

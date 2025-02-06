@@ -53,7 +53,7 @@ export function resetStudentPwd(data) {
 }
 
 // 查询学生列表 - 学习目标
-export function listStudentWithGoal(query) {
+export function listStudentForGoal(query) {
   return request({
     url: '/manage/student/goal/list',
     method: 'get',
