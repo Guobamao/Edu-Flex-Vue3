@@ -130,7 +130,7 @@
 
 <script setup name="GoalStudent">
 import { listGoalStudent, getGoalStudent, addGoalStudent, updateGoalStudent, delGoalStudent } from "@/api/manage/goal_student";
-import { listStudent, listStudentWithGoal } from "@/api/manage/student";
+import { listStudent, listStudentForGoal } from "@/api/manage/student";
 import { useRoute } from "vue-router";
 
 const { proxy } = getCurrentInstance();
@@ -313,7 +313,7 @@ function onSearchStudent(keyword) {
 
 // 获取所有学生
 function getAllStudent() {
-    listStudentWithGoal(formQueryParams.value).then(res => {
+    listStudentForGoal(formQueryParams.value).then(res => {
         allStudentList.value = res.rows;
         formTotal.value = res.total;
     })
