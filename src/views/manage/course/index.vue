@@ -50,19 +50,9 @@
           <el-link type="primary" @click="goToCourseChapters(scope.row)" v-hasRole="['admin', 'teacher']">{{ scope.row.name }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column label="任课老师" align="center" prop="teacherId">
-        <template #default="scope">
-          <div v-for="item in teacherList" :key="item.userId">
-            <span v-if="scope.row.teacherId === item.userId">{{ item.nickName }}</span>
-          </div>
-        </template>
+      <el-table-column label="任课老师" align="center" prop="teacherName">
       </el-table-column>
-      <el-table-column label="课程分类" align="center" prop="categoryId">
-        <template #default="scope">
-          <div v-for="item in categoryList" :key="item.id">
-            <span v-if="scope.row.categoryId === item.id">{{ item.name }}</span>
-          </div>
-        </template>
+      <el-table-column label="课程分类" align="center" prop="categoryName">
       </el-table-column>
       <el-table-column label="开始时间" align="center" prop="startTime" width="180">
         <template #default="scope">

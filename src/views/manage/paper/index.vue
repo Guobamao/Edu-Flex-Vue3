@@ -243,7 +243,7 @@ function handleExport() {
 
 function goToCompose(row) {
   const _paperId = row.id
-  router.push("/base/paper-compose/" + _paperId);
+  router.push("/course/paper-compose/" + _paperId);
 }
 
 getList();
