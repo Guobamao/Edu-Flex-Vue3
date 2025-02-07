@@ -227,7 +227,7 @@ export const dynamicRoutes = [
         meta: { title: '学习目标-学生关联管理', activeMenu: '/study/goal' }
       }
     ]
-  }
+  },
 ]
 
 const router = createRouter({

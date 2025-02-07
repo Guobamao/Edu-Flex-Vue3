@@ -216,9 +216,15 @@ function handleExport() {
   }, `goal_${new Date().getTime()}.xlsx`)
 }
 
+/** 关联用户 */
 function handleUser(row) {
   const _goalId = row.id;
   router.push("/study/goal/student/" + _goalId)
+}
+
+/** 关联学习路线 */
+function handleRoute(row) {
+  router.push({ name: 'Route', query: { goalId: row.id} })
 }
 
 getList();

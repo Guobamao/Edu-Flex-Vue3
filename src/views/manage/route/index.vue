@@ -3,7 +3,7 @@
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" @submit.prevent>
       <el-form-item label="学习目标" prop="goalId">
         <el-select v-model="queryParams.goalId" placeholder="请选择关联学习目标" clearable filterable style="width: 200px;"
-          @change="handleQuery">
+          @change="handleQuery" :disabled="route.query.goalId">
           <el-option v-for="item in goalOptions" :key="item.id" :label="item.goalName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
@@ -104,7 +104,7 @@ import { loadAllParams } from "@/api/page";
 import CourseSelect from "./components/CourseSelect.vue";
 
 const { proxy } = getCurrentInstance();
-
+const route = useRoute();
 const routeList = ref([]);
 const open = ref(false);
 const loading = ref(true);
@@ -120,7 +120,7 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    goalId: null,
+    goalId: route.query.goalId || null,
   },
   rules: {
     name: [
