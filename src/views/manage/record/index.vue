@@ -1,14 +1,25 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="学习者" prop="stuId">
-        <el-input v-model="queryParams.stuId" placeholder="请输入学习者" clearable @keyup.enter="handleQuery" />
+      <el-form-item label="关联学生" prop="stuId">
+        <el-select v-model="queryParams.stuId" placeholder="请选择关联学生" clearable @change="handleQuery"
+          :options="studentOptions" style="width:250px;" filterable remote :remote-method="onSearchStudent"
+          :loading="stuLoading">
+          <el-option v-for="item in studentOptions" :key="item.id" :label="item.nickName" :value="item.userId">
+            <span style="float: left;">{{ item.nickName }}</span>
+            <span style="float: right; color: #8492a6;">{{ item.userName }}</span>
+          </el-option>
+        </el-select>
       </el-form-item>
-      <el-form-item label="课程" prop="courseId">
-        <el-input v-model="queryParams.courseId" placeholder="请输入课程" clearable @keyup.enter="handleQuery" />
+      <el-form-item label="关联课程" prop="courseId">
+        <el-select v-model="queryParams.courseId" placeholder="请选择关联课程" clearable @change="handleQuery"
+          style="width: 150px;">
+          <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id" />
+        </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 150px;">
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 150px;"
+          @change="handleQuery">
           <el-option v-for="dict in study_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
@@ -20,17 +31,6 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['manage:record:add']">新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['manage:record:edit']">修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['manage:record:remove']">删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
         <el-button type="warning" plain icon="Download" @click="handleExport"
           v-hasPermi="['manage:record:export']">导出</el-button>
       </el-col>
@@ -40,11 +40,12 @@
     <el-table v-loading="loading" :data="recordList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" width="50" type="index" align="center" prop="id" />
-      <el-table-column label="学习者" align="center" prop="stuId" />
-      <el-table-column label="课程" align="center" prop="courseId" />
+      <el-table-column label="学号" align="center" prop="userName" />
+      <el-table-column label="姓名" align="center" prop="nickName" />
+      <el-table-column label="课程" align="center" prop="courseName" />
       <el-table-column label="完成时间" align="center" prop="completionTime" width="180">
         <template #default="scope">
-          <span>{{ parseTime(scope.row.completionTime, '{y}-{m}-{d}') }}</span>
+          {{ parseInt(scope.row.status) === 2 ? scope.row.completionTime : '-' }}
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
@@ -52,42 +53,47 @@
           <dict-tag :options="study_status" :value="scope.row.status" />
         </template>
       </el-table-column>
-      <el-table-column label="课程进度(%)" align="center" prop="progress" />
+      <el-table-column label="课程进度(%)" align="center" prop="progress">
+        <template #default="scope">
+          {{ scope.row.progress ? scope.row.progress.toFixed(2) + '%' : '-' }}
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:record:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['manage:record:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
-      @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+      v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改学习记录管理对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="recordRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="学习者" prop="stuId">
-          <el-input v-model="form.stuId" placeholder="请输入学习者" />
+      <el-form ref="recordRef" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="学号" prop="userName">
+          <el-input v-model="form.userName" disabled />
         </el-form-item>
-        <el-form-item label="课程" prop="courseId">
-          <el-input v-model="form.courseId" placeholder="请输入课程" />
+        <el-form-item label="姓名" prop="nickName">
+          <el-input v-model="form.nickName" disabled />
         </el-form-item>
-        <el-form-item label="完成时间" prop="completionTime">
+        <el-form-item label="关联课程" prop="courseName">
+          <el-input v-model="form.courseName" disabled />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="form.status">
+            <el-radio v-for="dict in study_status" :key="dict.value" :label="dict.value">
+              {{ dict.label }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="完成时间" prop="completionTime" v-if="parseInt(form.status) === 2">
           <el-date-picker clearable v-model="form.completionTime" type="date" value-format="YYYY-MM-DD"
             placeholder="请选择完成时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="form.status">
-            <el-radio v-for="dict in study_status" :key="dict.value"
-              :label="parseInt(dict.value)">{{ dict.label }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="课程进度百分比" prop="progress">
-          <el-input v-model="form.progress" placeholder="请输入课程进度百分比" />
+        <el-form-item label="课程进度(%)" prop="progress">
+          <el-input v-model="form.progress" placeholder="请输入课程进度" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -101,7 +107,10 @@
 </template>
 
 <script setup name="Record">
-import { listRecord, getRecord, delRecord, addRecord, updateRecord } from "@/api/manage/record";
+import { listRecord, getRecord, updateRecord } from "@/api/manage/record";
+import { listStudent } from "@/api/manage/student";
+import { listCourse } from "@/api/manage/course";
+import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 const { study_status } = proxy.useDict('study_status');
@@ -126,22 +135,33 @@ const data = reactive({
     status: null,
   },
   rules: {
-    stuId: [
-      { required: true, message: "学习者不能为空", trigger: "blur" }
+    userName: [
+      { required: true, message: "学号不能为空", trigger: "blur" }
     ],
-    courseId: [
-      { required: true, message: "课程不能为空", trigger: "blur" }
+    nickName: [
+      { required: true, message: "姓名不能为空", trigger: "blur" }
+    ],
+    courseName: [
+      { required: true, message: "课程名称不能为空", trigger: "blur" }
     ],
     status: [
       { required: true, message: "状态不能为空", trigger: "change" }
     ],
+    completionTime: [
+      { required: true, message: "完成时间不能为空", trigger: "blur" }
+    ],
     progress: [
-      { required: true, message: "课程进度百分比不能为空", trigger: "blur" }
+      { required: true, message: "课程进度不能为空", trigger: "blur" }
     ],
   }
 });
 
 const { queryParams, form, rules } = toRefs(data);
+
+const stuLoading = ref(false);
+const studentOptions = ref([]);
+
+const courseOptions = ref([]);
 
 /** 查询学习记录管理列表 */
 function getList() {
@@ -163,16 +183,11 @@ function cancel() {
 function reset() {
   form.value = {
     id: null,
-    stuId: null,
-    courseId: null,
+    nickName: null,
+    courseName: null,
     completionTime: null,
     status: null,
     progress: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
-    deleted: null
   };
   proxy.resetForm("recordRef");
 }
@@ -196,17 +211,11 @@ function handleSelectionChange(selection) {
   multiple.value = !selection.length;
 }
 
-/** 新增按钮操作 */
-function handleAdd() {
-  reset();
-  open.value = true;
-  title.value = "添加学习记录管理";
-}
 
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _id = row.id || ids.value
+  const _id = row.id
   getRecord(_id).then(response => {
     form.value = response.data;
     open.value = true;
@@ -224,26 +233,9 @@ function submitForm() {
           open.value = false;
           getList();
         });
-      } else {
-        addRecord(form.value).then(response => {
-          proxy.$modal.msgSuccess("新增成功");
-          open.value = false;
-          getList();
-        });
       }
     }
   });
-}
-
-/** 删除按钮操作 */
-function handleDelete(row) {
-  const _ids = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除学习记录管理编号为"' + _ids + '"的数据项？').then(function () {
-    return delRecord(_ids);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => { });
 }
 
 /** 导出按钮操作 */
@@ -253,5 +245,29 @@ function handleExport() {
   }, `record_${new Date().getTime()}.xlsx`)
 }
 
+function onSearchStudent(keyword) {
+  if (keyword) {
+    stuLoading.value = true
+    const params = {
+      ...loadAllParams,
+      searchValue: keyword
+    }
+    listStudent(params).then(res => {
+      studentOptions.value = res.rows
+    }).catch(() => {
+      studentOptions.value = []
+    }).finally(() => {
+      stuLoading.value = false
+    })
+  }
+}
+
+function getCourseList() {
+  listCourse(loadAllParams).then(res => {
+    courseOptions.value = res.rows
+  })
+}
+
+getCourseList();
 getList();
 </script>
