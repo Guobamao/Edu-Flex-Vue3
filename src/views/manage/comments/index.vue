@@ -3,7 +3,7 @@
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="关联课程" prop="courseId">
         <el-select v-model="queryParams.courseId" placeholder="请选择关联课程" clearable @change="handleQuery"
-          :options="courseOptions" style="width: 150px;" filterable>
+          @clear="handleQuery" :options="courseOptions" style="width: 150px;" filterable>
           <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
@@ -201,6 +201,9 @@ function handleSelectionChange(selection) {
 function handleUpdate(row) {
   reset();
   const _id = row.id || ids.value
+  listStudent(loadAllParams).then(res => {
+    studentOptions.value = res.rows;
+  })
   getComments(_id).then(response => {
     form.value = response.data;
     open.value = true;
