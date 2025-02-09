@@ -4,8 +4,11 @@
       <el-form-item label="试卷名称" prop="title">
         <el-input v-model="queryParams.title" placeholder="请输入试卷名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
-      <el-form-item label="是否发布" prop="isPublished">
-        <el-input v-model="queryParams.isPublished" placeholder="请输入是否发布" clearable @keyup.enter="handleQuery" />
+      <el-form-item label="关联课程" prop="courseId">
+        <el-select v-model="queryParams.courseId" placeholder="请选择关联课程" clearable @change="handleQuery"
+          @clear="handleQuery" :options="courseOptions" style="width: 200px;" filterable>
+          <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id" />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -37,20 +40,18 @@
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
       <el-table-column label="试卷名称" align="center" prop="title">
         <template #default="scope">
-          <el-link type="primary" @click="goToCompose(scope.row)" v-hasRole="['admin', 'teacher']">{{ scope.row.title }}</el-link>
+          <el-link type="primary" @click="goToCompose(scope.row)"
+            v-hasRole="['admin', 'teacher']">{{ scope.row.title }}</el-link>
         </template>
       </el-table-column>
+      <el-table-column label="关联课程" align="center" prop="courseName" />
       <el-table-column label="总分" align="center" prop="totalScore" />
-      <el-table-column label="考试时长" align="center" prop="duration" />
-      <el-table-column label="是否发布" align="center" prop="isPublished">
-        <template #default="scope">
-          <dict-tag :options="paper_published" :value="scope.row.isPublished" />
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasRole="['admin', 'teacher']">修改</el-button>
+          <el-button link type="primary" icon="Edit" @click="goToCompose(scope.row)"
+            v-hasRole="['admin', 'teacher']">组卷</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
             v-hasRole="['admin', 'teacher']">删除</el-button>
         </template>
@@ -66,15 +67,10 @@
         <el-form-item label="试卷名称" prop="title">
           <el-input v-model="form.title" placeholder="请输入试卷名称" />
         </el-form-item>
-        <el-form-item label="总分" prop="totalScore">
-          <el-input v-model="form.totalScore" placeholder="请输入总分" />
-        </el-form-item>
-        <el-form-item label="考试时长" prop="duration">
-          <el-input v-model="form.duration" placeholder="请输入考试时长" />
-        </el-form-item>
-        <el-form-item label="是否发布" prop="isPublished">
-          <el-select v-model="form.isPublished" placeholder="请选择是否发布" clearable>
-            <el-option v-for="dict in paper_published" :key="dict.value" :label="dict.label" :value="dict.value" />
+        <el-form-item label="关联课程" prop="courseId">
+          <el-select v-model="form.courseId" placeholder="请选择关联课程" clearable filterable>
+            <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -90,12 +86,13 @@
 
 <script setup name="Paper">
 import { listPaper, getPaper, delPaper, addPaper, updatePaper } from "@/api/manage/paper";
+import { listCourse } from "@/api/manage/course";
+import { loadAllParams } from "@/api/page";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const { proxy } = getCurrentInstance();
 
-const { paper_published } = proxy.useDict('paper_published')
 const paperList = ref([]);
 const open = ref(false);
 const loading = ref(true);
@@ -112,23 +109,19 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     title: null,
-    isPublished: null,
+    courseId: null,
   },
   rules: {
     title: [
       { required: true, message: "试卷名称不能为空", trigger: "blur" }
     ],
-    totalScore: [
-      { required: true, message: "总分不能为空", trigger: "blur" }
-    ],
-    duration: [
-      { required: true, message: "考试时长不能为空", trigger: "blur" }
-    ],
-    isPublished: [
-      { required: true, message: "是否发布不能为空", trigger: "blur" }
+    courseId: [
+      { required: true, message: "关联课程不能为空", trigger: "change" }
     ],
   }
 });
+
+const courseOptions = ref([]);
 
 const { queryParams, form, rules } = toRefs(data);
 
@@ -153,14 +146,7 @@ function reset() {
   form.value = {
     id: null,
     title: null,
-    totalScore: null,
-    duration: null,
-    isPublished: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
-    deleted: null
+    courseId: null
   };
   proxy.resetForm("paperRef");
 }
@@ -245,6 +231,12 @@ function goToCompose(row) {
   const _paperId = row.id
   router.push("/course/paper-compose/" + _paperId);
 }
+
+onMounted(() => {
+  listCourse(loadAllParams).then(res => {
+    courseOptions.value = res.rows
+  })
+})
 
 getList();
 </script>

@@ -175,12 +175,13 @@ export const dynamicRoutes = [
   },
   {
     path: '/course/paper-compose',
+    component: Layout,
     hidden: true,
     permissions: ['manage:paper:list'],
     children: [
       {
         path: ':paperId(\\d+)',
-        component: () => import('@/views/manage/paper/paperCompose'),
+        component: () => import('@/views/manage/paper/PaperCompose'),
         name: 'PaperCompose',
         meta: { title: '试卷试题管理', activeMenu: '/question_bank/paper' }
       }
