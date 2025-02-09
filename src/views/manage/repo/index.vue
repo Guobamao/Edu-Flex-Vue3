@@ -68,12 +68,8 @@
           <el-input v-model="form.name" placeholder="请输入题库名称" />
         </el-form-item>
         <el-form-item label="关联课程" prop="courseId">
-          <el-select v-model="form.courseId" placeholder="请选择关联课程" clearable @change="handleQuery"
-            :options="courseOptions" filterable
-            :loading="courseLoading">
+          <el-select v-model="form.courseId" placeholder="请选择关联课程" clearable filterable>
             <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id">
-              <span style="float: left;">{{ item.name }}</span>
-              <span style="float: right; color: #8492a6;">{{ item.teacherName }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -181,6 +177,9 @@ function handleSelectionChange(selection) {
 /** 新增按钮操作 */
 function handleAdd() {
   reset();
+  listCourse(loadAllParams).then(res => {
+    courseOptions.value = res.rows;
+  })
   open.value = true;
   title.value = "添加题库管理";
 }

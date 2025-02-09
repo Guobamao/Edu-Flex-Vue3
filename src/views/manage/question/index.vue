@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="关联课程" prop="courseId">
-        <el-select v-model="queryParams.courseId" placeholder="请选择关联课程" clearable @change="handleQuery"
+      <el-form-item label="关联题库" prop="repoId">
+        <el-select v-model="queryParams.repoId" placeholder="请选择关联题库" clearable filterable @change="handleQuery"
           style="width: 150px;">
-          <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in repoOptions" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="题目类型" prop="type" style="width: 250px;">
@@ -49,24 +49,18 @@
     <el-table v-loading="loading" :data="questionList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" align="center" prop="id" width="50" />
-      <el-table-column label="题目内容" align="center" prop="title" show-overflow-tooltip />
       <el-table-column label="题目类型" align="center" prop="type">
         <template #default="scope">
           <dict-tag :options="question_type" :value="scope.row.type" />
         </template>
       </el-table-column>
+      <el-table-column label="关联题库" align="center" prop="repoName" />
+      <el-table-column label="题目内容" align="center" prop="title" show-overflow-tooltip />
       <el-table-column label="正确答案" align="center" prop="answer" show-overflow-tooltip />
       <el-table-column label="答案解析" align="center" prop="analysis" show-overflow-tooltip />
       <el-table-column label="难易程度" align="center" prop="difficulty">
         <template #default="scope">
           <dict-tag :options="question_difficulty" :value="scope.row.difficulty" />
-        </template>
-      </el-table-column>
-      <el-table-column label="关联课程" align="center" prop="courseId">
-        <template #default="scope">
-          <div v-for="item in courseOptions" :key="item.id">
-            <span v-if="scope.row.courseId === item.id">{{ item.name }}</span>
-          </div>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -85,6 +79,11 @@
     <!-- 添加或修改题目管理对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="questionRef" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="关联题库" prop="repoId">
+          <el-select v-model="form.repoId" placeholder="请选择关联题库" clearable>
+            <el-option v-for="item in repoOptions" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="题目内容" prop="title">
           <el-input v-model="form.title" type="textarea" placeholder="请输入题目内容" />
         </el-form-item>
@@ -134,11 +133,6 @@
             <el-option v-for="dict in question_difficulty" :key="dict.value" :label="dict.label" :value="parseInt(dict.value)" />
           </el-select>
         </el-form-item>
-        <el-form-item label="关联课程" prop="courseId">
-          <el-select v-model="form.courseId" placeholder="请选择关联课程" clearable>
-            <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id" />
-          </el-select>
-        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -152,7 +146,7 @@
 
 <script setup name="Question">
 import { listQuestion, getQuestion, delQuestion, addQuestion, updateQuestion } from "@/api/manage/question";
-import { listCourse } from '@/api/manage/course';
+import { listRepo } from '@/api/manage/repo';
 import { loadAllParams } from '@/api/page';
 import { computed } from "vue";
 
@@ -177,7 +171,7 @@ const data = reactive({
     pageSize: 10,
     title: null,
     type: null,
-    courseId: null,
+    repoId: null,
     difficulty: null
   },
   rules: {
@@ -193,15 +187,15 @@ const data = reactive({
     difficulty: [
       { required: true, message: "难易程度不能为空", trigger: "change" }
     ],
-    courseId: [
-      { required: true, message: "关联课程不能为空", trigger: "change" }
+    repoId: [
+      { required: true, message: "关联题库不能为空", trigger: "change" }
     ]
   }
 });
 
 const { queryParams, form, rules } = toRefs(data);
 
-const courseOptions = ref([]);
+const repoOptions = ref([]);
 
 const showOptions = computed(() => {
   return [1, 2].includes(parseInt(form.value.type))
@@ -231,7 +225,7 @@ function reset() {
     options: [],
     answer: [],
     analysis: null,
-    courseId: null,
+    repoId: null,
     difficulty: null
   };
   proxy.resetForm("questionRef");
@@ -320,9 +314,9 @@ function handleExport() {
   }, `question_${new Date().getTime()}.xlsx`)
 }
 
-function getCourseList() {
-  listCourse(loadAllParams).then(res => {
-    courseOptions.value = res.rows
+function getRepoList() {
+  listRepo(loadAllParams).then(res => {
+    repoOptions.value = res.rows
   })
 }
 
@@ -349,5 +343,5 @@ function handleTypeChange() {
 }
 
 getList();
-getCourseList();
+getRepoList();
 </script>
