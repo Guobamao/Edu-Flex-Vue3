@@ -59,3 +59,20 @@ export function getPaperQuestions(id) {
     method: 'get'
   })
 }
+
+// 组卷
+export function composePaper(data) {
+  return request({
+    url: '/manage/paper/compose',
+    method: 'post',
+    data: data
+  })
+}
+
+// 查询关联题库列表
+export function listPaperRepo(id) {
+  return request({
+    url: '/manage/paper/repo/' + id,
+    method: 'get'
+  })
+}
