@@ -43,27 +43,10 @@ export function delPaper(id) {
   })
 }
 
-// 组卷——添加题目
-export function addPaperQuestion(data) {
+// 组卷 - 生成题目
+export function generateQuestion(data) {
   return request({
-    url: '/manage/paper/question',
-    method: 'post',
-    data: data
-  })
-}
-
-// 获取试卷题目列表
-export function getPaperQuestions(id) {
-  return request({
-    url: '/manage/paper/question/' + id,
-    method: 'get'
-  })
-}
-
-// 组卷
-export function composePaper(data) {
-  return request({
-    url: '/manage/paper/compose',
+    url: '/manage/paper/generate',
     method: 'post',
     data: data
   })
@@ -73,6 +56,23 @@ export function composePaper(data) {
 export function listPaperRepo(id) {
   return request({
     url: '/manage/paper/repo/' + id,
+    method: 'get'
+  })
+}
+
+// 组卷 - 提交试卷
+export function composePaper(data) {
+  return request({
+    url: '/manage/paper/compose',
+    method: 'post',
+    data: data
+  })
+}
+
+// 获取试卷题目列表
+export function listPaperQuestion(id) {
+  return request({
+    url: '/manage/paper/question/' + id,
     method: 'get'
   })
 }

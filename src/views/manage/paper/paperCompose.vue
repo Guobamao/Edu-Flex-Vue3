@@ -97,32 +97,44 @@
         <h3>试题信息</h3>
         <el-row :gutter="10" class="mb8">
             <el-col :span="1.5">
-                <el-button type="primary" icon="Connection" @click="autoCompose"
+                <el-button type="primary" icon="Connection" @click="generateQuestionList"
                     v-if="repoList.length > 0">自动组卷</el-button>
+            </el-col>
+            <el-col :span="1.5">
+                <el-button type="primary" icon="Check" @click="submitCompose"
+                    v-if="Object.keys(questionMap).length > 0">提交组卷</el-button>
             </el-col>
         </el-row>
         <el-card>
             <div v-for="(item, index) in questionMap" :key="index">
                 <div v-if="item.length > 0">
                     <h4>{{ getQuestionType(index) }}</h4>
-                    <el-card v-for="(question, questionIndex) in item" :key="questionIndex">
+                    <el-card v-for="(question, questionIndex) in item" :key="questionIndex" class="mb8">
                         <p>{{ questionIndex + 1 }}. {{ question.title }}</p>
                         <!-- 单选题 -->
                         <template v-if="question.type === 1">
-                            <el-radio-group v-model="question.answer">
+                            <el-radio-group v-model="question.answer" class="options-group">
                                 <el-radio v-for="(option, optionIndex) in question.options" :key="optionIndex"
-                                    :value="option.key">
-
+                                    :value="option.key" class="options">
+                                    {{ option.key }}. {{ option.value }}
                                 </el-radio>
                             </el-radio-group>
                         </template>
                         <!-- 多选题 -->
                         <template v-else-if="question.type === 2">
-                            <el-checkbox-group v-model="question.answer">
-                                <el-checkbox v-for="(option, optionIndex) in question.options" :key="optionIndex" :value="option.key">
+                            <el-checkbox-group v-model="question.answer" class="options-group">
+                                <el-checkbox v-for="(option, optionIndex) in question.options" :key="optionIndex"
+                                    :value="option.key" class="options">
                                     {{ option.key }}. {{ option.value }}
                                 </el-checkbox>
                             </el-checkbox-group>
+                        </template>
+                        <!-- 判断题 -->
+                        <template v-else-if="question.type === 3" class="options-group">
+                            <el-radio-group v-model="question.answer" class="options">
+                                <el-radio :value="true">正确</el-radio>
+                                <el-radio :value="false">错误</el-radio>
+                            </el-radio-group>
                         </template>
                     </el-card>
                 </div>
@@ -135,7 +147,7 @@
 <script setup>
 import { loadAllParams } from '@/api/page';
 import { listRepo } from '@/api/manage/repo';
-import { composePaper, listPaperRepo } from '@/api/manage/paper';
+import { generateQuestion, composePaper, listPaperRepo, listPaperQuestion } from '@/api/manage/paper';
 import RepoSelect from './components/RepoSelect.vue';
 
 const { proxy } = getCurrentInstance();
@@ -180,19 +192,30 @@ function getRepoList() {
 }
 
 // 获取试卷关联题库列表
-function getPaperRepo() {
+function getData() {
     listPaperRepo(route.params.paperId).then(res => {
         repoList.value = res.data
+    })
+    listPaperQuestion(route.params.paperId).then(res => {
+        questionMap.value = res.data
+        Object.keys(questionMap.value).forEach(key => {
+            questionMap.value[key].forEach(item => {
+                item.options = JSON.parse(item.options)
+                item.type = parseInt(item.type)
+                item.answer = item.type === 2 ? JSON.parse(item.answer) : JSON.parse(item.answer)[0]
+            })
+        })
+
     })
 }
 
 // 自动组卷
-function autoCompose() {
+function generateQuestionList() {
     const data = {
         id: route.params.paperId,
         repoInfos: repoList.value
     }
-    composePaper(data).then(res => {
+    generateQuestion(data).then(res => {
         questionMap.value = res.data
         Object.keys(questionMap.value).forEach(key => {
             questionMap.value[key].forEach(item => {
@@ -211,6 +234,21 @@ function getQuestionType(value) {
     return item.label
 }
 
+// 提交组卷
+function submitCompose() {
+    const data = {
+        id: route.params.paperId,
+        questionMap: Object.keys(questionMap.value).reduce((pre, cur) => {
+            pre[cur] = questionMap.value[cur].map(item => item.id);
+            return pre
+        }, {})
+    }
+    composePaper(data).then(res => {
+        proxy.$modal.msgSuccess("组卷成功")
+    })
+
+}
+
 watch(() => repoList.value, (val) => {
     totalScore.value = 0
     excludes.value = []
@@ -227,14 +265,37 @@ watch(() => repoList.value, (val) => {
 })
 
 getRepoList()
-getPaperRepo()
+getData()
 
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .app-container {
     display: flex;
     flex-direction: column;
     padding: 20px;
+
+    .options-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        .options {
+            display: inline-flex;
+            max-width: 50%;
+            height: fit-content;
+            margin: 8px 0;
+
+            :deep(.el-radio__label) {
+                white-space: break-spaces;
+                line-height: 20px;
+            }
+
+            :deep(.el-checkbox__label) {
+                white-space: break-spaces;
+                line-height: 20px;
+            }
+        }
+    }
 }
 </style>
