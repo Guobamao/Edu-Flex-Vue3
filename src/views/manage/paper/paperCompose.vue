@@ -18,10 +18,10 @@
                 </el-table-column>
                 <el-table-column label="单选题数量" align="center" width="150">
                     <template #default="scope">
-                        <el-input-number v-model="scope.row.singleChoiceCount" :min="0" :max="10" :controls="false"
-                            style="width: 50px;" />
+                        <el-input-number v-model="scope.row.singleChoiceCount" :min="0"
+                            :max="scope.row.singleChoiceTotal" :controls="false" style="width: 50px;" />
                         /
-                        16
+                        {{ scope.row.singleChoiceTotal }}
                     </template>
                 </el-table-column>
                 <el-table-column label="分值" align="center">
@@ -32,10 +32,10 @@
                 </el-table-column>
                 <el-table-column label="多选题数量" align="center" width="150">
                     <template #default="scope">
-                        <el-input-number v-model="scope.row.multipleChoiceCount" :min="0" :max="10" :controls="false"
-                            style="width: 50px;" />
+                        <el-input-number v-model="scope.row.multipleChoiceCount" :min="0"
+                            :max="scope.row.multipleChoiceTotal" :controls="false" style="width: 50px;" />
                         /
-                        16
+                        {{ scope.row.multipleChoiceTotal }}
                     </template>
                 </el-table-column>
                 <el-table-column label="分值" align="center">
@@ -46,10 +46,10 @@
                 </el-table-column>
                 <el-table-column label="判断题数量" align="center" width="150">
                     <template #default="scope">
-                        <el-input-number v-model="scope.row.judgeCount" :min="0" :max="10" :controls="false"
-                            style="width: 50px;" />
+                        <el-input-number v-model="scope.row.judgeCount" :min="0" :max="scope.row.judgeTotal"
+                            :controls="false" style="width: 50px;" />
                         /
-                        16
+                        {{ scope.row.judgeTotal }}
                     </template>
                 </el-table-column>
                 <el-table-column label="分值" align="center">
@@ -60,10 +60,10 @@
                 </el-table-column>
                 <el-table-column label="填空题数量" align="center" width="150">
                     <template #default="scope">
-                        <el-input-number v-model="scope.row.blankCount" :min="0" :max="10" :controls="false"
-                            style="width: 50px;" />
+                        <el-input-number v-model="scope.row.blankCount" :min="0" :max="scope.row.blankTotal"
+                            :controls="false" style="width: 50px;" />
                         /
-                        16
+                        {{ scope.row.blankTotal }}
                     </template>
                 </el-table-column>
                 <el-table-column label="分值" align="center">
@@ -74,10 +74,10 @@
                 </el-table-column>
                 <el-table-column label="简答题数量" align="center" width="150">
                     <template #default="scope">
-                        <el-input-number v-model="scope.row.shortAnswerCount" :min="0" :max="10" :controls="false"
-                            style="width: 50px;" />
+                        <el-input-number v-model="scope.row.shortAnswerCount" :min="0" :max="scope.row.shortAnswerTotal"
+                            :controls="false" style="width: 50px;" />
                         /
-                        16
+                        {{ scope.row.shortAnswerTotal }}
                     </template>
                 </el-table-column>
                 <el-table-column label="分值" align="center">
@@ -107,36 +107,54 @@
         </el-row>
         <el-card>
             <div v-for="(item, index) in questionMap" :key="index">
-                <div v-if="item.length > 0">
-                    <h4>{{ getQuestionType(index) }}</h4>
-                    <el-card v-for="(question, questionIndex) in item" :key="questionIndex" class="mb8">
-                        <p>{{ questionIndex + 1 }}. {{ question.title }}</p>
-                        <!-- 单选题 -->
-                        <template v-if="question.type === 1">
-                            <el-radio-group v-model="question.answer" class="options-group">
-                                <el-radio v-for="(option, optionIndex) in question.options" :key="optionIndex"
-                                    :value="option.key" class="options">
-                                    {{ option.key }}. {{ option.value }}
-                                </el-radio>
-                            </el-radio-group>
-                        </template>
-                        <!-- 多选题 -->
-                        <template v-else-if="question.type === 2">
-                            <el-checkbox-group v-model="question.answer" class="options-group">
-                                <el-checkbox v-for="(option, optionIndex) in question.options" :key="optionIndex"
-                                    :value="option.key" class="options">
-                                    {{ option.key }}. {{ option.value }}
-                                </el-checkbox>
-                            </el-checkbox-group>
-                        </template>
-                        <!-- 判断题 -->
-                        <template v-else-if="question.type === 3" class="options-group">
-                            <el-radio-group v-model="question.answer" class="options">
-                                <el-radio :value="true">正确</el-radio>
-                                <el-radio :value="false">错误</el-radio>
-                            </el-radio-group>
-                        </template>
-                    </el-card>
+                <div v-for="(question, questionIndex) in item" :key="questionIndex" class="question-item">
+                    <el-row :gutter="10" class="mt10">
+                        <el-col :span="1.5">
+                            <dict-tag :options="question_type" :value="question.type" />
+                        </el-col>
+                        <el-col :span="1.5">
+                            <dict-tag :options="question_difficulty" :value="question.difficulty" />
+                        </el-col>
+                        <el-col :span="20">
+                            <span>{{ question.orderNum }}. {{ question.title }}</span>
+                        </el-col>
+                    </el-row>
+                    <!-- 单选题 -->
+                    <template v-if="question.type === 1">
+                        <el-radio-group v-model="question.answer" class="options-group">
+                            <el-radio v-for="(option, optionIndex) in question.options" :key="optionIndex"
+                                :value="option.key" class="options">
+                                {{ option.key }}. {{ option.value }}
+                            </el-radio>
+                        </el-radio-group>
+                    </template>
+                    <!-- 多选题 -->
+                    <template v-else-if="question.type === 2">
+                        <el-checkbox-group v-model="question.answer" class="options-group">
+                            <el-checkbox v-for="(option, optionIndex) in question.options" :key="optionIndex"
+                                :value="option.key" class="options">
+                                {{ option.key }}. {{ option.value }}
+                            </el-checkbox>
+                        </el-checkbox-group>
+                    </template>
+                    <!-- 判断题 -->
+                    <template v-else-if="question.type === 3" class="options-group">
+                        <el-radio-group v-model="question.answer" class="options">
+                            <el-radio :value="true">正确</el-radio>
+                            <el-radio :value="false">错误</el-radio>
+                        </el-radio-group>
+                    </template>
+                    <!-- 填空题与简答题 -->
+                    <template v-else>
+                        <el-row :gutter="10" class="mt10 mb10">
+                            <el-col :span="1.5">
+                                <span>答案：</span>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input v-model="question.answer" placeholder="请输入答案" class="options" readonly></el-input>
+                            </el-col>
+                        </el-row>
+                    </template>
                 </div>
             </div>
         </el-card>
@@ -152,8 +170,10 @@ import RepoSelect from './components/RepoSelect.vue';
 
 const { proxy } = getCurrentInstance();
 
-const { question_type } = proxy.useDict("question_type");
+const router = useRouter();
 
+const { question_type } = proxy.useDict('question_type');
+const { question_difficulty } = proxy.useDict('question_difficulty');
 const route = useRoute();
 
 const repoList = ref([]);
@@ -228,12 +248,6 @@ function generateQuestionList() {
     })
 }
 
-// 获取题目类型
-function getQuestionType(value) {
-    const item = question_type.value.find(item => item.value === value)
-    return item.label
-}
-
 // 提交组卷
 function submitCompose() {
     const data = {
@@ -245,6 +259,7 @@ function submitCompose() {
     }
     composePaper(data).then(res => {
         proxy.$modal.msgSuccess("组卷成功")
+        router.push("/question_bank/paper")
     })
 
 }
@@ -274,6 +289,10 @@ getData()
     display: flex;
     flex-direction: column;
     padding: 20px;
+
+    .question-item {
+        border-bottom: 1px solid #d8d8d8;
+    }
 
     .options-group {
         display: flex;
