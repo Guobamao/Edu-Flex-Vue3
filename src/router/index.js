@@ -223,7 +223,7 @@ export const dynamicRoutes = [
     children: [
       {
         path: ':goalId(\\d+)',
-        component: () => import('@/views/manage/goal/goal_student'),
+        component: () => import('@/views/manage/goal/GoalStudent'),
         name: 'GoalStudent',
         meta: { title: '学习目标-学生关联管理', activeMenu: '/study/goal' }
       }
@@ -240,6 +240,20 @@ export const dynamicRoutes = [
         component: () => import('@/views/manage/exam/ExamUsers'),
         name: 'ExamUsers',
         meta: { title: '考试人员', activeMenu: '/exams/exam' }
+      }
+    ]
+  },
+  {
+    path: '/exams/exam/record',
+    hidden: true,
+    component: Layout,
+    permissions: ['manage:exam:list', 'manage:student:list'],
+    children: [
+      {
+        path: ':id(\\d+)',
+        component: () => import('@/views/manage/exam/ExamRecord'),
+        name: 'ExamRecord',
+        meta: { title: '考生记录详情', activeMenu: '/exams/exam' }
       }
     ]
   },

@@ -69,7 +69,7 @@
 </template>
 
 <script setup name="ExamUsers">
-import { listRecord } from "@/api/manage/exam_record";
+import { listRecord } from "@/api/manage/examRecord";
 
 const { proxy } = getCurrentInstance();
 
@@ -77,6 +77,7 @@ const { common_status } = proxy.useDict("common_status")
 const { exam_passed } = proxy.useDict("exam_passed")
 
 const route = useRoute();
+const router = useRouter();
 
 const queryParams = ref({
     pageNum: 1,
@@ -110,5 +111,8 @@ function resetQuery() {
     handleQuery();
 }
 
+function handleDetail(row) {
+    router.push("/exams/exam/record/" + row.id)
+}
 getList();
 </script>

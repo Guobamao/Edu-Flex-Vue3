@@ -129,7 +129,7 @@
 </template>
 
 <script setup name="GoalStudent">
-import { listGoalStudent, getGoalStudent, addGoalStudent, updateGoalStudent, delGoalStudent } from "@/api/manage/goal_student";
+import { listGoalStudent, getGoalStudent, addGoalStudent, updateGoalStudent, delGoalStudent } from "@/api/manage/goalStudent";
 import { listStudent, listStudentForGoal } from "@/api/manage/student";
 
 const { proxy } = getCurrentInstance();
