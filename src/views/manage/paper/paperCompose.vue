@@ -123,7 +123,7 @@
                     <template v-if="question.type === 1">
                         <el-radio-group v-model="question.answer" class="options-group">
                             <el-radio v-for="(option, optionIndex) in question.options" :key="optionIndex"
-                                :value="option.key" class="options">
+                                :value="option.key" class="options" @click.prevent>
                                 {{ option.key }}. {{ option.value }}
                             </el-radio>
                         </el-radio-group>
@@ -132,7 +132,7 @@
                     <template v-else-if="question.type === 2">
                         <el-checkbox-group v-model="question.answer" class="options-group">
                             <el-checkbox v-for="(option, optionIndex) in question.options" :key="optionIndex"
-                                :value="option.key" class="options">
+                                :value="option.key" class="options" @click.prevent>
                                 {{ option.key }}. {{ option.value }}
                             </el-checkbox>
                         </el-checkbox-group>
@@ -140,8 +140,8 @@
                     <!-- 判断题 -->
                     <template v-else-if="question.type === 3">
                         <el-radio-group v-model="question.answer">
-                            <el-radio :value="true"  class="options">正确</el-radio>
-                            <el-radio :value="false" class="options">错误</el-radio>
+                            <el-radio :value="true"  class="options" @click.prevent>正确</el-radio>
+                            <el-radio :value="false" class="options" @click.prevent>错误</el-radio>
                         </el-radio-group>
                     </template>
                     <!-- 填空题与简答题 -->
