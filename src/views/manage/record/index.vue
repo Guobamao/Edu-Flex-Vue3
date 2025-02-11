@@ -20,7 +20,7 @@
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 150px;"
           @change="handleQuery">
-          <el-option v-for="dict in study_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          <el-option v-for="dict in common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -50,7 +50,7 @@
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template #default="scope">
-          <dict-tag :options="study_status" :value="scope.row.status" />
+          <dict-tag :options="common_status" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column label="课程进度(%)" align="center" prop="progress">
@@ -83,7 +83,7 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio v-for="dict in study_status" :key="dict.value" :label="dict.value">
+            <el-radio v-for="dict in common_status" :key="dict.value" :label="dict.value">
               {{ dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -113,7 +113,7 @@ import { listCourse } from "@/api/manage/course";
 import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
-const { study_status } = proxy.useDict('study_status');
+const { common_status } = proxy.useDict('common_status');
 
 const recordList = ref([]);
 const open = ref(false);

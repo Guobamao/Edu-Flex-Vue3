@@ -66,7 +66,7 @@
       </el-table-column>
       <el-table-column label="课程状态" align="center" prop="status">
         <template #default="scope">
-          <dict-tag :options="course_status" :value="scope.row.status" />
+          <dict-tag :options="common_status" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -108,7 +108,7 @@
         </el-form-item>
         <el-form-item label="课程状态" prop="status">
           <el-select v-model="form.status" placeholder="请选择课程状态" clearable>
-            <el-option v-for="dict in course_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+            <el-option v-for="dict in common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="课程描述" prop="description">
@@ -136,7 +136,7 @@ import { listCategory } from "@/api/manage/category";
 
 const router = useRouter();
 const { proxy } = getCurrentInstance();
-const { course_status } = proxy.useDict("course_status");
+const { common_status } = proxy.useDict("common_status");
 
 const courseList = ref([]);
 const categoryOptions = ref([]);

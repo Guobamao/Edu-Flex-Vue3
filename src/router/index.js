@@ -229,6 +229,21 @@ export const dynamicRoutes = [
       }
     ]
   },
+  {
+    path: '/exams/exam/users',
+    hidden: true,
+    component: Layout,
+    permissions: ['manage:exam:list', 'manage:student:list'],
+    children: [
+      {
+        path: ':examId(\\d+)',
+        component: () => import('@/views/manage/exam/ExamUsers'),
+        name: 'ExamUsers',
+        meta: { title: '考试人员', activeMenu: '/exams/exam' }
+      }
+    ]
+  },
+  
 ]
 
 const router = createRouter({

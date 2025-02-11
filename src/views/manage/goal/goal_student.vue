@@ -19,7 +19,7 @@
             <el-form-item label="状态" prop="status">
                 <el-select v-model="queryParams.status" placeholder="请选择状态" clearable @change="handleQuery"
                     style="width: 150px;">
-                    <el-option v-for="dict in study_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+                    <el-option v-for="dict in common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
                 </el-select>
             </el-form-item>
             <el-form-item>
@@ -46,7 +46,7 @@
             </el-table-column>
             <el-table-column label="状态" align="center" prop="status">
                 <template #default="scope">
-                    <dict-tag :options="study_status" :value="scope.row.status" />
+                    <dict-tag :options="common_status" :value="scope.row.status" />
                 </template>
             </el-table-column>
             <el-table-column label="结束时间" align="center" prop="deadline">
@@ -107,7 +107,7 @@
                     </el-form-item>
                     <el-form-item label="状态" prop="status">
                         <el-select v-model="form.status" placeholder="请选择状态">
-                            <el-option v-for="dict in study_status" :key="dict.value" :label="dict.label" :value="dict.value"/>
+                            <el-option v-for="dict in common_status" :key="dict.value" :label="dict.label" :value="dict.value"/>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="进度" prop="progress" v-if="parseInt(form.status) !== 0">
@@ -131,10 +131,9 @@
 <script setup name="GoalStudent">
 import { listGoalStudent, getGoalStudent, addGoalStudent, updateGoalStudent, delGoalStudent } from "@/api/manage/goal_student";
 import { listStudent, listStudentForGoal } from "@/api/manage/student";
-import { useRoute } from "vue-router";
 
 const { proxy } = getCurrentInstance();
-const { study_status } = proxy.useDict("study_status");
+const { common_status } = proxy.useDict("common_status");
 const route = useRoute();
 
 const studentList = ref([]);

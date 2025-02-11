@@ -14,7 +14,7 @@
       <el-form-item label="试卷状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择试卷状态" clearable @change="handleQuery"
           @clear="handleQuery" style="width: 150px;">
-          <el-option v-for="dict in exam_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          <el-option v-for="dict in common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="发布状态" prop="published">
@@ -51,26 +51,26 @@
     <el-table v-loading="loading" :data="examList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
-      <el-table-column label="考试名称" align="center" prop="name" />
-      <el-table-column label="关联课程" align="center" prop="courseName" />
-      <el-table-column label="关联试卷" align="center" prop="paperName" />
-      <el-table-column label="考试时长(分钟)" align="center" prop="duration" />
-      <el-table-column label="考试状态" align="center" prop="status">
+      <el-table-column label="考试名称" width="150" align="center" prop="name" show-overflow-tooltip />
+      <el-table-column label="关联课程" width="150" align="center" prop="courseName" />
+      <el-table-column label="关联试卷" width="150" align="center" prop="paperName" />
+      <el-table-column label="考试时长(分钟)" width="120" align="center" prop="duration" />
+      <el-table-column label="考试状态" width="100" align="center" prop="status">
         <template #default="scope">
-          <dict-tag :options="exam_status" :value="scope.row.status" />
+          <dict-tag :options="common_status" :value="scope.row.status" />
         </template>
       </el-table-column>
-      <el-table-column label="发布状态" align="center" prop="published">
+      <el-table-column label="发布状态" width="100" align="center" prop="published">
         <template #default="scope">
           <dict-tag :options="exam_publish_status" :value="scope.row.published" />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Open" @click="handleStatus(scope.row)" v-if="scope.row.status === 0">
+          <el-button link type="success" icon="Open" @click="handleStatus(scope.row)" v-if="scope.row.status === 0">
             开始
           </el-button>
-          <el-button link type="primary" icon="TurnOff" @click="handleStatus(scope.row)"
+          <el-button link type="danger" icon="TurnOff" @click="handleStatus(scope.row)"
             v-else-if="scope.row.status === 1">
             结束
           </el-button>
@@ -78,7 +78,7 @@
             v-else-if="scope.row.status === 2">
             重新开始
           </el-button>
-          <el-button link type="primary" icon="FolderRemove" @click="handlePublish(scope.row)" v-if="scope.row.published">
+          <el-button link type="warning" icon="FolderRemove" @click="handlePublish(scope.row)" v-if="scope.row.published">
             收回
           </el-button>
           <el-button link type="primary" icon="FolderChecked" @click="handlePublish(scope.row)" v-else>
@@ -86,8 +86,9 @@
           </el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:exam:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+          <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)"
             v-hasPermi="['manage:exam:remove']">删除</el-button>
+            <el-button link type="primary" icon="Connection" @click="goToExamUser(scope.row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -169,7 +170,9 @@ import { loadAllParams } from "@/api/page";
 
 const { proxy } = getCurrentInstance();
 
-const { exam_status } = proxy.useDict("exam_status")
+const router = useRouter();
+
+const { common_status } = proxy.useDict("common_status")
 const { exam_publish_status } = proxy.useDict("exam_publish_status")
 
 const examList = ref([]);
@@ -511,6 +514,10 @@ function handleStatus(row) {
       })
     })
   }
+}
+
+function goToExamUser(row) {
+  router.push("/exams/exam/users/" + row.id)
 }
 getCourseList();
 getPaperList();
