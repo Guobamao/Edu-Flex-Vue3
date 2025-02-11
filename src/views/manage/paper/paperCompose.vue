@@ -138,10 +138,10 @@
                         </el-checkbox-group>
                     </template>
                     <!-- 判断题 -->
-                    <template v-else-if="question.type === 3" class="options-group">
-                        <el-radio-group v-model="question.answer" class="options">
-                            <el-radio :value="true">正确</el-radio>
-                            <el-radio :value="false">错误</el-radio>
+                    <template v-else-if="question.type === 3">
+                        <el-radio-group v-model="question.answer">
+                            <el-radio :value="true"  class="options">正确</el-radio>
+                            <el-radio :value="false" class="options">错误</el-radio>
                         </el-radio-group>
                     </template>
                     <!-- 填空题与简答题 -->
