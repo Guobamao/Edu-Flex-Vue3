@@ -8,6 +8,7 @@ import { isRelogin } from '@/utils/request'
 import useUserStore from '@/store/modules/user'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
+import Layout from '@/layout'
 
 NProgress.configure({ showSpinner: false });
 
@@ -27,12 +28,45 @@ router.beforeEach((to, from, next) => {
       if (useUserStore().roles.length === 0) {
         isRelogin.show = true
         // 判断当前用户是否已拉取完user_info信息
-        useUserStore().getInfo().then(() => {
+        useUserStore().getInfo().then(res => {
+          const homeRoute = ref({});
+          if (res.roles.indexOf('student') > -1) {
+            homeRoute.value = {
+              path: '',
+              redirect: '/index',
+              children: [
+                {
+                  path: '/index',
+                  component: () => import('@/views/user/index/index'),
+                  name: 'UserIndex',
+                  meta: { title: '首页' }
+                }
+              ]
+            }
+          } else if (res.roles.indexOf('teacher') > -1 || res.roles.indexOf('admin') > -1) {
+            homeRoute.value = {
+              path: '',
+              redirect: '/admin/index',
+              component: Layout,
+              children: [
+                {
+                  path: '/admin/index',
+                  component: () => import('@/views/index'),
+                  name: 'Index',
+                  meta: { title: '首页' }
+                }
+              ]
+            }
+          }
+          router.addRoute(homeRoute.value)
           isRelogin.show = false
           usePermissionStore().generateRoutes().then(accessRoutes => {
             // 根据roles权限生成可访问的路由表
             accessRoutes.forEach(route => {
               if (!isHttp(route.path)) {
+                if (route.children[0].path == 'admin/index') {
+                  route.children[0].meta.affix = true
+                }
                 router.addRoute(route) // 动态添加可访问路由表
               }
             })
