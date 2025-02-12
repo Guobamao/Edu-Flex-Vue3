@@ -9,14 +9,6 @@ export function listCategory(query) {
   })
 }
 
-// 查询课程分类列表(排除节点)
-export function listCategoryExcludeChild(categoryId) {
-  return request({
-    url: '/manage/category/list/exclude/' + categoryId,
-    method: 'get'
-  })
-}
-
 // 查询课程分类详细
 export function getCategory(id) {
   return request({
