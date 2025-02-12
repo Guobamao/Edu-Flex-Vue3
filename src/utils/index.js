@@ -16,6 +16,30 @@ export function formatDate(cellValue) {
 }
 
 /**
+ * 格式化秒钟
+ * @param {number} seconds 秒数
+ * @returns 格式化后的时间
+ */
+export function formatSeconds(seconds) {
+  if (seconds < 60) {
+    return `${seconds}秒`;
+  }
+
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+
+  if (minutes < 60) {
+    return `${minutes}分${remainingSeconds}秒` ;
+  }
+
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
+
+  return `${hours}小时${remainingMinutes}分${remainingSeconds}秒`
+}
+
+
+/**
  * @param {number} time
  * @param {string} option
  * @returns {string}
