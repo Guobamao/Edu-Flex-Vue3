@@ -5,8 +5,10 @@
         <el-input v-model="queryParams.name" placeholder="请输入课程名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="课程分类" prop="categoryId">
-        <el-tree-select v-model="queryParams.categoryId" :data="categoryOptions" style="width: 200px;" filterable clearable
-          :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择课程分类" check-strictly />
+        <el-select v-model="queryParams.categoryId" style="width: 200px;" filterable clearable placeholder="请选择课程分类"
+          @change="handleQuery">
+          <el-option v-for="item in categoryOptions" :key="item.id" :label="item.name" :value="item.id" />
+        </el-select>
       </el-form-item>
       <el-form-item label="时间范围">
         <el-date-picker clearable v-model="dateRange" value-format="YYYY-MM-DD" type="daterange" range-separator="-"
@@ -47,7 +49,8 @@
       </el-table-column>
       <el-table-column label="课程名称" align="center" prop="name">
         <template #default="scope">
-          <el-link type="primary" @click="goToCourseChapters(scope.row)" v-hasRole="['admin', 'teacher']">{{ scope.row.name }}</el-link>
+          <el-link type="primary" @click="goToCourseChapters(scope.row)" v-hasRole="['admin', 'teacher']">
+            {{ scope.row.name }}</el-link>
         </template>
       </el-table-column>
       <el-table-column label="任课老师" align="center" prop="teacherName">
@@ -89,8 +92,9 @@
           <el-input v-model="form.name" placeholder="请输入课程名称" />
         </el-form-item>
         <el-form-item label="课程分类" prop="categoryId">
-          <el-tree-select v-model="form.categoryId" :data="categoryOptions"
-            :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择课程分类" />
+          <el-select v-model="form.categoryId" placeholder="请选择课程分类" clearable filterable>
+            <el-option v-for="item in categoryOptions" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="任课老师" prop="teacherId">
           <el-select v-model=form.teacherId placeholder="请选择任课老师" clearable>
@@ -135,6 +139,7 @@ import { loadAllParams } from '@/api/page';
 import { listCategory } from "@/api/manage/category";
 
 const router = useRouter();
+const route = useRoute();
 const { proxy } = getCurrentInstance();
 const { common_status } = proxy.useDict("common_status");
 
@@ -157,7 +162,7 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     name: null,
-    categoryId: null,
+    categoryId: route.query.categoryId || null,
     startTime: null,
     endTime: null,
     status: null,
@@ -215,13 +220,13 @@ function reset() {
   form.value = {
     id: null,
     name: null,
-    description: null,
+    categoryId: null,
     teacherId: null,
+    startTime: null,
+    endTime: null,
     status: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null
+    description: null,
+    cover: null
   };
   proxy.resetForm("courseRef");
 }
@@ -249,7 +254,6 @@ function handleSelectionChange(selection) {
 /** 新增按钮操作 */
 function handleAdd() {
   reset();
-  getTreeselect()
   open.value = true;
   title.value = "添加课程管理";
 }
@@ -257,7 +261,6 @@ function handleAdd() {
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  getTreeselect()
   const _id = row.id || ids.value
   getCourse(_id).then(response => {
     form.value = response.data;
@@ -318,22 +321,13 @@ function goToCourseChapters(row) {
   router.push("/course/course-chapters/" + _courseId);
 }
 
-/** 查询课程分类下拉树结构 */
-function getTreeselect() {
-  listCategory().then(response => {
-    categoryOptions.value = proxy.handleTree(response.rows, "id");
-  });
-}
-
-const categoryList = ref([]);
 function getCategoryList() {
   listCategory().then(response => {
-    categoryList.value = response.rows;
+    categoryOptions.value = response.rows;
   })
 }
 
 getTeacherList();
-getTreeselect();
 getCategoryList();
 getList();
 </script>

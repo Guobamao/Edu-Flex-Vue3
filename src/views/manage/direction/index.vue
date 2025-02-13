@@ -18,21 +18,16 @@
         <el-button type="primary" plain icon="Plus" @click="handleAdd"
           v-hasPermi="['manage:direction:add']">新增</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['manage:direction:edit']">修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['manage:direction:remove']">删除</el-button>
-      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="directionList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
+    <el-table v-loading="loading" :data="directionList">
       <el-table-column label="序号" width="50" type="index" align="center" />
-      <el-table-column label="名称" align="center" prop="name" />
+      <el-table-column label="名称" align="center" prop="name">
+        <template #default="scope">
+           <el-link type="primary" @click="goToCategory(scope.row)">{{ scope.row.name }}</el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template #default="scope">
           <el-switch v-model="scope.row.status" :active-value="1" :inactive-value="0"
@@ -41,6 +36,9 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
+          <el-button link type="primary" icon="Connection" @click="goToCategory(scope.row)">
+            关联分类
+          </el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:direction:edit']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -77,13 +75,12 @@ import { listDirection, getDirection, delDirection, addDirection, updateDirectio
 
 const { proxy } = getCurrentInstance();
 
+const router = useRouter();
+
 const directionList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
-const ids = ref([]);
-const single = ref(true);
-const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 
@@ -145,12 +142,6 @@ function resetQuery() {
   handleQuery();
 }
 
-// 多选框选中数据
-function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.id);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-}
 
 /** 新增按钮操作 */
 function handleAdd() {
@@ -162,7 +153,7 @@ function handleAdd() {
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _id = row.id || ids.value
+  const _id = row.id
   getDirection(_id).then(response => {
     form.value = response.data;
     open.value = true;
@@ -193,9 +184,9 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const _ids = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除课程方向编号为"' + _ids + '"的数据项？').then(function () {
-    return delDirection(_ids);
+  const _id = row.id;
+  proxy.$modal.confirm('是否确认删除课程方向编号为"' + _id + '"的数据项？').then(function () {
+    return delDirection(_id);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
@@ -215,6 +206,11 @@ function handleStatusChange(row) {
       proxy.$modal.msgSuccess("启用成功");
     }
   });
+}
+
+// 关联方向
+function goToCategory(row) {
+  router.push({ name: 'Category', query: { directionId: row.id } })
 }
 
 getList();

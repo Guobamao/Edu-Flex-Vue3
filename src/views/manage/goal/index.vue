@@ -224,7 +224,7 @@ function handleUser(row) {
 
 /** 关联学习路线 */
 function handleRoute(row) {
-  router.push({ name: 'Route', query: { goalId: row.id} })
+  router.push({ name: 'Route', query: { goalId: row.id }})
 }
 
 getList();

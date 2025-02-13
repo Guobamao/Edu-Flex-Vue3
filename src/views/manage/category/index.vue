@@ -28,7 +28,13 @@
 
     <el-table v-loading="loading" :data="categoryList">
       <el-table-column label="序号" width="50" type="index" align="center" />
-      <el-table-column label="分类名称" prop="name" />
+      <el-table-column label="分类名称" prop="name">
+        <template #default="scope">
+          <el-link type="primary" @click="goToCourse(scope.row)">
+            {{ scope.row.name }}
+          </el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="关联方向" prop="directionName" />
       <el-table-column label="状态" prop="status">
         <template #default="scope">
@@ -86,6 +92,9 @@ import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 
+const route = useRoute();
+const router = useRouter();
+
 const categoryList = ref([]);
 const open = ref(false);
 const loading = ref(true);
@@ -99,7 +108,7 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     name: null,
-    directionId: null,
+    directionId: route.query.directionId || null,
     status: 1,
   },
   rules: {
@@ -224,6 +233,11 @@ function handleStatusChange(row) {
       proxy.$modal.msgSuccess("禁用成功");
     }
   })
+}
+
+// 关联课程
+function goToCourse(row) {
+  router.push({ name: 'Course', query: { categoryId: row.id }})
 }
 
 getDirectionList();
