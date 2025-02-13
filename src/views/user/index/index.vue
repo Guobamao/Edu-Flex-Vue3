@@ -9,11 +9,51 @@
         </el-card>
         <el-card>
             <h3 class="section-title">推荐课程</h3>
+            <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+                <el-tab-pane v-for="item in directionOptions" :key="item.id" :label="item.name"
+                    :name="item.name">
+                    <el-row :gutter="20">
+                        <el-col :span="4" v-for="item in courseOptions" :key="item.id">
+                            <el-card shadow="hover" class="mb20">
+                                <el-image :src="item.cover" fit="cover" style="height: 200px;"></el-image>
+                                <div class="justify-between">
+                                    <div class="flex-x-between"></div>
+                                </div>
+                            </el-card>
+                        </el-col>
+                    </el-row>
+                </el-tab-pane>
+            </el-tabs>
         </el-card>
     </div>
 </template>
 
 <script setup name="UserIndex">
+import { listDirection } from "@/api/user/direction";
+import { listCourse } from "@/api/user/course";
+
+const { proxy } = getCurrentInstance();
+
+const directionOptions = ref([]);
+const courseOptions = ref([]);
+
+function getList() {
+    const params = {
+        pageNum: 1,
+        pageSize: 5,
+        status: 1
+    }
+    listDirection(params).then(res => {
+        directionOptions.value = res.data;
+    })
+}
+
+function handleTabClick(tab, event) {
+    console.log(tab)
+    console.log(event)
+}
+
+getList();
 </script>
 
 <style lang="scss" scoped>
@@ -36,6 +76,6 @@
 .section-title {
     text-align: center;
     padding-bottom: 10px;
-    border-bottom: 1px solid #eee       ;
+    border-bottom: 1px solid #eee;
 }
 </style>

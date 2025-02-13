@@ -2,7 +2,7 @@
     <div class="app-wrapper">
         <el-container>
             <div class="fixed-header">
-                <Navigator />
+                <Navbar />
             </div>
             <AppMain />
             <el-footer>Footer</el-footer>
@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import Navigator from './components/Navigator.vue';
+import Navbar from './components/Navbar.vue';
 import AppMain from './components/AppMain.vue';
 </script>
 
