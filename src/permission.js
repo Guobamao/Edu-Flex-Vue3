@@ -12,7 +12,7 @@ import Layout from '@/layout'
 
 NProgress.configure({ showSpinner: false });
 
-const whiteList = ['/login', '/register', '/index'];
+const whiteList = ['/login', '/register', '/index', '/course'];
 
 router.beforeEach((to, from, next) => {
   NProgress.start()
