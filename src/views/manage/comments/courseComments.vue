@@ -247,7 +247,7 @@ function onSearchStudent(keyword) {
 // 查看用户所有评论
 function goToUser(row) {
   const _userId = row.userId
-  router.push("/base/user-comments/" + _userId);
+  router.push("/admin/comments/user-comments/" + _userId);
 }
 
 getList();

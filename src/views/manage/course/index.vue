@@ -318,7 +318,7 @@ function getTeacherList() {
 // 跳转到课程章节
 function goToCourseChapters(row) {
   const _courseId = row.id;
-  router.push("/course/course-chapters/" + _courseId);
+  router.push("/admin/course/course-chapters/" + _courseId);
 }
 
 function getCategoryList() {

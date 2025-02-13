@@ -1,7 +1,7 @@
 import { createWebHistory, createRouter } from 'vue-router'
 /* Layout */
 import Layout from '@/layout'
-import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
+import UserLayout from '@/views/user/UserLayout';
 
 /**
  * Note: 路由配置项
@@ -61,6 +61,7 @@ export const constantRoutes = [
   {
     path: '',
     redirect: '/index',
+    component: UserLayout,
     children: [
       {
         path: '/index',
@@ -88,7 +89,7 @@ export const constantRoutes = [
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
   {
-    path: '/system/user-auth',
+    path: '/admin/system/user-auth',
     component: Layout,
     hidden: true,
     permissions: ['system:user:edit'],
@@ -97,12 +98,12 @@ export const dynamicRoutes = [
         path: 'role/:userId(\\d+)',
         component: () => import('@/views/system/user/authRole'),
         name: 'AuthRole',
-        meta: { title: '分配角色', activeMenu: '/system/user' }
+        meta: { title: '分配角色', activeMenu: '/admin/system/user' }
       }
     ]
   },
   {
-    path: '/system/role-auth',
+    path: '/admin/system/role-auth',
     component: Layout,
     hidden: true,
     permissions: ['system:role:edit'],
@@ -111,12 +112,12 @@ export const dynamicRoutes = [
         path: 'user/:roleId(\\d+)',
         component: () => import('@/views/system/role/authUser'),
         name: 'AuthUser',
-        meta: { title: '分配用户', activeMenu: '/system/role' }
+        meta: { title: '分配用户', activeMenu: '/admin/system/role' }
       }
     ]
   },
   {
-    path: '/system/dict-data',
+    path: '/admin/system/dict-data',
     component: Layout,
     hidden: true,
     permissions: ['system:dict:list'],
@@ -125,12 +126,12 @@ export const dynamicRoutes = [
         path: 'index/:dictId(\\d+)',
         component: () => import('@/views/system/dict/data'),
         name: 'Data',
-        meta: { title: '字典数据', activeMenu: '/system/dict' }
+        meta: { title: '字典数据', activeMenu: '/admin/system/dict' }
       }
     ]
   },
   {
-    path: '/monitor/job-log',
+    path: '/admin/monitor/job-log',
     component: Layout,
     hidden: true,
     permissions: ['monitor:job:list'],
@@ -139,12 +140,12 @@ export const dynamicRoutes = [
         path: 'index/:jobId(\\d+)',
         component: () => import('@/views/monitor/job/log'),
         name: 'JobLog',
-        meta: { title: '调度日志', activeMenu: '/monitor/job' }
+        meta: { title: '调度日志', activeMenu: '/admin/monitor/job' }
       }
     ]
   },
   {
-    path: '/tool/gen-edit',
+    path: '/admin/tool/gen-edit',
     component: Layout,
     hidden: true,
     permissions: ['tool:gen:edit'],
@@ -153,12 +154,12 @@ export const dynamicRoutes = [
         path: 'index/:tableId(\\d+)',
         component: () => import('@/views/tool/gen/editTable'),
         name: 'GenEdit',
-        meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
+        meta: { title: '修改生成配置', activeMenu: '/admin/tool/gen' }
       }
     ]
   },
   {
-    path: '/course/course-chapters',
+    path: '/admin/course/course-chapters',
     component: Layout,
     hidden: true,
     permissions: ['manage:chapter:list'],
@@ -167,12 +168,12 @@ export const dynamicRoutes = [
         path: ':courseId(\\d+)',
         component: () => import('@/views/manage/course/course_chapter'),
         name: 'CourseChapter',
-        meta: { title: '课程章节管理', activeMenu: '/course/course' }
+        meta: { title: '课程章节管理', activeMenu: '/admin/course/course' }
       }
     ]
   },
   {
-    path: '/exam/paper-compose',
+    path: '/admin/exam/paper-compose',
     component: Layout,
     hidden: true,
     permissions: ['manage:paper:list'],
@@ -181,12 +182,12 @@ export const dynamicRoutes = [
         path: ':paperId(\\d+)',
         component: () => import('@/views/manage/paper/PaperCompose'),
         name: 'PaperCompose',
-        meta: { title: '试卷试题管理', activeMenu: '/exam/paper' }
+        meta: { title: '试卷试题管理', activeMenu: '/admin/exams/paper' }
       }
     ]
   },
   {
-    path: '/comments/user-comments',
+    path: '/admin/comments/user-comments',
     hidden: true,
     component: Layout,
     permissions: ['manage:comment:list'],
@@ -195,12 +196,12 @@ export const dynamicRoutes = [
         path: ':userId(\\d+)',
         component: () => import('@/views/manage/comments/userComments'),
         name: 'UserComments',
-        meta: { title: '用户评论管理', activeMenu: '/comments/comments' }
+        meta: { title: '用户评论管理', activeMenu: '/admin/comments' }
       }
     ]
   },
   {
-    path: '/comments/course-comments',
+    path: '/admin/comments/course-comments',
     hidden: true,
     component: Layout,
     permissions: ['manage:comment:list'],
@@ -209,12 +210,12 @@ export const dynamicRoutes = [
         path: ':courseId(\\d+)',
         component: () => import('@/views/manage/comments/courseComments'),
         name: 'CourseComments',
-        meta: { title: '课程评论管理', activeMenu: '/comments/comments' }
+        meta: { title: '课程评论管理', activeMenu: '/admin/comments' }
       }
     ]
   },
   {
-    path: '/study/goal/student',
+    path: '/admin/study/goal/student',
     hidden: true,
     component: Layout,
     permissions: ['manage:goal:list', 'manage:student:list'],
@@ -223,12 +224,12 @@ export const dynamicRoutes = [
         path: ':goalId(\\d+)',
         component: () => import('@/views/manage/goal/GoalStudent'),
         name: 'GoalStudent',
-        meta: { title: '学习目标-学生关联管理', activeMenu: '/study/goal' }
+        meta: { title: '学习目标-学生关联管理', activeMenu: '/admin/study/goal' }
       }
     ]
   },
   {
-    path: '/exams/exam/users',
+    path: '/admin/exams/exam/users',
     hidden: true,
     component: Layout,
     permissions: ['manage:exam:list', 'manage:student:list'],
@@ -237,12 +238,12 @@ export const dynamicRoutes = [
         path: ':examId(\\d+)',
         component: () => import('@/views/manage/exam/ExamUsers'),
         name: 'ExamUsers',
-        meta: { title: '考试人员', activeMenu: '/exams/exam' }
+        meta: { title: '考试人员', activeMenu: '/admin/exams/exam' }
       }
     ]
   },
   {
-    path: '/exams/exam/record',
+    path: '/admin/exams/exam/record',
     hidden: true,
     component: Layout,
     permissions: ['manage:exam:list', 'manage:student:list'],
@@ -251,7 +252,7 @@ export const dynamicRoutes = [
         path: ':id(\\d+)',
         component: () => import('@/views/manage/exam/ExamRecord'),
         name: 'ExamRecord',
-        meta: { title: '考生记录详情', activeMenu: '/exams/exam' }
+        meta: { title: '考生记录详情', activeMenu: '/admin/exams/exam' }
       }
     ]
   },

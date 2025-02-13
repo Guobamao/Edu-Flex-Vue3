@@ -517,7 +517,7 @@ function handleStatus(row) {
 }
 
 function goToExamUser(row) {
-  router.push("/exams/exam/users/" + row.id)
+  router.push("/admin/exams/exam/users/" + row.id)
 }
 getCourseList();
 getPaperList();

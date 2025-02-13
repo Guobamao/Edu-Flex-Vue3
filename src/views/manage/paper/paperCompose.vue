@@ -259,7 +259,7 @@ function submitCompose() {
     }
     composePaper(data).then(res => {
         proxy.$modal.msgSuccess("组卷成功")
-        router.push("/exam/paper")
+        router.push("/admin/exam/paper")
     })
 
 }

@@ -235,7 +235,7 @@ onMounted(() => {
 // 查看课程所有评论
 function goToCourse(row) {
   const _courseId = row.courseId
-  router.push("/base/course-comments/" + _courseId)
+  router.push("/admin/comments/course-comments/" + _courseId)
 }
 
 getList();

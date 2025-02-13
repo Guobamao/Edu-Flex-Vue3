@@ -112,7 +112,7 @@ function resetQuery() {
 }
 
 function handleDetail(row) {
-    router.push("/exams/exam/record/" + row.id)
+    router.push("/admin/exams/exam/record/" + row.id)
 }
 getList();
 </script>

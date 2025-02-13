@@ -219,7 +219,7 @@ function handleExport() {
 /** 关联用户 */
 function handleUser(row) {
   const _goalId = row.id;
-  router.push("/study/goal/student/" + _goalId)
+  router.push("/admin/study/goal/student/" + _goalId)
 }
 
 /** 关联学习路线 */
