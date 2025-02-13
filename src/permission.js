@@ -12,7 +12,7 @@ import Layout from '@/layout'
 
 NProgress.configure({ showSpinner: false });
 
-const whiteList = ['/login', '/register'];
+const whiteList = ['/login', '/register', '/index'];
 
 router.beforeEach((to, from, next) => {
   NProgress.start()
@@ -22,28 +22,14 @@ router.beforeEach((to, from, next) => {
     if (to.path === '/login') {
       next({ path: '/' })
       NProgress.done()
-    } else if (whiteList.indexOf(to.path) !== -1) {
-      next()
     } else {
       if (useUserStore().roles.length === 0) {
         isRelogin.show = true
         // 判断当前用户是否已拉取完user_info信息
         useUserStore().getInfo().then(res => {
+          // 根据用户角色动态生成首页路由
           const homeRoute = ref({});
-          if (res.roles.indexOf('student') > -1) {
-            homeRoute.value = {
-              path: '',
-              redirect: '/index',
-              children: [
-                {
-                  path: '/index',
-                  component: () => import('@/views/user/index/index'),
-                  name: 'UserIndex',
-                  meta: { title: '首页' }
-                }
-              ]
-            }
-          } else if (res.roles.indexOf('teacher') > -1 || res.roles.indexOf('admin') > -1) {
+          if (res.roles.indexOf('teacher') > -1 || res.roles.indexOf('admin') > -1) {
             homeRoute.value = {
               path: '',
               redirect: '/admin/index',
@@ -64,13 +50,19 @@ router.beforeEach((to, from, next) => {
             // 根据roles权限生成可访问的路由表
             accessRoutes.forEach(route => {
               if (!isHttp(route.path)) {
-                if (route.children[0].path == 'admin/index') {
-                  route.children[0].meta.affix = true
+                if (res.roles.indexOf('teacher') > -1 || res.roles.indexOf('admin') > -1) {
+                  if (route.children[0].path == 'admin/index') {
+                    route.children[0].meta.affix = true
+                  }
                 }
                 router.addRoute(route) // 动态添加可访问路由表
               }
             })
-            next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
+            if ((res.roles.indexOf('teacher') > -1 || res.roles.indexOf('admin') > -1) && (from.path == '/login' || from.path == '/' ) ) {
+              next({ path: '/admin/index', replace: true })
+            } else {
+              next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
+            }
           })
         }).catch(err => {
           useUserStore().logOut().then(() => {

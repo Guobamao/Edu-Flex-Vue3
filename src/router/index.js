@@ -59,6 +59,17 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '',
+    redirect: '/index',
+    children: [
+      {
+        path: '/index',
+        component: () => import('@/views/user/index/index'),
+        name: 'UserIndex',
+      }
+    ]
+  },
+  {
     path: '/user',
     component: Layout,
     hidden: true,
