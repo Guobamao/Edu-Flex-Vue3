@@ -10,14 +10,19 @@
         <el-card>
             <h3 class="section-title">推荐课程</h3>
             <el-tabs v-model="activeTab" @tab-click="handleTabClick">
-                <el-tab-pane v-for="item in directionOptions" :key="item.id" :label="item.name"
-                    :name="item.name">
+                <el-tab-pane v-for="item in directionOptions" :key="item.id" :label="item.name" :name="item.id">
                     <el-row :gutter="20">
-                        <el-col :span="4" v-for="item in courseOptions" :key="item.id">
-                            <el-card shadow="hover" class="mb20">
-                                <el-image :src="item.cover" fit="cover" style="height: 200px;"></el-image>
-                                <div class="justify-between">
-                                    <div class="flex-x-between"></div>
+                        <el-col :span="6" v-for="item in courseOptions" :key="item.id">
+                            <el-card shadow="hover" class="course-card">
+                                <el-link :href="'/course/' + item.id" :underline="false" style="width: 100%;">
+                                    <el-image :src="item.cover" style="width: 100%; height: 150px;" />
+                                </el-link>
+                                <div class="info">
+                                    <div class="title">{{ item.name }}</div>
+                                    <div class="meta">
+                                        <span class="teacher">教师：{{ item.teacherName }}</span>
+                                        <span class="category">分类：{{ item.categoryName }}</span>
+                                    </div>
                                 </div>
                             </el-card>
                         </el-col>
@@ -30,12 +35,13 @@
 
 <script setup name="UserIndex">
 import { listDirection } from "@/api/user/direction";
-import { listCourse } from "@/api/user/course";
+import { listCourseByDirectionId } from "@/api/user/course";
 
 const { proxy } = getCurrentInstance();
 
 const directionOptions = ref([]);
 const courseOptions = ref([]);
+const activeTab = ref('')
 
 function getList() {
     const params = {
@@ -45,12 +51,23 @@ function getList() {
     }
     listDirection(params).then(res => {
         directionOptions.value = res.data;
+        activeTab.value = directionOptions.value[0].id
+        getCourseList(directionOptions.value[0].id)
+    })
+}
+
+function getCourseList(id) {
+    listCourseByDirectionId(id).then(res => {
+        courseOptions.value = res.data;
+        courseOptions.value.forEach(item => {
+            item.cover = proxy.$previewUrl + item.cover
+        })
     })
 }
 
 function handleTabClick(tab, event) {
-    console.log(tab)
-    console.log(event)
+    const id = tab.props.name
+    getCourseList(id)
 }
 
 getList();
@@ -77,5 +94,20 @@ getList();
     text-align: center;
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
+}
+
+.course-card {
+    :deep(.el-card__body) {
+        padding: 0 !important;
+
+        .el-link__inner {
+            flex: 1;
+        }
+    }
+
+    .info {
+        padding: 10px;
+        padding-bottom: 18px;
+    }
 }
 </style>
