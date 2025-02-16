@@ -17,3 +17,11 @@ export function listCourse(params) {
     params
   })
 }
+
+// 查询课程详细
+export function getCourse(id) {
+  return request({
+    url: '/user/course/' + id,
+    method: 'get'
+  })
+}

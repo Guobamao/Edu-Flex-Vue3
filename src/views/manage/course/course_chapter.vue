@@ -18,11 +18,11 @@
           <!-- 判断为资源 -->
           <span v-else-if="!scope.row.parentId && scope.row.chapterId">
             <el-icon>
-              <VideoPlay v-if="scope.row.materialType === '0'" />
-              <Picture v-if="scope.row.materialType === '1'" />
-              <Document v-if="scope.row.materialType === '2'" />
-              <Film v-if="scope.row.materialType === '3'" />
-              <Memo v-if="scope.row.materialType === '4'" />
+              <VideoPlay v-if="scope.row.materialType === 0" />
+              <Picture v-if="scope.row.materialType === 1" />
+              <Document v-if="scope.row.materialType === 2" />
+              <Film v-if="scope.row.materialType === 3" />
+              <Memo v-if="scope.row.materialType === 4" />
             </el-icon>
             {{ scope.row.name }}
           </span>
@@ -34,10 +34,8 @@
             v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">修改章节</el-button>
           <el-button link type="primary" icon="Edit" @click.stop="handleMaterialUpdate(scope.row)"
             v-hasRole="['admin', 'teacher']" v-else>修改资料</el-button>
-
           <el-button link type="primary" icon="View" @click.stop="viewMaterial(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="scope.row.chapterId">查看资料</el-button>
-
           <el-button link type="primary" icon="Plus" @click.stop="handleChapterAdd(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId === '0' && !scope.row.chapterId">新增小节</el-button>
           <el-button link type="primary" icon="Plus" @click.stop="handleMaterialAdd(scope.row)"

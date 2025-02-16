@@ -72,7 +72,13 @@ export const constantRoutes = [
         path: '/course',
         component: () => import('@/views/user/course/index'),
         name: 'UserCourseIndex',
-        hidden: true
+        hidden: true,
+      },
+      {
+        path: '/course/:courseId',
+        component: () => import('@/views/user/course/detail'),
+        name: 'UserCourseDetail',
+        hidden: true,
       }
     ]
   },

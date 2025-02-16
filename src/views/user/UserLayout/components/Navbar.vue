@@ -21,9 +21,7 @@
     </div>
 </template>
 <script setup>
-import useAppStore from '@/store/modules/app'
 import useUserStore from '@/store/modules/user'
-import useSettingsStore from '@/store/modules/settings'
 
 import { getToken } from "@/utils/auth"
 
@@ -34,7 +32,9 @@ const userStore = useUserStore()
 const isLogin = computed(() => getToken())
 
 const defaultActive = computed(() => {
-    return location.pathname
+    const path = location.pathname
+    const match = path.match(/^\/[^\/]+/)
+    return match ? match[0] : path
 })
 
 function logout() {

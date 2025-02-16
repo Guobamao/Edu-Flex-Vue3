@@ -16,15 +16,14 @@
                             <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="item in recommendCourseOptions"
                                 :key="item.id">
                                 <el-card shadow="hover" class="course-card">
-                                    <el-link :href="'/course/' + item.id" :underline="false"
+                                    <el-link :underline="false" @click="handleRouterPush(item.id)"
                                         style="width: 100%; overflow: hidden">
                                         <el-image :src="item.cover" style="width: 100%; height: 150px;"
                                             class="course-cover" />
                                     </el-link>
                                     <div class="info">
                                         <div class="title">
-                                            <el-link :href="'/course/' + item.id"
-                                                :underline="false">{{ item.name }}</el-link>
+                                            <el-link :underline="false" @click="handleRouterPush(item.id)">{{ item.name }}</el-link>
                                         </div>
                                         <div class="meta">
                                             <span class="teacherName">讲师: {{ item.teacherName }}</span>
@@ -52,15 +51,14 @@
                         <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="item in newCourseOptions"
                             :key="item.id">
                             <el-card shadow="hover" class="course-card">
-                                <el-link :href="'/course/' + item.id" :underline="false"
+                                <el-link :underline="false" @click="handleRouterPush(item.id)"
                                     style="width: 100%; overflow: hidden">
                                     <el-image :src="item.cover" style="width: 100%; height: 150px;"
                                         class="course-cover" />
                                 </el-link>
                                 <div class="info">
                                     <div class="title">
-                                        <el-link :href="'/course/' + item.id"
-                                            :underline="false">{{ item.name }}</el-link>
+                                        <el-link :underline="false" @click="handleRouterPush(item.id)">{{ item.name }}</el-link>
                                     </div>
                                     <div class="meta">
                                         <span class="teacherName">讲师: {{ item.teacherName }}</span>
@@ -82,6 +80,7 @@ import { listDirection } from "@/api/user/direction";
 import { listCourseByDirectionId } from "@/api/user/course";
 
 const { proxy } = getCurrentInstance();
+const router = useRouter();
 
 const directionOptions = ref([]);
 const recommendCourseOptions = ref([]);
@@ -129,6 +128,11 @@ function handleTab2Click(tab, event) {
     const id = tab.props.name
     getCourseList(id, 'new')
 }
+
+function handleRouterPush(courseId) {
+    router.push({ name: 'UserCourseDetail', params: { courseId: courseId } });
+}
+document.title = '学智灵云课堂'
 getList();
 </script>
 
