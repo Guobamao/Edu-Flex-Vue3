@@ -1,19 +1,8 @@
 <template>
   <div class="upload-file">
-    <el-upload
-      multiple
-      :action="$uploadUrl"
-      :before-upload="handleBeforeUpload"
-      :file-list="fileList"
-      :limit="limit"
-      :on-error="handleUploadError"
-      :on-exceed="handleExceed"
-      :on-success="handleUploadSuccess"
-      :show-file-list="false"
-      :headers="headers"
-      class="upload-file-uploader"
-      ref="fileUpload"
-    >
+    <el-upload multiple :action="$uploadUrl" :before-upload="handleBeforeUpload" :file-list="fileList" :limit="limit"
+      :on-error="handleUploadError" :on-exceed="handleExceed" :on-success="handleUploadSuccess" :show-file-list="false"
+      :headers="headers" class="upload-file-uploader" ref="fileUpload">
       <!-- 上传按钮 -->
       <el-button type="primary">选取文件</el-button>
     </el-upload>
@@ -98,7 +87,7 @@ function handleUploadError(err) {
 // 上传成功回调
 function handleUploadSuccess(res, file) {
   if (res.code === 200) {
-    uploadList.value.push({ id: res.fileId, name: file.raw.name, type: res.type });
+    uploadList.value.push({ id: res.fileId, name: file.raw.name, type: res.type, duration: res.duration ? res.duration : null });
     uploadedSuccessfully();
   } else {
     number.value--;
@@ -154,21 +143,25 @@ function listToString(list, separator) {
 .upload-file {
   flex: 1;
 }
+
 .upload-file-uploader {
   margin-bottom: 5px;
 }
+
 .upload-file-list .el-upload-list__item {
   border: 1px solid #e4e7ed;
   line-height: 2;
   margin-bottom: 10px;
   position: relative;
 }
+
 .upload-file-list .ele-upload-list__item-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: inherit;
 }
+
 .ele-upload-list__item-content-action .el-link {
   margin-right: 10px;
 }

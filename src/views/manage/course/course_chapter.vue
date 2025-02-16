@@ -192,7 +192,8 @@ function reset() {
     id: null,
     chapterId: null,
     name: null,
-    fileId: null
+    fileId: null,
+    duration: null
   }
   proxy.resetForm("materialRef");
   proxy.resetForm("chapterRef");
@@ -350,6 +351,7 @@ function getUploadFileList(fileList) {
   const file = fileList[0];
   materialForm.value.name = file.name;
   materialForm.value.materialType = file.type.toString()
+  materialForm.value.duration = file.duration;
 }
 
 // 查看资料

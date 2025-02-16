@@ -13,7 +13,7 @@
                     {{ userStore.nickName }}
                 </template>
                 <el-menu-item index="/user">我的主页</el-menu-item>
-                <el-menu-item @click="logout">注销</el-menu-item>
+                <el-menu-item @click="logout">退出登录</el-menu-item>
             </el-sub-menu>
             <el-menu-item index="/login" v-if="!isLogin">登录</el-menu-item>
             <el-menu-item index="/register" v-if="!isLogin">注册</el-menu-item>

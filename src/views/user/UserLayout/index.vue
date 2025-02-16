@@ -5,7 +5,7 @@
                 <Navbar />
             </div>
             <AppMain />
-            <el-footer>Footer</el-footer>
+            <el-footer></el-footer>
         </el-container>
     </div>
 </template>
@@ -16,6 +16,9 @@ import AppMain from './components/AppMain.vue';
 </script>
 
 <style lang="scss" scoped>
+.app-wrapper {
+    background-color: #F2F2F2;
+}
 .fixed-header {
     position: fixed;
     width: 100%;
