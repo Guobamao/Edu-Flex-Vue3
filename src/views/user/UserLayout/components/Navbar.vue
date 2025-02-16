@@ -1,6 +1,6 @@
 <template>
     <div class="navbar">
-        <el-menu default-active="/index" mode="horizontal" :ellipsis="false" router>
+        <el-menu :default-active="defaultActive" mode="horizontal" :ellipsis="false" router>
             <el-menu-item index="/">学智灵云课堂</el-menu-item>
             <el-menu-item index="/index">首页</el-menu-item>
             <el-menu-item index="/course">课程</el-menu-item>
@@ -32,6 +32,10 @@ const { proxy } = getCurrentInstance();
 const userStore = useUserStore()
 
 const isLogin = computed(() => getToken())
+
+const defaultActive = computed(() => {
+    return location.pathname
+})
 
 function logout() {
     proxy.$modal.confirm('确定注销并退出系统吗？', '提示', {

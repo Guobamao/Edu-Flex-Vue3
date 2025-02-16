@@ -16,8 +16,10 @@
                             <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="item in recommendCourseOptions"
                                 :key="item.id">
                                 <el-card shadow="hover" class="course-card">
-                                    <el-link :href="'/course/' + item.id" :underline="false" style="width: 100%; overflow: hidden">
-                                        <el-image :src="item.cover" style="width: 100%; height: 150px;" class="course-cover" />
+                                    <el-link :href="'/course/' + item.id" :underline="false"
+                                        style="width: 100%; overflow: hidden">
+                                        <el-image :src="item.cover" style="width: 100%; height: 150px;"
+                                            class="course-cover" />
                                     </el-link>
                                     <div class="info">
                                         <div class="title">
@@ -50,8 +52,10 @@
                         <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="item in newCourseOptions"
                             :key="item.id">
                             <el-card shadow="hover" class="course-card">
-                                <el-link :href="'/course/' + item.id" :underline="false" style="width: 100%;">
-                                    <el-image :src="item.cover" style="width: 100%; height: 150px;" />
+                                <el-link :href="'/course/' + item.id" :underline="false"
+                                    style="width: 100%; overflow: hidden">
+                                    <el-image :src="item.cover" style="width: 100%; height: 150px;"
+                                        class="course-cover" />
                                 </el-link>
                                 <div class="info">
                                     <div class="title">
@@ -59,6 +63,7 @@
                                             :underline="false">{{ item.name }}</el-link>
                                     </div>
                                     <div class="meta">
+                                        <span class="teacherName">讲师: {{ item.teacherName }}</span>
                                         <span class="videoNum">{{ item.videoNum }} 节课</span>
                                         <span class="selectedNum">{{ item.selectedNum }} 人已选</span>
                                     </div>
@@ -151,6 +156,8 @@ getList();
 }
 
 .course-card {
+    margin-bottom: 20px;
+
     :deep(.el-card__body) {
         padding: 0 !important;
 
@@ -183,7 +190,7 @@ getList();
             .videoNum {
                 margin-left: 10px;
             }
-            
+
             .selectedNum {
                 margin-left: 10px;
             }

@@ -8,3 +8,12 @@ export function listCourseByDirectionId(directionId, type) {
     params: { directionId, type }
   })
 }
+
+// 查看课程列表
+export function listCourse(params) {
+  return request({
+    url: '/user/course/list',
+    method: 'get',
+    params
+  })
+}
