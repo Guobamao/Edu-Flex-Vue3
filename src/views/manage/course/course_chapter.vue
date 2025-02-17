@@ -87,7 +87,7 @@
         <el-form-item label="文件类型" prop="materialType" v-if="materialForm.fileId">
           <el-select v-model="materialForm.materialType" placeholder="请选择文件类型">
             <el-option v-for="dict in material_type" :key="dict.value" :label="dict.label"
-              :value="dict.value"></el-option>
+              :value="parseInt(dict.value)"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -348,19 +348,19 @@ function refreshTableData(chapterId) {
 function getUploadFileList(fileList) {
   const file = fileList[0];
   materialForm.value.name = file.name;
-  materialForm.value.materialType = file.type.toString()
+  materialForm.value.materialType = file.type
   materialForm.value.duration = file.duration;
 }
 
 // 查看资料
 function viewMaterial(row) {
-  if (row.materialType === "1" || row.materialType === "4" || row.materialType === "5") {
+  if (row.materialType === 1 || row.materialType === 4 || row.materialType === 5) {
     previewFile(row.fileId).then(res => {
       const ids = res.data.map(item => item.id)
       previewList.value = ids.map(id => proxy.$previewFileUrl + id)
       showViewer.value = true
     })
-  } else if (row.materialType === "2") {
+  } else if (row.materialType === 2) {
     // 图片类型
     previewList.value = [proxy.$previewUrl + row.fileId]
     showViewer.value = true

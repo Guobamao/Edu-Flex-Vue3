@@ -34,6 +34,11 @@
     <el-table v-loading="loading" :data="teacherList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
+      <el-table-column label="头像" align="center" prop="avatar">
+        <template #default="scope">
+          <img :src="scope.row.avatar" width="48" height="48" />
+        </template>
+      </el-table-column>
       <el-table-column label="教师名称" align="center" prop="nickName" />
       <el-table-column label="手机号码" align="center" prop="phonenumber" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -137,6 +142,9 @@ function getList() {
   loading.value = true;
   listTeacher(queryParams.value).then(response => {
     teacherList.value = response.rows;
+    teacherList.value.forEach(item => {
+      item.avatar = proxy.$previewUrl + item.avatar
+    })
     total.value = response.total;
     loading.value = false;
   });

@@ -4,18 +4,9 @@
     <el-dialog :title="title" v-model="open" width="800px" append-to-body @opened="modalOpened" @close="closeDialog">
       <el-row>
         <el-col :xs="24" :md="12" :style="{ height: '350px' }">
-          <vue-cropper
-            ref="cropper"
-            :img="options.img"
-            :info="true"
-            :autoCrop="options.autoCrop"
-            :autoCropWidth="options.autoCropWidth"
-            :autoCropHeight="options.autoCropHeight"
-            :fixedBox="options.fixedBox"
-            :outputType="options.outputType"
-            @realTime="realTime"
-            v-if="visible"
-          />
+          <vue-cropper ref="cropper" :img="options.img" :info="true" :autoCrop="options.autoCrop"
+            :autoCropWidth="options.autoCropWidth" :autoCropHeight="options.autoCropHeight" :fixedBox="options.fixedBox"
+            :outputType="options.outputType" @realTime="realTime" v-if="visible" />
         </el-col>
         <el-col :xs="24" :md="12" :style="{ height: '350px' }">
           <div class="avatar-upload-preview">
@@ -26,15 +17,12 @@
       <br />
       <el-row>
         <el-col :lg="2" :md="2">
-          <el-upload
-            action="#"
-            :http-request="requestUpload"
-            :show-file-list="false"
-            :before-upload="beforeUpload"
-          >
+          <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
             <el-button>
               选择
-              <el-icon class="el-icon--right"><Upload /></el-icon>
+              <el-icon class="el-icon--right">
+                <Upload />
+              </el-icon>
             </el-button>
           </el-upload>
         </el-col>
@@ -62,6 +50,7 @@
 import "vue-cropper/dist/index.css";
 import { VueCropper } from "vue-cropper";
 import { uploadAvatar } from "@/api/system/user";
+import { uploadFile } from "@/api/manage/common"
 import useUserStore from "@/store/modules/user";
 
 const userStore = useUserStore();
@@ -94,7 +83,7 @@ function modalOpened() {
 }
 
 /** 覆盖默认上传行为 */
-function requestUpload() {}
+function requestUpload() { }
 
 /** 向左旋转 */
 function rotateLeft() {
@@ -121,7 +110,7 @@ function beforeUpload(file) {
     reader.readAsDataURL(file);
     reader.onload = () => {
       options.img = reader.result;
-      options.filename = file.name;
+      options.filename = file.name.replace(/\.[^/.]+$/, "") + ".png";
     };
   }
 }
@@ -130,14 +119,16 @@ function beforeUpload(file) {
 function uploadImg() {
   proxy.$refs.cropper.getCropBlob(data => {
     let formData = new FormData();
-    formData.append("avatarfile", data, options.filename);
-    uploadAvatar(formData).then(response => {
-      open.value = false;
-      options.img = import.meta.env.VITE_APP_BASE_API + response.imgUrl;
-      userStore.avatar = options.img;
-      proxy.$modal.msgSuccess("修改成功");
-      visible.value = false;
-    });
+    formData.append("file", data, options.filename);
+    uploadFile(formData).then(res => {
+      uploadAvatar(res.fileId).then(() => {
+        open.value = false;
+        options.img = proxy.$previewUrl + res.fileId;
+        userStore.avatar = options.img;
+        proxy.$modal.msgSuccess("修改成功");
+        visible.value = false;
+      })
+    })
   });
 }
 

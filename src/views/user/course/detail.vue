@@ -72,6 +72,14 @@
                                 </el-table-column>
                             </el-table>
                         </el-tab-pane>
+                        <el-tab-pane label="评论">
+                            <div class="comment-list">
+                                <el-row justify="center" align="middle" :gutter="20" class="mt10">
+                                    <el-col :span="5" class="text-center">
+                                    </el-col>
+                                </el-row>
+                            </div>
+                        </el-tab-pane>
                     </el-tabs>
                 </el-card>
             </el-col>
@@ -112,7 +120,7 @@
                             <div v-for="item in relatedCourseList" :key="item.id" class="related-course-item">
                                 <el-row :gutter="10" align="middle">
                                     <el-col :span="8">
-                                        <el-image :src="item.cover" fit="cover" style="width: 100%; height: 50px;">
+                                        <el-image :src="item.cover" fit="cover" style="width: 100%; height: 60px;">
                                         </el-image>
                                     </el-col>
                                     <el-col :span="16" style="line-height: 25px;">
@@ -139,6 +147,7 @@
 import { getCourse, listRelatedCourse } from "@/api/user/course"
 import { listChapter } from "@/api/user/chapter"
 import { listMaterial } from "@/api/user/material"
+import { listComment } from "@/api/user/comment"
 import { addStudentCourse } from "@/api/user/studentCourse"
 import { getTeacher } from "@/api/user/teacher"
 import { formatSeconds } from '@/utils/index';
@@ -151,6 +160,7 @@ const router = useRouter();
 const courseInfo = ref({})
 const teacherInfo = ref({})
 const chapterList = ref([]);
+const commentList = ref([]);
 
 const relatedCourseList = ref([]);
 
@@ -178,6 +188,9 @@ function getData() {
     })
     listChapter({ courseId: route.params.courseId }).then(res => {
         chapterList.value = res.data
+    })
+    listComment({ courseId: route.params.courseId }).then(res => {
+        commentList.value = res.rows
     })
 }
 

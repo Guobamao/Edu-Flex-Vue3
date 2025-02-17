@@ -101,12 +101,13 @@ export function updateUserPwd(oldPassword, newPassword) {
 }
 
 // 用户头像上传
-export function uploadAvatar(data) {
+export function uploadAvatar(fileId) {
   return request({
     url: '/system/user/profile/avatar',
-    method: 'post',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    data: data
+    method: 'put',
+    params: {
+      fileId
+    }
   })
 }
 
