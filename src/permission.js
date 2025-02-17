@@ -16,7 +16,8 @@ const whiteList = [
   '^/login$',
   '^/register$',
   '^/index$',
-  '^/course(/.*)?$'
+  '^/course(/.*)?$',
+  '^/search(.*)$',
 ].map(path => new RegExp(path));
 
 router.beforeEach((to, from, next) => {

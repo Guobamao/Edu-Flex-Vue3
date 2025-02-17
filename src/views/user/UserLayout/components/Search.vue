@@ -5,7 +5,9 @@
         </el-dialog>
     </div>
 </template>
-<script setup name="Search">
+<script setup name="SearchDialog">
+
+const router = useRouter()
 
 const props = defineProps({
     modelValue: {
@@ -31,7 +33,9 @@ function handleClose() {
 }
 
 function onSearch() {
-    console.log(searchValue.value)
+    router.push({ name: 'UserSearch', query: { query: searchValue.value } })
+    visible.value = false
+    searchValue.value = ''
 }
 </script>
 

@@ -31,6 +31,7 @@ import Search from './Search.vue';
 import { getToken } from "@/utils/auth"
 
 const { proxy } = getCurrentInstance();
+
 const userStore = useUserStore()
 
 const isLogin = computed(() => getToken())

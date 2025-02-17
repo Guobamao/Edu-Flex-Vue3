@@ -33,3 +33,20 @@ export function listRelatedCourse(id) {
     method: 'get'
   })
 }
+
+// 搜索课程
+export function searchCourse(params) {
+  return request({
+    url: '/user/course/search',
+    method: 'get',
+    params
+  })
+}
+
+// 推荐课程列表
+export function listRecommendCourse() {
+  return request({
+    url: '/user/course/listRecommend',
+    method: 'get'
+  })
+}

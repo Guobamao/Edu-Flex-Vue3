@@ -105,9 +105,9 @@
                         </el-card>
                     </el-col>
                 </el-row>
-                <el-row class="related-course">
+                <el-row>
                     <el-col>
-                        <el-card shadow="never">
+                        <el-card shadow="never" class="related-course">
                             <span style="font-size: 14px;">相关课程</span>
                             <div v-for="item in relatedCourseList" :key="item.id" class="related-course-item">
                                 <el-row :gutter="10" align="middle">
@@ -116,7 +116,10 @@
                                         </el-image>
                                     </el-col>
                                     <el-col :span="16" style="line-height: 25px;">
-                                        <el-link :underline="false" @click="handleRouterPush(item.id)">焦点图轮播特效</el-link>
+                                        <div class="title">
+                                            <el-link :underline="false" @click="handleRouterPush(item.id)">{{ item.name
+                                                }}</el-link>
+                                        </div>
                                         <div class="meta">
                                             <span class="teacherName">讲师: {{ item.teacherName }}</span>
                                             <span class="videoNum">{{ item.videoNum }} 节课</span>
@@ -298,8 +301,15 @@ getData()
         margin-bottom: 10px;
         border-bottom: 1px solid #eee;
     }
+
     .course-name {
         font-size: 14px;
+    }
+
+    .title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .meta {
