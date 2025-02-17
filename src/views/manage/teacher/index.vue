@@ -178,7 +178,7 @@ function resetQuery() {
 
 // 多选框选中数据
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.id);
+  ids.value = selection.map(item => item.userId);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 }
@@ -193,7 +193,7 @@ function handleAdd() {
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _id = row.id || ids.value
+  const _id = row.userId || ids.value
   getTeacher(_id).then(response => {
     form.value = response.data;
     open.value = true;
@@ -224,7 +224,7 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const _ids = row.id || ids.value;
+  const _ids = row.userId || ids.value;
   proxy.$modal.confirm('是否确认删除教师管理编号为"' + _ids + '"的数据项？').then(function () {
     return delTeacher(_ids);
   }).then(() => {

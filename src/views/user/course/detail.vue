@@ -34,8 +34,8 @@
         </el-card>
 
         <el-row :gutter="20" class="mt20">
-            <el-col :span="17">
-                <el-card shadow="never">
+            <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="18">
+                <el-card shadow="never" class="mb20">
                     <el-tabs>
                         <el-tab-pane label="课程介绍">
                             <div v-html="courseInfo.description"></div>
@@ -47,11 +47,11 @@
                                 <el-table-column prop="name" label="章节名称" align="left">
                                     <template #default="scope">
                                         <!-- 判断为章节 -->
-                                        <strong
-                                            v-if="scope.row.parentId === 0 && !scope.row.chapterId">{{ scope.row.name }}</strong>
+                                        <strong v-if="scope.row.parentId === 0 && !scope.row.chapterId">{{
+                                            scope.row.name }}</strong>
                                         <!-- 判断为资源 -->
-                                        <span v-else-if="!scope.row.parentId && scope.row.chapterId"
-                                            class="material-item">
+                                        <el-link v-else-if="!scope.row.parentId && scope.row.chapterId"
+                                            @click="handleMaterialClick(scope.row)">
                                             <el-icon>
                                                 <VideoPlay v-if="scope.row.materialType === 0" />
                                                 <Picture v-if="scope.row.materialType === 1" />
@@ -60,7 +60,7 @@
                                                 <Memo v-if="scope.row.materialType === 4" />
                                             </el-icon>
                                             {{ scope.row.name }}
-                                        </span>
+                                        </el-link>
                                     </template>
                                 </el-table-column>
                                 <el-table-column width="100">
@@ -75,25 +75,56 @@
                     </el-tabs>
                 </el-card>
             </el-col>
-            <el-col :span="7">
+            <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="6">
                 <!-- 选课 -->
-                <el-row class="mb20" >
+                <el-row class="mb20">
                     <el-col>
                         <el-card shadow="never">
-                            <el-button type="primary" class="action-button" v-if="!courseInfo.isSelected" @click="handleSelectCourse">加入选课</el-button>
-                            <el-button type="danger" class="action-button" v-else @click="handleSelectCourse">取消选课</el-button>
+                            <el-button type="success" class="action-button" v-if="!isLogin"
+                                @click="router.push('/login')">用户登录</el-button>
+                            <el-button type="primary" class="action-button"
+                                v-else-if="isLogin && !courseInfo.isSelected"
+                                @click="handleSelectCourse">加入选课</el-button>
+                            <el-button type="danger" class="action-button" v-else-if="isLogin && courseInfo.isSelected"
+                                @click="handleSelectCourse">取消选课</el-button>
                         </el-card>
                     </el-col>
                 </el-row>
                 <el-row class="mb20">
                     <el-col>
                         <el-card shadow="never">
+                            <span style="font-size: 14px;">授课老师</span>
+                            <el-row justify="center" align="middle" :gutter="20" class="mt10">
+                                <el-col :span="5" class="text-center">
+                                    <el-avatar :src="teacherInfo.avatar" />
+                                </el-col>
+                                <el-col :span="19">
+                                    <span class="teacher-name">{{ teacherInfo.nickName }}</span>
+                                </el-col>
+                            </el-row>
                         </el-card>
                     </el-col>
                 </el-row>
-                <el-row class="mb20">
+                <el-row class="related-course">
                     <el-col>
                         <el-card shadow="never">
+                            <span style="font-size: 14px;">相关课程</span>
+                            <div v-for="item in relatedCourseList" :key="item.id" class="related-course-item">
+                                <el-row :gutter="10" align="middle">
+                                    <el-col :span="8">
+                                        <el-image :src="item.cover" fit="cover" style="width: 100%; height: 50px;">
+                                        </el-image>
+                                    </el-col>
+                                    <el-col :span="16" style="line-height: 25px;">
+                                        <el-link :underline="false" @click="handleRouterPush(item.id)">焦点图轮播特效</el-link>
+                                        <div class="meta">
+                                            <span class="teacherName">讲师: {{ item.teacherName }}</span>
+                                            <span class="videoNum">{{ item.videoNum }} 节课</span>
+                                            <span class="selectedNum">{{ item.selectedNum }} 人已选</span>
+                                        </div>
+                                    </el-col>
+                                </el-row>
+                            </div>
                         </el-card>
                     </el-col>
                 </el-row>
@@ -102,10 +133,11 @@
     </div>
 </template>
 <script setup name="UserCourseDetail">
-import { getCourse } from "@/api/user/course"
+import { getCourse, listRelatedCourse } from "@/api/user/course"
 import { listChapter } from "@/api/user/chapter"
 import { listMaterial } from "@/api/user/material"
 import { addStudentCourse } from "@/api/user/studentCourse"
+import { getTeacher } from "@/api/user/teacher"
 import { formatSeconds } from '@/utils/index';
 import { getToken } from "@/utils/auth"
 
@@ -114,7 +146,10 @@ const route = useRoute();
 const router = useRouter();
 
 const courseInfo = ref({})
+const teacherInfo = ref({})
 const chapterList = ref([]);
+
+const relatedCourseList = ref([]);
 
 const tableRef = ref(null);
 
@@ -125,6 +160,18 @@ function getData() {
         courseInfo.value = res.data
         courseInfo.value.cover = proxy.$previewUrl + courseInfo.value.cover
         courseInfo.value.videoTime = courseInfo.value.videoTime ? formatSeconds(courseInfo.value.videoTime) : '--'
+    }).then(() => {
+        getTeacher(courseInfo.value.teacherId).then(res => {
+            res.data.avatar = proxy.$previewUrl + res.data.avatar
+            teacherInfo.value = res.data
+        })
+    }).then(() => {
+        listRelatedCourse(courseInfo.value.id).then(res => {
+            relatedCourseList.value = res.data
+            relatedCourseList.value.forEach(item => {
+                item.cover = proxy.$previewUrl + item.cover
+            })
+        })
     })
     listChapter({ courseId: route.params.courseId }).then(res => {
         chapterList.value = res.data
@@ -170,8 +217,10 @@ function handleSelectCourse() {
             type: 'warning'
         }).then(() => {
             // 退选
-            proxy.$message.success('退选成功')
-            courseInfo.value.isSelected = false
+            addStudentCourse({ courseId: courseInfo.value.id, isSelected: false }).then(() => {
+                proxy.$message.success('退选成功')
+                courseInfo.value.isSelected = false
+            })
         }).catch(() => { });
     } else {
         // 选课
@@ -179,6 +228,37 @@ function handleSelectCourse() {
             proxy.$message.success('选课成功')
             courseInfo.value.isSelected = true
         })
+    }
+}
+
+// 路由跳转
+function handleRouterPush(id) {
+    router.push({ name: 'UserCourseDetail', params: { courseId: id } })
+}
+
+// 点击资源
+function handleMaterialClick(row) {
+    if (!isLogin.value) {
+        proxy.$modal.confirm('您还未登录，是否前往登录？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+        }).then(() => {
+            const redirect = '/login?redirect=' + route.fullPath
+            router.push(redirect)
+        }).catch(() => { });
+    } else {
+        if (!courseInfo.value.isSelected) {
+            proxy.$modal.confirm('您还未选择该课程，是否加入选课？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                handleSelectCourse()
+            }).catch(() => { });
+        } else {
+            // TODO：查看资料
+        }
     }
 }
 getData()
@@ -203,16 +283,35 @@ getData()
     }
 }
 
-.course-table {
-    .material-item {
-        cursor: pointer;
-        display: inline-block;
-        width: 90%;
-    }
-}
-
 .action-button {
     width: 100%;
     height: 40px;
+}
+
+.teacher-name {
+    font-size: 14px;
+}
+
+.related-course {
+    .related-course-item {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .course-name {
+        font-size: 14px;
+    }
+
+    .meta {
+        font-size: 13px;
+
+        .videoNum {
+            margin-left: 10px;
+        }
+
+        .selectedNum {
+            margin-left: 10px;
+        }
+    }
 }
 </style>

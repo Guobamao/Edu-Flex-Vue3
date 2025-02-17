@@ -25,3 +25,11 @@ export function getCourse(id) {
     method: 'get'
   })
 }
+
+// 查看相关课程列表
+export function listRelatedCourse(id) {
+  return request({
+    url: '/user/course/listRelatedCourse/' + id,
+    method: 'get'
+  })
+}
