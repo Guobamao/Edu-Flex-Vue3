@@ -32,6 +32,7 @@
                                         <div class="desc">{{ item.description }}</div>
                                         <div class="meta">
                                             <span class="teacherName">讲师: {{ item.teacherName }}</span>
+                                            <span class="categoryName">分类: {{ item.categoryName }}</span>
                                             <span class="videoNum">{{ item.videoNum }} 节课</span>
                                             <span class="selectedNum">{{ item.selectedNum }} 人已选</span>
                                         </div>
@@ -149,7 +150,7 @@ function onClickTag(item) {
     getList()
 }
 
-document.title = `搜索 - ${route.query.query}`;
+document.title = `搜索 - ${route.query.query}  学智灵云课堂`;
 getRecommendCourseList();
 getSearchList();
 getList();
@@ -174,6 +175,12 @@ getList();
 
         .desc {
             font-size: 13px;
+            overflow: hidden;
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: break-all;
         }
 
         .title {
@@ -185,12 +192,16 @@ getList();
         .meta {
             font-size: 13px;
 
+            .categoryName {
+                margin-left: 15px;
+            }
+
             .videoNum {
-                margin-left: 10px;
+                margin-left: 15px;
             }
 
             .selectedNum {
-                margin-left: 10px;
+                margin-left: 15px;
             }
         }
     }

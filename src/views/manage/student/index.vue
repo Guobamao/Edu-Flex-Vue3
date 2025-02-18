@@ -2,10 +2,12 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" @submit.prevent>
       <el-form-item label="登录名" prop="userName">
-        <el-input v-model="queryParams.userName" placeholder="请输入学生登录名" clearable @keyup.enter="handleQuery" @clear="handleQuery"/>
+        <el-input v-model="queryParams.userName" placeholder="请输入学生登录名" clearable @keyup.enter="handleQuery"
+          @clear="handleQuery" />
       </el-form-item>
       <el-form-item label="姓名" prop="nickName">
-        <el-input v-model="queryParams.nickName" placeholder="请输入学生姓名" clearable @keyup.enter="handleQuery" @clear="handleQuery" />
+        <el-input v-model="queryParams.nickName" placeholder="请输入学生姓名" clearable @keyup.enter="handleQuery"
+          @clear="handleQuery" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -34,6 +36,11 @@
     <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
+      <el-table-column label="头像" align="center">
+        <template #default="scope">
+          <img style="width: 40px; height: 40px" :src="scope.row.avatar" />
+        </template>
+      </el-table-column>
       <el-table-column label="登录名" align="center" prop="userName" />
       <el-table-column label="学生姓名" align="center" prop="nickName" />
       <el-table-column label="手机号码" align="center" prop="phonenumber" />
@@ -149,6 +156,9 @@ function getList() {
   loading.value = true;
   listStudent(queryParams.value).then(response => {
     studentList.value = response.rows;
+    studentList.value.forEach(item => {
+      item.avatar = proxy.$previewUrl + item.avatar;
+    })
     total.value = response.total;
     loading.value = false;
   });
