@@ -144,7 +144,7 @@ function handleRouterPush(courseId) {
 document.title = '课程 - 学智灵云课堂';
 
 watch(common_status, (newVal) => {
-    if (newVal && newVal.length > 0) {
+    if (newVal && newVal.length > 0 && newVal[0].label !== '全部') {
         common_status.value.unshift({
             label: '全部',
             value: null

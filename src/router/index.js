@@ -91,7 +91,19 @@ export const constantRoutes = [
         component: () => import('@/views/user/profile/index'),
         name: 'UserProfile',
         hidden: true,
-      }
+      },
+      {
+        path: '/homework',
+        component: () => import('@/views/user/homework/index'),
+        name: 'UserHomework',
+        hidden: true,
+      },
+      {
+        path: '/homework/:homeworkId',
+        component: () => import('@/views/user/homework/detail'),
+        name: 'UserHomeworkDetail',
+        hidden: true,
+      },
     ]
   },
   {
