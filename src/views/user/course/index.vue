@@ -19,13 +19,23 @@
                     </el-link>
                 </div>
             </div>
+            <div class="filter-group">
+                <div class="title">状态</div>
+                <div class="content">
+                    <el-link v-for="item in common_status" :key="item.value" :underline="false" @click="handleClickStatus(item.value)" :class="{ 'active': selectedStatus === item.value }">
+                        {{ item.label }}
+                    </el-link>
+                </div>
+            </div>
         </el-card>
 
         <div class="course-list">
             <el-row :gutter="20">
                 <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="item in courseList" :key="item.id">
                     <el-card shadow="hover" class="course-card">
-                        <el-link :underline="false" style="width: 100%; overflow: hidden" @click="handleRouterPush(item.id)">
+                        <dict-tag :options="common_status" :value="item.status" class="course-status" />
+                        <el-link :underline="false" style="width: 100%; overflow: hidden"
+                            @click="handleRouterPush(item.id)">
                             <el-image :src="item.cover" style="width: 100%; height: 150px;" class="course-cover" />
                         </el-link>
                         <div class="info">
@@ -54,6 +64,7 @@ import { listCategory } from "@/api/user/category";
 import { listCourse } from "@/api/user/course";
 
 const { proxy } = getCurrentInstance();
+const { common_status } = proxy.useDict('common_status')
 
 const router = useRouter();
 
@@ -62,6 +73,7 @@ const categoryOptions = ref([]);
 
 const selectedDirection = ref(null);
 const selectedCategory = ref(null);
+const selectedStatus = ref(null);
 
 const courseList = ref([]);
 
@@ -104,11 +116,17 @@ function handleClickCategory(id) {
     getCourseList();
 }
 
+function handleClickStatus(value) {
+    selectedStatus.value = value;
+    getCourseList();
+}
+
 function getCourseList() {
     const params = {
         ...pageParams.value,
         directionId: selectedDirection.value,
-        categoryId: selectedCategory.value
+        categoryId: selectedCategory.value,
+        status: selectedStatus.value
     }
     listCourse(params).then(res => {
         courseList.value = res.rows;
@@ -122,7 +140,19 @@ function getCourseList() {
 function handleRouterPush(courseId) {
     router.push({ name: 'UserCourseDetail', params: { courseId: courseId } });
 }
+
 document.title = '课程 - 学智灵云课堂';
+
+watch(common_status, (newVal) => {
+    if (newVal && newVal.length > 0) {
+        common_status.value.unshift({
+            label: '全部',
+            value: null
+        })
+    }
+}, {
+    immediate: true
+})
 getList();
 </script>
 
@@ -155,6 +185,14 @@ getList();
 .course-list {
     .course-card {
         margin-bottom: 20px;
+        position: relative;
+
+        .course-status {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 10;
+        }
 
         :deep(.el-card__body) {
             padding: 0 !important;

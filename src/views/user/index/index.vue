@@ -16,6 +16,7 @@
                             <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="item in recommendCourseOptions"
                                 :key="item.id">
                                 <el-card shadow="hover" class="course-card">
+                                    <dict-tag :options="common_status" :value="item.status" class="course-status" />
                                     <el-link :underline="false" @click="handleRouterPush(item.id)"
                                         style="width: 100%; overflow: hidden">
                                         <el-image :src="item.cover" style="width: 100%; height: 150px;"
@@ -51,6 +52,7 @@
                         <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="item in newCourseOptions"
                             :key="item.id">
                             <el-card shadow="hover" class="course-card">
+                                <dict-tag :options="common_status" :value="item.status" class="course-status" />
                                 <el-link :underline="false" @click="handleRouterPush(item.id)"
                                     style="width: 100%; overflow: hidden">
                                     <el-image :src="item.cover" style="width: 100%; height: 150px;"
@@ -80,6 +82,8 @@ import { listDirection } from "@/api/user/direction";
 import { listCourseByDirectionId } from "@/api/user/course";
 
 const { proxy } = getCurrentInstance();
+const { common_status } = proxy.useDict('common_status')
+
 const router = useRouter();
 
 const directionOptions = ref([]);
@@ -161,6 +165,7 @@ getList();
 
 .course-card {
     margin-bottom: 20px;
+    position: relative;
 
     :deep(.el-card__body) {
         padding: 0 !important;
@@ -168,6 +173,13 @@ getList();
         .el-link__inner {
             flex: 1;
         }
+    }
+
+    .course-status {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
     }
 
     .course-cover {

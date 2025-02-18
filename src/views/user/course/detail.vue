@@ -28,8 +28,11 @@
                     <p class="item">
                         <span class="label">所属分类</span>
                         <span class="value">{{ courseInfo.categoryName }}</span>
+                        <span class="label">已选人数</span>
+                        <span class="value">{{ courseInfo.selectedNum }}</span>
                     </p>
                 </el-col>
+                <dict-tag :options="common_status" :value="courseInfo.status" class="course-status" />
             </el-row>
         </el-card>
 
@@ -74,7 +77,8 @@
                         </el-tab-pane>
                         <el-tab-pane label="课程评论">
                             <div class="comment-list">
-                                <el-row v-for="item in commentList" :key="item.id" justify="center" :gutter="20"
+                                <template v-if="commentList.length">
+                                    <el-row v-for="item in commentList" :key="item.id" justify="center" :gutter="20"
                                     class="comment-item">
                                     <el-col :span="2" class="text-center">
                                         <el-avatar :src="item.avatar" />
@@ -117,6 +121,10 @@
                                         </div>
                                     </el-col>
                                 </el-row>
+                                </template>
+                                <template v-else>
+                                    <el-empty description="暂无评论，快来发表评论吧！" />
+                                </template>
                                 <pagination v-show="total > 0" :total="total" v-model:page="pageParams.pageNum"
                                     v-model:limit="pageParams.pageSize" layout="total, prev, pager, next, jumper"
                                     @pagination="getCommentList" />
@@ -201,6 +209,7 @@ import { formatSeconds } from '@/utils/index';
 import { getToken } from "@/utils/auth"
 
 const { proxy } = getCurrentInstance();
+const { common_status } = proxy.useDict('common_status')
 const route = useRoute();
 const router = useRouter();
 
@@ -298,6 +307,25 @@ function handleSelectCourse() {
         }).catch(() => { });
     } else {
         // 选课
+        if (!isLogin.value) {
+            proxy.$modal.confirm('您还未登录，是否前往登录？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                const redirect = '/login?redirect=' + route.fullPath
+                router.push(redirect)
+            }).catch(() => { });
+            return
+        }
+        if (courseInfo.value.status === 0) {
+            proxy.$message.error('该课程未开始，无法选课')
+            return
+        }
+        if (courseInfo.value.status === 2) {
+            proxy.$message.error('该课程已结束，无法选课')
+            return
+        }
         addStudentCourse({ courseId: courseInfo.value.id, isSelected: true }).then(() => {
             proxy.$message.success('选课成功')
             courseInfo.value.isSelected = true
@@ -396,8 +424,14 @@ getData()
 
         .value {
             margin-left: 5px;
-            margin-right: 10px;
+            margin-right: 15px;
             color: #666;
+        }
+
+        .course-status {
+            position: absolute;
+            right: 0;
+            top: 0;
         }
     }
 }
