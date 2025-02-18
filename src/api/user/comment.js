@@ -8,3 +8,12 @@ export function listComment(params) {
     params
   })
 }
+
+// 添加评论
+export function addComment(data) {
+  return request({
+    url: '/user/comment',
+    method: 'post',
+    data
+  })
+}

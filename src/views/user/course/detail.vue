@@ -72,12 +72,59 @@
                                 </el-table-column>
                             </el-table>
                         </el-tab-pane>
-                        <el-tab-pane label="评论">
+                        <el-tab-pane label="课程评论">
                             <div class="comment-list">
-                                <el-row justify="center" align="middle" :gutter="20" class="mt10">
-                                    <el-col :span="5" class="text-center">
+                                <el-row v-for="item in commentList" :key="item.id" justify="center" :gutter="20"
+                                    class="comment-item">
+                                    <el-col :span="2" class="text-center">
+                                        <el-avatar :src="item.avatar" />
+                                    </el-col>
+                                    <el-col :span="22">
+                                        <div class="comment-header">
+                                            <span class="comment-name">{{ item.nickName }}</span>
+                                        </div>
+                                        <div class="comment-body" v-html="item.content"></div>
+                                        <div class="comment-footer">
+                                            <span class="comment-time">{{ item.createTime }}</span>
+                                            <el-link v-if="isLogin" @click="handleReply(item.id, item.nickName)"
+                                                class="comment-reply">回复</el-link>
+                                        </div>
+                                        <div v-if="isLogin && replyTo.id === item.id">
+                                            <div class="reply-to">
+                                                回复 {{ replyTo.nickName }}
+                                                <el-link @click="cancelReply" style="margin-left: 10px;">取消回复</el-link>
+                                            </div>
+                                            <editor v-model="comment" :min-height="192" placeholder="请输入评论内容" />
+                                            <el-button type="primary" class="btn-submit" :disabled="isCommentEmpty"
+                                                @click="handleComment">发表评论</el-button>
+                                        </div>
+                                        <div v-if="item.children && item.children.length" class="comment-children">
+                                            <el-row v-for="child in item.children" :key="child.id" justify="center"
+                                                :gutter="20" class="comment-item">
+                                                <el-col :span="2" class="text-center">
+                                                    <el-avatar :src="child.avatar" />
+                                                </el-col>
+                                                <el-col :span="22">
+                                                    <div class="comment-header">
+                                                        <span class="comment-name">{{ child.nickName }}</span>
+                                                    </div>
+                                                    <div class="comment-body" v-html="child.content"></div>
+                                                    <div class="comment-footer">
+                                                        <span class="comment-time">{{ child.createTime }}</span>
+                                                    </div>
+                                                </el-col>
+                                            </el-row>
+                                        </div>
                                     </el-col>
                                 </el-row>
+                                <pagination v-show="total > 0" :total="total" v-model:page="pageParams.pageNum"
+                                    v-model:limit="pageParams.pageSize" layout="total, prev, pager, next, jumper"
+                                    @pagination="getCommentList" />
+                                <div v-if="isLogin && !replyTo.id">
+                                    <editor v-model="comment" :min-height="192" placeholder="请输入评论内容" />
+                                    <el-button type="primary" class="btn-submit" :disabled="isCommentEmpty"
+                                        @click="handleComment">发表评论</el-button>
+                                </div>
                             </div>
                         </el-tab-pane>
                     </el-tabs>
@@ -102,11 +149,11 @@
                     <el-col>
                         <el-card shadow="never">
                             <span style="font-size: 14px;">授课老师</span>
-                            <el-row justify="center" align="middle" :gutter="20" class="mt10">
-                                <el-col :span="5" class="text-center">
+                            <el-row justify="center" align="middle" :gutter="10" class="mt10">
+                                <el-col :span="4" class="text-center">
                                     <el-avatar :src="teacherInfo.avatar" />
                                 </el-col>
-                                <el-col :span="19">
+                                <el-col :span="20">
                                     <span class="teacher-name">{{ teacherInfo.nickName }}</span>
                                 </el-col>
                             </el-row>
@@ -126,7 +173,7 @@
                                     <el-col :span="16" style="line-height: 25px;">
                                         <div class="title">
                                             <el-link :underline="false" @click="handleRouterPush(item.id)">{{ item.name
-                                                }}</el-link>
+                                            }}</el-link>
                                         </div>
                                         <div class="meta">
                                             <span class="teacherName">讲师: {{ item.teacherName }}</span>
@@ -147,7 +194,7 @@
 import { getCourse, listRelatedCourse } from "@/api/user/course"
 import { listChapter } from "@/api/user/chapter"
 import { listMaterial } from "@/api/user/material"
-import { listComment } from "@/api/user/comment"
+import { listComment, addComment } from "@/api/user/comment"
 import { addStudentCourse } from "@/api/user/studentCourse"
 import { getTeacher } from "@/api/user/teacher"
 import { formatSeconds } from '@/utils/index';
@@ -164,9 +211,21 @@ const commentList = ref([]);
 
 const relatedCourseList = ref([]);
 
+const pageParams = ref({
+    pageNum: 1,
+    pageSize: 10,
+})
+const total = ref(0);
+
+const comment = ref('');
+const replyTo = ref({});
+
 const tableRef = ref(null);
 
 const isLogin = computed(() => getToken())
+const isCommentEmpty = computed(() => {
+    return !comment.value.trim() || !comment.value.replace(/<[^>]*>?/gm, '').trim();
+})
 
 function getData() {
     getCourse(route.params.courseId).then(res => {
@@ -190,9 +249,7 @@ function getData() {
     listChapter({ courseId: route.params.courseId }).then(res => {
         chapterList.value = res.data
     })
-    listComment({ courseId: route.params.courseId }).then(res => {
-        commentList.value = res.rows
-    })
+    getCommentList();
 }
 
 // 存储懒加载的数据
@@ -278,6 +335,51 @@ function handleMaterialClick(row) {
         }
     }
 }
+
+// 获取评论列表
+function getCommentList() {
+    listComment({ ...pageParams.value, courseId: route.params.courseId }).then(res => {
+        res.rows.forEach(item => {
+            item.avatar = proxy.$previewUrl + item.avatar
+        })
+        commentList.value = proxy.handleTree(res.rows, 'id', 'parentId')
+        total.value = res.total;
+    })
+}
+
+// 发送评论
+function handleComment() {
+    if (!isLogin) {
+        proxy.$message.error('请先登录')
+        return
+    }
+    if (!isCommentEmpty) {
+        proxy.$message.error('评论内容不能为空')
+        return
+    }
+
+    const data = {
+        courseId: route.params.courseId,
+        content: comment.value,
+        parentId: replyTo.value.id || null
+    }
+    addComment(data).then(() => {
+        proxy.$message.success('评论成功')
+        comment.value = ''
+        replyTo.value = {}
+        getCommentList()
+    })
+}
+
+// 回复评论
+function handleReply(id, nickName) {
+    console.log(id, nickName)
+    replyTo.value = { id, nickName }
+}
+// 取消回复
+function cancelReply() {
+    replyTo.value = {}
+}
 getData()
 </script>
 
@@ -297,6 +399,69 @@ getData()
             margin-right: 10px;
             color: #666;
         }
+    }
+}
+
+.comment-list {
+    .comment-item {
+        border-bottom: 1px solid #eee;
+        margin-bottom: 5px;
+        padding-bottom: 5px;
+        margin-top: 5px;
+        padding-top: 5px;
+    }
+
+    .comment-header {
+        .comment-name {
+            font-size: 14px;
+        }
+    }
+
+    .comment-body {
+        color: #666;
+        font-size: 15px;
+
+        * {
+            margin: 5px 0;
+        }
+    }
+
+    .comment-footer {
+        display: flex;
+        align-items: baseline;
+
+        .comment-time {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .comment-reply {
+            font-size: 13px;
+            margin-left: 10px;
+        }
+    }
+
+    .reply-to {
+        display: flex;
+        align-items: baseline;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .comment-children {
+        .comment-item {
+            border-bottom: none;
+        }
+    }
+    
+
+    .pagination-container {
+        margin-bottom: 30px;
+    }
+
+    .btn-submit {
+        margin-top: 10px;
+        float: right;
     }
 }
 
