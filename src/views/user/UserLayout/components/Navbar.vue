@@ -15,7 +15,7 @@
                     <img :src="userStore.avatar" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;" />
                     {{ userStore.nickName }}
                 </template>
-                <el-menu-item index="/user">我的主页</el-menu-item>
+                <el-menu-item index="/profile">我的主页</el-menu-item>
                 <el-menu-item @click="logout">退出登录</el-menu-item>
             </el-sub-menu>
             <el-menu-item index="/login" v-if="!isLogin">登录</el-menu-item>

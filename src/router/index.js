@@ -86,6 +86,12 @@ export const constantRoutes = [
         name: 'UserSearch',
         hidden: true,
       },
+      {
+        path: '/profile',
+        component: () => import('@/views/user/profile/index'),
+        name: 'UserProfile',
+        hidden: true,
+      }
     ]
   },
   {

@@ -8,3 +8,12 @@ export function addStudentCourse(data) {
     data: data
   })
 }
+
+// 查看学生选课列表
+export function listStudentCourse(params) {
+  return request({
+    url: '/user/student_course/list',
+    method: 'get',
+    params
+  })
+}

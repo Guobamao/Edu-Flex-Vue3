@@ -241,7 +241,7 @@ function getData() {
         courseInfo.value = res.data
         courseInfo.value.cover = proxy.$previewUrl + courseInfo.value.cover
         courseInfo.value.videoTime = courseInfo.value.videoTime ? formatSeconds(courseInfo.value.videoTime) : '--'
-        document.title = `${courseInfo.value.name}  学智灵云课堂`;
+        document.title = `${courseInfo.value.name} -     学智灵云课堂`;
     }).then(() => {
         getTeacher(courseInfo.value.teacherId).then(res => {
             res.data.avatar = proxy.$previewUrl + res.data.avatar

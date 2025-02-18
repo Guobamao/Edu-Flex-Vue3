@@ -19,7 +19,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="进度(%)" prop="progress">
-        <el-slider v-model="queryParams.progress" range :max="100" :precision="2" @change="handleQuery"
+        <el-slider v-model="queryParams.progressList" range :max="100" :precision="2" @change="handleQuery"
           :format-tooltip="formatTooltip" style="width: 200px;" />
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -183,7 +183,7 @@ const data = reactive({
     userId: null,
     courseId: null,
     status: null,
-    progress: [0, 100],
+    progressList: [0, 100],
   },
   rules: {
     userId: [
