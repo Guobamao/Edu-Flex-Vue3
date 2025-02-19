@@ -78,7 +78,8 @@
             v-else-if="scope.row.status === 2">
             重新开始
           </el-button>
-          <el-button link type="warning" icon="FolderRemove" @click="handlePublish(scope.row)" v-if="scope.row.published">
+          <el-button link type="warning" icon="FolderRemove" @click="handlePublish(scope.row)"
+            v-if="scope.row.published">
             收回
           </el-button>
           <el-button link type="primary" icon="FolderChecked" @click="handlePublish(scope.row)" v-else>
@@ -88,7 +89,7 @@
             v-hasPermi="['manage:exam:edit']">修改</el-button>
           <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)"
             v-hasPermi="['manage:exam:remove']">删除</el-button>
-            <el-button link type="primary" icon="Connection" @click="goToExamUser(scope.row)">详情</el-button>
+          <el-button link type="primary" icon="Connection" @click="goToExamUser(scope.row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -128,8 +129,9 @@
           <el-checkbox v-model="form.limited" label="限时" :true-value="1" :false-label="0"></el-checkbox>
         </el-form-item>
         <el-form-item label="考试时间" prop="['startTime', 'endTime']" v-if="form.limited === 1">
-          <el-date-picker clearable v-model="dateRange" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期"
-            range-separator="至" value-format="YYYY-MM-DD">
+          <el-date-picker clearable v-model="dateRange" type="datetimerange" start-placeholder="开始日期"
+            end-placeholder="结束日期" range-separator="至" value-format="YYYY-MM-DD HH:mm:ss"
+            :default-time="new Date(2025, 2, 2, 12, 0, 0)">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -147,8 +149,9 @@
           <el-checkbox v-model="publishForm.limited" label="限时" :true-value="1" :false-label="0" />
         </el-form-item>
         <el-form-item label="发布时间" prop="['startTime', 'endTime']" v-if="publishForm.limited === 1">
-          <el-date-picker clearable v-model="publishDateRange" type="daterange" start-placeholder="开始日期"
-            end-placeholder="结束日期" range-separator="至" value-format="YYYY-MM-DD">
+          <el-date-picker clearable v-model="publishDateRange" type="datetimerange" start-placeholder="开始日期"
+            end-placeholder="结束日期" range-separator="至" value-format="YYYY-MM-DD HH:mm:ss"
+            :default-time="new Date(2025, 2, 2, 12, 0, 0)">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -406,14 +409,14 @@ function getPaperList() {
 function handleSelectPaper() {
   form.value.totalScore = paperOptions.value.find(item => item.id === form.value.paperId).totalScore
 }
-
 // 处理发布
 function handlePublish(row) {
   if (row.published) {
     proxy.$modal.confirm('是否确认取消考试管理编号为"' + row.id + '"的考试发布？').then(() => {
       return updateExam({
         id: row.id,
-        published: 0
+        published: 0,
+        status: 0
       });
     }).then(() => {
       getList();
@@ -435,6 +438,10 @@ function publishSubmitForm() {
   if (publishForm.value.limited === 1) {
     if (publishForm.value.startTime == null || publishForm.value.endTime == null) {
       proxy.$modal.msgError("考试时间不能为空");
+      return;
+    }
+    if (Date.now() > Date.parse(publishForm.value.endTime)) {
+      proxy.$modal.msgError("已过考试结束时间，请重新设置时间！");
       return;
     }
   }
@@ -468,16 +475,27 @@ function handleStatus(row) {
         publishOpen.value = true
       })
     } else {
-      proxy.$modal.confirm('是否确认开始考试管理编号为"' + row.id + '"的考试？').then(() => {
-        const data = {
+      if (row.limited && Date.now() > Date.parse(row.endTime)) {
+        proxy.$modal.msgWarning("已过考试时间，请重新设置时间！")
+        publishForm.value = {
           id: row.id,
-          status: 1
+          limited: row.limited,
+          startTime: row.startTime,
+          endTime: row.endTime
         }
-        updateExam(data).then(res => {
-          proxy.$modal.msgSuccess("开始成功")
-          getList()
+        publishOpen.value = true
+      } else {
+        proxy.$modal.confirm('是否确认开始考试管理编号为"' + row.id + '"的考试？').then(() => {
+          const data = {
+            id: row.id,
+            status: 1
+          }
+          updateExam(data).then(res => {
+            proxy.$modal.msgSuccess("开始成功")
+            getList()
+          })
         })
-      })
+      }
     }
   } else if (row.status === 1) {
     proxy.$modal.confirm('是否确认结束考试管理编号为"' + row.id + '"的考试？').then(() => {
@@ -492,9 +510,9 @@ function handleStatus(row) {
     })
   } else if (row.status === 2) {
     proxy.$modal.confirm("是否确认重新开始考试管理编号为" + row.id + "的考试？").then(() => {
-      if (row.limited) {
-        if (Date.now() > row.endTime) {
-          proxy.$modal.msgWarning("已过考试时间，请重新设置时间！")
+      if (!row.published) {
+        // 考试未发布
+        proxy.$modal.confirm('考试未发布，是否确认发布？').then(() => {
           publishForm.value = {
             id: row.id,
             limited: row.limited,
@@ -502,16 +520,39 @@ function handleStatus(row) {
             endTime: row.endTime
           }
           publishOpen.value = true
+        })
+      } else {
+        if (row.limited) {
+          if (Date.now() > Date.parse(row.endTime)) {
+            proxy.$modal.msgWarning("已过考试时间，请重新设置时间！")
+            publishForm.value = {
+              id: row.id,
+              limited: row.limited,
+              startTime: row.startTime,
+              endTime: row.endTime
+            }
+            publishOpen.value = true
+          } else {
+            const data = {
+              id: row.id,
+              status: 1
+            }
+            updateExam(data).then(res => {
+              proxy.$modal.msgSuccess("开始成功")
+              getList()
+            })
+          }
+        } else {
+          const data = {
+            id: row.id,
+            status: 1
+          }
+          updateExam(data).then(res => {
+            proxy.$modal.msgSuccess("开始成功")
+            getList()
+          })
         }
       }
-      const data = {
-        id: row.id,
-        status: 1
-      }
-      updateExam(data).then(res => {
-        proxy.$modal.msgSuccess("重新开始成功")
-        getList()
-      })
     })
   }
 }

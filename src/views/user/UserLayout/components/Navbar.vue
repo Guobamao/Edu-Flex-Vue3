@@ -7,6 +7,7 @@
             <el-menu-item index="/index">首页</el-menu-item>
             <el-menu-item index="/course">课程</el-menu-item>
             <el-menu-item index="/homework" v-if="isLogin">作业</el-menu-item>
+            <el-menu-item index="/exam" v-if="isLogin">考试</el-menu-item>
 
             <div class="flex-grow" />
             <el-menu-item @click="handleSearch">搜索</el-menu-item>
