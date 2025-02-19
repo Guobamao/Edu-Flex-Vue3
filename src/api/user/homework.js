@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询课程方向列表
+// 查询作业列表
 export function listHomework(params) {
   return request({
     url: '/user/homework/list',
