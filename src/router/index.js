@@ -111,6 +111,12 @@ export const constantRoutes = [
         hidden: true
       },
       {
+        path: '/exam/prepare/:examId',
+        component: () => import('@/views/user/exam/prepare'),
+        name: 'UserExamPrepare',
+        hidden: true
+      },
+      {
         path: '/exam/:examId',
         component: () => import('@/views/user/exam/detail'),
         name: 'UserExamDetail',

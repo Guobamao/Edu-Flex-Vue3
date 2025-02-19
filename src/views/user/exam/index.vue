@@ -120,7 +120,7 @@ function handleChange(val) {
 }
 
 function handleEdit(item) {
-    router.push({ name: 'UserExamDetail', params: { examId: item.examId } })
+    router.push({ name: 'UserExamPrepare', params: { examId: item.examId } })
 }
 
 getCourseList();

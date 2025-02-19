@@ -8,3 +8,11 @@ export function listExam(params) {
     params
   })
 }
+
+// 查看考试详情
+export function getExamInfo(id) {
+    return request({
+      url: '/user/exam/' + id,
+      method: 'get'
+    })
+}
