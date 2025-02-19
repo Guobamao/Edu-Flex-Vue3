@@ -19,7 +19,7 @@
         </div>
         <el-card>
             <el-collapse v-model="activeNames" accordion @change="handleChange">
-                <el-collapse-item v-for="course in courseOptions" :key="course.id" :title="course.courseName"
+                <el-collapse-item v-for="course in filterCourseOptions" :key="course.id" :title="course.courseName"
                     :name="course.courseId">
                     <el-card shadow="never" v-for="(item, index) in course.homeworkList" :key="item.id"
                         class="homework-card">
@@ -56,6 +56,8 @@ const { proxy } = getCurrentInstance();
 const { common_status } = proxy.useDict("common_status")
 const { homework_status } = proxy.useDict("homework_status")
 
+const router = useRouter();
+
 const queryParams = ref({
     pageNum: 1,
     pageSize: 10,
@@ -64,6 +66,7 @@ const queryParams = ref({
 const total = ref(0);
 
 const courseOptions = ref([]);
+const filterCourseOptions = ref([]);
 const homeworkList = ref([]);
 
 const activeNames = ref()
@@ -71,6 +74,7 @@ const activeNames = ref()
 function getCourseList() {
     listStudentCourse(queryParams.value).then(response => {
         courseOptions.value = response.rows;
+        filterCourseOptions.value = courseOptions.value
     });
 }
 
@@ -84,13 +88,14 @@ function getList() {
 /** 搜索按钮操作 */
 function handleQuery() {
     queryParams.value.pageNum = 1;
-    getList();
+    // getList();
+    filterCourseOptions.value = courseOptions.value.filter(item => item.courseId == queryParams.value.courseId)
 }
 
 /** 重置按钮操作 */
 function resetQuery() {
     proxy.resetForm("queryRef");
-    handleQuery();
+    filterCourseOptions.value = courseOptions.value
 }
 
 /** 切换 折叠面板 */
@@ -104,7 +109,7 @@ function handleChange(val) {
 }
 
 function handleEdit(item) {
-    
+    router.push({ name: 'UserHomeworkDetail', params: { homeworkId: item.homeworkId } })
 }
 
 getCourseList();
@@ -146,9 +151,9 @@ getList();
     .homework-status {
         position: absolute;
         right: 20%;
-        top: 50%;
-        width: 50px;
+        top: 45%;
         text-align: center;
+        padding: 5px 10px;
         border-radius: 10px;
     }
 
