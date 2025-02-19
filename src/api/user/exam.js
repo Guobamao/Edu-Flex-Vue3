@@ -16,3 +16,12 @@ export function getExamInfo(id) {
       method: 'get'
     })
 }
+
+// 创建考试记录
+export function createExamRecord(params) {
+  return request({
+    url: '/user/exam/create',
+    method: 'get',
+    params
+  })
+}

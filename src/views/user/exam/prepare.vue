@@ -28,7 +28,7 @@
 </template>
 
 <script setup name="UserExamPrepare">
-import { getExamInfo } from "@/api/user/exam"
+import { getExamInfo, createExamRecord } from "@/api/user/exam"
 
 const { proxy } = getCurrentInstance();
 
@@ -47,7 +47,9 @@ function getData() {
 // 开始考试
 function handleStart() {
     loading.value = true
-    
+    createExamRecord({ examId: route.params.examId }).then(res => {
+        loading.value = false
+    })
 }
 
 // 返回
