@@ -14,7 +14,7 @@
         </el-row>
         <el-row :gutter="20" class="mt20">
             <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="18">
-                <el-card shadow="never" class="mb20">
+                <el-card class="mb20">
                     <el-tabs v-model="activeTab">
                         <el-tab-pane label="课程" name="course">
                             <div v-for="item in courseList" :key="item.id" class="course-item">
@@ -44,7 +44,7 @@
                 </el-card>
             </el-col>
             <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="6">
-                <el-card shadow="never" class="recommend-course">
+                <el-card class="recommend-course">
                     <span style="font-size: 14px;">推荐课程</span>
                     <div v-for="item in recommendCourseList" :key="item.id" class="recommend-course-item">
                         <el-row :gutter="10" align="middle">
@@ -66,7 +66,7 @@
                         </el-row>
                     </div>
                 </el-card>
-                <el-card shadow="never">
+                <el-card>
                     <span style="font-size: 14px;">热门搜索</span>
                     <div class="search-list">
                         <div v-for="(item, index) in searchList" :key="index" class="search-item">

@@ -1,6 +1,6 @@
 <template>
     <div class="app-container">
-        <el-card class="mb20" shadow="never">
+        <el-card class="mb20">
             <div class="filter-group">
                 <div class="title">方向</div>
                 <div class="content">

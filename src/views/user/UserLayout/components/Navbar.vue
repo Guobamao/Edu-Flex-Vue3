@@ -2,7 +2,7 @@
     <div class="navbar">
         <el-menu :default-active="defaultActive" mode="horizontal" :ellipsis="false" router background-color="#393D49" text-color="#fff">
             <el-menu-item index="/">
-                <img style="width: 100px" src="@/assets/logo/logo.png" />
+                <img style="width: 120px" src="@/assets/logo/logo2.png" />
             </el-menu-item>
             <el-menu-item index="/index">首页</el-menu-item>
             <el-menu-item index="/course">课程</el-menu-item>

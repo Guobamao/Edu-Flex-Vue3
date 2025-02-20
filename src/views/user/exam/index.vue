@@ -18,10 +18,13 @@
             </el-card>
         </div>
         <el-card>
-            <el-collapse v-model="activeNames" accordion @change="handleChange">
+            <div v-if="breakShow" style="cursor: pointer;" @click="toExam">
+                <el-alert :closable="false" title="您有正在进行的考试，离线太久考试将被作废哦，点击此处可继续考试！" type="error" />
+            </div>
+            <el-collapse v-model="activeNames" accordion @change="handleChange" class="mt5">
                 <el-collapse-item v-for="course in filterCourseOptions" :key="course.id" :title="course.courseName"
                     :name="course.courseId">
-                    <el-card shadow="never" v-for="(item, index) in course.examList" :key="item.id" class="exam-card">
+                    <el-card v-for="(item, index) in course.examList" :key="item.id" class="exam-card">
                         <el-tag class="orderNum">{{ index + 1 }}</el-tag>
                         <div class="info">
                             <div>
@@ -44,16 +47,18 @@
                         </div>
                         <!-- 考试状态 -->
                         <dict-tag :options="common_status" :value="item.status" class="status" />
+                        <!-- 考试提交状态 -->
+                        <dict-tag :options="exam_submit_status" :value="item.submitStatus" class="submit-status" />
                         <el-button v-if="item.status === 0" type="primary" icon="Clock" plain disabled
                             class="btn-edit">未到考试时间</el-button>
                         <el-button v-else-if="item.status === 1 && item.submitStatus === 0" type="primary" icon="Edit"
-                            plain class="btn-edit" @click="handleEdit(item)">去答卷</el-button>
+                            plain class="btn-edit" @click="handlePrepare(item)">去答卷</el-button>
                         <el-button v-else-if="item.status === 1 && item.submitStatus === 1" type="primary" icon="Edit"
-                            plain class="btn-edit" @click="handleEdit(item)">继续答卷</el-button>
+                            plain class="btn-edit" @click="toExam(item)">继续答卷</el-button>
                         <el-button v-else-if="item.status === 1 && item.submitStatus === 2" type="primary" icon="Edit"
-                            plain class="btn-edit" @click="handleEdit(item)">查看试卷</el-button>
-                        <el-button v-else-if="item.status === 2" type="primary" icon="View" plain
-                            class="btn-edit" @click="handleEdit(item)">查看试卷</el-button>
+                            plain class="btn-edit" @click="handleView(item)">查看试卷</el-button>
+                        <el-button v-else-if="item.status === 2" type="primary" icon="View" plain class="btn-edit"
+                            @click="handleView(item)">查看试卷</el-button>
                     </el-card>
                 </el-collapse-item>
             </el-collapse>
@@ -62,10 +67,11 @@
 </template>
 <script setup name="UserExam">
 import { listStudentCourse } from "@/api/user/studentCourse";
-import { listExam } from "@/api/user/exam"
+import { listExam, checkExam } from "@/api/user/exam"
 
 const { proxy } = getCurrentInstance();
 const { common_status } = proxy.useDict("common_status")
+const { exam_submit_status } = proxy.useDict("exam_submit_status")
 
 const router = useRouter();
 
@@ -81,6 +87,8 @@ const filterCourseOptions = ref([]);
 const examList = ref([]);
 
 const activeNames = ref()
+const breakShow = ref(false)
+const recordId = ref(null)
 
 function getCourseList() {
     listStudentCourse(queryParams.value).then(response => {
@@ -119,17 +127,44 @@ function handleChange(val) {
     })
 }
 
-function handleEdit(item) {
+// 去考试
+function handlePrepare(item) {
     router.push({ name: 'UserExamPrepare', params: { examId: item.examId } })
 }
 
+// 继续考试
+function toExam(item) {
+    router.push({ name: 'UserExamDetail', params: { id: item.recordId || recordId.value } })
+}
+
+// 查看考试结果
+function handleView(item) {
+    if (item.submitStatus === 0) {
+        proxy.$modal.msgWarning("未参加考试，无法查看试卷！")
+        return;
+    }
+    router.push({ name: 'UserExamResult', params: { id: item.recordId } })
+}
+
+// 检查进行中的考试
+function check() {
+    checkExam().then(res => {
+        if (res.data && res.data.id) {
+            breakShow.value = true
+            recordId.value   = res.data.id
+        }
+    })
+}
+
 getCourseList();
+check();
 getList();
 </script>
 
 <style lang="scss" scoped>
 .exam-card {
     position: relative;
+    margin: 10px 20px 10px 20px;
 
     .orderNum {
         position: absolute;
@@ -186,6 +221,18 @@ getList();
         position: absolute;
         right: 0;
         top: 0;
+    }
+
+    .submit-status {
+        position: absolute;
+        right: 20%;
+        top: 45%;
+
+        :deep(.el-tag) {
+            padding: 20px;
+            font-size: 15px;
+            font-weight: bold;
+        }
     }
 
     .btn-edit {

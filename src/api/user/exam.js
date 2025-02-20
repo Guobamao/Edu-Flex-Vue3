@@ -42,3 +42,28 @@ export function fillAnswer(data) {
     data: data
   })
 }
+
+// 交卷
+export function submitExam(data) {
+  return request({
+    url: '/user/exam/submit',
+    method: 'post',
+    data: data
+  })
+}
+
+// 获取考试结果
+export function getExamResult(id) {
+  return request({
+    url: '/user/exam/result/' + id,
+    method: 'get'
+  })
+}
+
+// 检查进行中的考试
+export function checkExam() {
+  return request({
+    url: '/user/exam/check',
+    method: 'get'
+  })
+}

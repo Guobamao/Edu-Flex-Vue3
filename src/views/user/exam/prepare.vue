@@ -2,8 +2,9 @@
     <div class="app-container">
         <el-row :gutter="24">
             <el-col :span="24" style="margin-bottom: 20px">
-                <el-alert title="点击`开始考试`后将自动进入考试，请诚信考试！" type="error" effect="dark" style="margin-bottom: 10px" />
                 <el-card class="pre-exam">
+                    <el-alert title="点击`开始考试`后将自动进入考试，请诚信考试！" type="success" :closable="false" show-icon
+                        style="margin-bottom: 10px; color: green;" />
                     <div><strong>考试名称：</strong>{{ examInfo.name }}</div>
                     <div><strong>考试时长：</strong>{{ examInfo.duration }}分钟</div>
                     <div><strong>试卷总分：</strong>{{ examInfo.totalScore }}分</div>
@@ -51,7 +52,7 @@ function handleStart() {
     createExamRecord({ examId: route.params.examId }).then(res => {
         setTimeout(() => {
             loading.value = false
-            router.push({ name: 'UserExamDetail', params: { id: res.data }})
+            router.push({ name: 'UserExamDetail', params: { id: res.data } })
         }, 1000)
     }).catch(() => {
         loading.value = false
@@ -65,3 +66,9 @@ function handleBack() {
 
 getData()
 </script>
+<style lang="scss" scoped>
+.pre-exam div {
+    line-height: 42px;
+    color: #555555;
+}
+</style>

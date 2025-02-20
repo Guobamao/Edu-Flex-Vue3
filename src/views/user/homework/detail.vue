@@ -6,7 +6,7 @@
             <el-breadcrumb-item>{{ homeworkInfo.title }}</el-breadcrumb-item>
         </el-breadcrumb>
 
-        <el-card shadow="never" class="homework-info-card">
+        <el-card class="homework-info-card">
             <div class="header">
                 <div class="title">
                     <span class="label">作业：</span>
@@ -34,7 +34,7 @@
                 </div>
             </div>
         </el-card>
-        <el-card shadow="never" class="homework-answer-card">
+        <el-card class="homework-answer-card">
             <div class="header">作答区域</div>
             <div class="body">
                 <span class="label">作业内容：</span>

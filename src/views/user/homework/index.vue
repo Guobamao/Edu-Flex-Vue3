@@ -21,7 +21,7 @@
             <el-collapse v-model="activeNames" accordion @change="handleChange">
                 <el-collapse-item v-for="course in filterCourseOptions" :key="course.id" :title="course.courseName"
                     :name="course.courseId">
-                    <el-card shadow="never" v-for="(item, index) in course.homeworkList" :key="item.id"
+                    <el-card v-for="(item, index) in course.homeworkList" :key="item.id"
                         class="homework-card">
                         <el-tag class="orderNum">{{ index + 1 }}</el-tag>
                         <div class="info">
@@ -119,6 +119,7 @@ getList();
 <style lang="scss" scoped>
 .homework-card {
     position: relative;
+    margin: 10px 20px 10px 20px;
 
     .orderNum {
         position: absolute;

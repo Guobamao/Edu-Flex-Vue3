@@ -5,7 +5,7 @@
             <el-breadcrumb-item :to="{ path: '/course' }">全部课程</el-breadcrumb-item>
             <el-breadcrumb-item>{{ courseInfo.name }}</el-breadcrumb-item>
         </el-breadcrumb>
-        <el-card class="course-meta" shadow="never">
+        <el-card class="course-meta">
             <el-row :gutter="20" class="course-info">
                 <el-col :span="6">
                     <el-image :src="courseInfo.cover" style="width: 100%; height: 150px;" />
@@ -38,7 +38,7 @@
 
         <el-row :gutter="20" class="mt20">
             <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="18">
-                <el-card shadow="never" class="mb20">
+                <el-card class="mb20">
                     <el-tabs>
                         <el-tab-pane label="课程介绍">
                             <div v-html="courseInfo.description"></div>
@@ -142,7 +142,7 @@
                 <!-- 选课 -->
                 <el-row class="mb20">
                     <el-col>
-                        <el-card shadow="never">
+                        <el-card>
                             <el-button type="success" class="action-button" v-if="!isLogin"
                                 @click="router.push('/login')">用户登录</el-button>
                             <el-button type="primary" class="action-button"
@@ -155,7 +155,7 @@
                 </el-row>
                 <el-row class="mb20">
                     <el-col>
-                        <el-card shadow="never">
+                        <el-card>
                             <span style="font-size: 14px;">授课老师</span>
                             <el-row justify="center" align="middle" :gutter="10" class="mt10">
                                 <el-col :span="4" class="text-center">
@@ -170,7 +170,7 @@
                 </el-row>
                 <el-row>
                     <el-col>
-                        <el-card shadow="never" class="related-course">
+                        <el-card class="related-course">
                             <span style="font-size: 14px;">相关课程</span>
                             <div v-for="item in relatedCourseList" :key="item.id" class="related-course-item">
                                 <el-row :gutter="10" align="middle">

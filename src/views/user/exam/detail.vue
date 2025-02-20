@@ -116,7 +116,7 @@
 </template>
 <script setup name="UserExamDetail">
 import ExamCountDown from './components/ExamCountDown.vue';
-import { getExamRecordDetail, fillAnswer } from '@/api/user/exam';
+import { getExamRecordDetail, fillAnswer, submitExam } from '@/api/user/exam';
 
 const { proxy } = getCurrentInstance()
 
@@ -235,8 +235,6 @@ function saveAnswer(item, callback) {
     } else {
         showNext.value = true
     }
-
-    // 暂存当前题目答案
     // 暂存当前题目答案
     const answers = [];
     if (radioValue.value !== '') {
@@ -246,8 +244,6 @@ function saveAnswer(item, callback) {
     } else if (inputValue.value !== '') {
         answers.push(inputValue.value);
     }
-
-
     // 判断是否有答案
     if (answers.length > 0) {
         const data = {
@@ -302,6 +298,8 @@ function handleSubmit() {
             proxy.$modal.confirm("您还有" + unAnswered + "道题目未作答，是否确认交卷？").then(() => {
                 doHandler()
             })
+        } else {
+            doHandler()
         }
     })
 }
@@ -311,7 +309,15 @@ function doHandler() {
     loading.value = true
 
     // 交卷请求
-    router.push({ name: 'UserExamResult', params: { id: route.params.id } })
+    const data = {
+        recordId: route.params.id
+    }
+    submitExam(data).then(() => {
+        proxy.$modal.msgSuccess("试卷提交成功，即将进入考试结果页面！")
+        setTimeout(() => {
+            router.push({ name: 'UserExamResult', params: { id: route.params.id } })
+        }, 1000)
+    })
 }
 
 // 监测questionData.value.id变化

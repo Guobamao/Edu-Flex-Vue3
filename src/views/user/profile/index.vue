@@ -5,7 +5,7 @@
             <el-breadcrumb-item>我的主页</el-breadcrumb-item>
             <el-breadcrumb-item>{{ userInfo.nickName }}</el-breadcrumb-item>
         </el-breadcrumb>
-        <el-card class="info-card" shadow="never">
+        <el-card class="info-card">
             <el-row :gutter="20">
                 <el-col :span="4" class="text-center">
                     <userAvatar />
