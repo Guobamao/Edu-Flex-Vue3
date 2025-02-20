@@ -116,12 +116,6 @@ export const constantRoutes = [
         name: 'UserExamPrepare',
         hidden: true
       },
-      {
-        path: '/exam/:examId',
-        component: () => import('@/views/user/exam/detail'),
-        name: 'UserExamDetail',
-        hidden: true,
-      },
     ]
   },
   {
@@ -137,7 +131,13 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
-  }
+  },
+  {
+    path: '/exam/start/:id',
+    component: () => import('@/views/user/exam/detail'),
+    name: 'UserExamDetail',
+    hidden: true,
+  },
 ]
 
 // 动态路由，基于用户权限动态去加载

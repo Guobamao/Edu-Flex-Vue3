@@ -38,6 +38,7 @@ const router = useRouter()
 const examInfo = ref({})
 const loading = ref(false)
 
+// 获取考试信息
 function getData() {
     getExamInfo(route.params.examId).then(res => {
         examInfo.value = res.data
@@ -48,6 +49,11 @@ function getData() {
 function handleStart() {
     loading.value = true
     createExamRecord({ examId: route.params.examId }).then(res => {
+        setTimeout(() => {
+            loading.value = false
+            router.push({ name: 'UserExamDetail', params: { id: res.data }})
+        }, 1000)
+    }).catch(() => {
         loading.value = false
     })
 }
