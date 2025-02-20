@@ -3,9 +3,9 @@
         <el-row>
             <el-col :span="24">
                 <el-card class="exam-detail">
-                    <ExamCountDown v-model:modelValue="paperData.leftSeconds" @timeout="doHandler()" />
+                    <ExamCountDown v-model:modelValue="paperData.leftSeconds" @timeout="doHandler" />
                     <div>
-                        <el-button :loading="loading" type="primary" icon="Plus" @click="handleSubmit()">
+                        <el-button :loading="loading" type="primary" icon="Plus" @click="handleSubmit">
                             {{ handleText }}
                         </el-button>
                     </div>
@@ -121,6 +121,7 @@ import { getExamRecordDetail, fillAnswer } from '@/api/user/exam';
 const { proxy } = getCurrentInstance()
 
 const route = useRoute();
+const router = useRouter();
 
 // 试卷数据
 const paperData = ref({});
@@ -236,40 +237,51 @@ function saveAnswer(item, callback) {
     }
 
     // 暂存当前题目答案
-    const answers = checkboxValue.value
+    // 暂存当前题目答案
+    const answers = [];
     if (radioValue.value !== '') {
-        answers.push(radioValue.value)
+        answers.push(radioValue.value);
+    } else if (checkboxValue.value.length > 0) {
+        answers.push(...checkboxValue.value);
     } else if (inputValue.value !== '') {
-        answers.push(inputValue.value)
+        answers.push(inputValue.value);
     }
+
 
     // 判断是否有答案
     if (answers.length > 0) {
         const data = {
             recordId: route.params.id,
             questionId: questionData.value.id,
-            answer: getOptionValue(questionData.value)
+            answer: JSON.stringify(answers)
         }
 
         // 如果切换的是同一个题目，则不发起请求
         if (questionData.value.id !== item.id) {
-            examAnswerList.value.push(data)
+            const existingAnswerIndex = examAnswerList.value.findIndex(item => item.questionId === questionData.value.id);
+            if (existingAnswerIndex !== -1) {
+                // 修改已存在的答案
+                examAnswerList.value[existingAnswerIndex].answer = data.answer;
+            } else {
+                // 插入新的答案
+                examAnswerList.value.push(data);
+            }
 
             fillAnswer(data).then(() => {
-                questionData.value.answered = true
+                questionData.value.answered = true;
                 // 切换题目
-                questionData.value = item
-
-                if (callback) {
-                    callback()
-                }
-            })
+                questionData.value = item;
+            });
         }
     } else {
         // 切换题目
         if (questionData.value.id !== item.id) {
             questionData.value = item
         }
+    }
+
+    if (callback) {
+        callback()
     }
 
     // 清空选项数据
@@ -299,20 +311,7 @@ function doHandler() {
     loading.value = true
 
     // 交卷请求
-}
-
-// 获取选项值
-function getOptionValue(item) {
-    // 单选
-    if (item.type === 1 || item.type === 3) {
-        return JSON.stringify([radioValue.value])
-    } else if (item.type === 2) {
-        // 多选
-        return JSON.stringify(checkboxValue.value)
-    } else if (item.type === 4 || item.type === 5) {
-        // 填空 / 简答
-        return JSON.stringify([inputValue.value])
-    }
+    router.push({ name: 'UserExamResult', params: { id: route.params.id } })
 }
 
 // 监测questionData.value.id变化

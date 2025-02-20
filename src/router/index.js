@@ -116,6 +116,12 @@ export const constantRoutes = [
         name: 'UserExamPrepare',
         hidden: true
       },
+      {
+        path: '/exam/result/:id',
+        component: () => import('@/views/user/exam/result'),
+        name: 'UserExamResult',
+        hidden: true
+      }
     ]
   },
   {
@@ -306,7 +312,7 @@ export const dynamicRoutes = [
         path: ':id(\\d+)',
         component: () => import('@/views/manage/exam/ExamRecord'),
         name: 'ExamRecord',
-        meta: { title: '考生记录详情', activeMenu: '/admin/exams/exam' }
+        meta: { title: '考试记录详情', activeMenu: '/admin/exams/exam' }
       }
     ]
   },
