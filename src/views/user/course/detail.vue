@@ -54,14 +54,13 @@
                                             scope.row.name }}</strong>
                                         <!-- 判断为资源 -->
                                         <el-link v-else-if="!scope.row.parentId && scope.row.chapterId"
-                                            @click="handleMaterialClick(scope.row)">
-                                            <el-icon>
-                                                <VideoPlay v-if="scope.row.materialType === 0" />
-                                                <Picture v-if="scope.row.materialType === 1" />
-                                                <Document v-if="scope.row.materialType === 2" />
-                                                <Film v-if="scope.row.materialType === 3" />
-                                                <Memo v-if="scope.row.materialType === 4" />
-                                            </el-icon>
+                                            @click="handleMaterialClick(scope.row)" class="material-icon">
+                                            <svg-icon icon-class="document" v-if="scope.row.materialType === 1" />
+                                            <svg-icon icon-class="picture" v-if="scope.row.materialType === 2" />
+                                            <svg-icon icon-class="video" v-if="scope.row.materialType === 3" />
+                                            <svg-icon icon-class="ppt" v-if="scope.row.materialType === 4" />
+                                            <svg-icon icon-class="pdf" v-if="scope.row.materialType === 5" />
+                                            <svg-icon icon-class="other" v-if="scope.row.materialType === 6" />
                                             {{ scope.row.name }}
                                         </el-link>
                                     </template>
@@ -73,54 +72,60 @@
                                         </span>
                                     </template>
                                 </el-table-column>
+                                <el-table-column prop="progress" label="学习进度">
+                                    <template #default="scope">
+                                        <el-progress :percentage="scope.row.progress" :stroke-width="5" />
+                                    </template>
+                                </el-table-column>
                             </el-table>
                         </el-tab-pane>
                         <el-tab-pane label="课程评论">
                             <div class="comment-list">
                                 <template v-if="commentList.length">
                                     <el-row v-for="item in commentList" :key="item.id" justify="center" :gutter="20"
-                                    class="comment-item">
-                                    <el-col :span="2" class="text-center">
-                                        <el-avatar :src="item.avatar" />
-                                    </el-col>
-                                    <el-col :span="22">
-                                        <div class="comment-header">
-                                            <span class="comment-name">{{ item.nickName }}</span>
-                                        </div>
-                                        <div class="comment-body" v-html="item.content"></div>
-                                        <div class="comment-footer">
-                                            <span class="comment-time">{{ item.createTime }}</span>
-                                            <el-link v-if="isLogin" @click="handleReply(item.id, item.nickName)"
-                                                class="comment-reply">回复</el-link>
-                                        </div>
-                                        <div v-if="isLogin && replyTo.id === item.id">
-                                            <div class="reply-to">
-                                                回复 {{ replyTo.nickName }}
-                                                <el-link @click="cancelReply" style="margin-left: 10px;">取消回复</el-link>
+                                        class="comment-item">
+                                        <el-col :span="2" class="text-center">
+                                            <el-avatar :src="item.avatar" />
+                                        </el-col>
+                                        <el-col :span="22">
+                                            <div class="comment-header">
+                                                <span class="comment-name">{{ item.nickName }}</span>
                                             </div>
-                                            <editor v-model="comment" :min-height="192" placeholder="请输入评论内容" />
-                                            <el-button type="primary" class="btn-submit" :disabled="isCommentEmpty"
-                                                @click="handleComment">发表评论</el-button>
-                                        </div>
-                                        <div v-if="item.children && item.children.length" class="comment-children">
-                                            <el-row v-for="child in item.children" :key="child.id" justify="center"
-                                                :gutter="20" class="comment-item">
-                                                <el-col :span="2" class="text-center">
-                                                    <el-avatar :src="child.avatar" />
-                                                </el-col>
-                                                <el-col :span="22">
-                                                    <div class="comment-header">
-                                                        <span class="comment-name">{{ child.nickName }}</span>
-                                                    </div>
-                                                    <div class="comment-body" v-html="child.content"></div>
-                                                    <div class="comment-footer">
-                                                        <span class="comment-time">{{ child.createTime }}</span>
-                                                    </div>
-                                                </el-col>
-                                            </el-row>
-                                        </div>
-                                    </el-col>
-                                </el-row>
+                                            <div class="comment-body" v-html="item.content"></div>
+                                            <div class="comment-footer">
+                                                <span class="comment-time">{{ item.createTime }}</span>
+                                                <el-link v-if="isLogin" @click="handleReply(item.id, item.nickName)"
+                                                    class="comment-reply">回复</el-link>
+                                            </div>
+                                            <div v-if="isLogin && replyTo.id === item.id">
+                                                <div class="reply-to">
+                                                    回复 {{ replyTo.nickName }}
+                                                    <el-link @click="cancelReply"
+                                                        style="margin-left: 10px;">取消回复</el-link>
+                                                </div>
+                                                <editor v-model="comment" :min-height="192" placeholder="请输入评论内容" />
+                                                <el-button type="primary" class="btn-submit" :disabled="isCommentEmpty"
+                                                    @click="handleComment">发表评论</el-button>
+                                            </div>
+                                            <div v-if="item.children && item.children.length" class="comment-children">
+                                                <el-row v-for="child in item.children" :key="child.id" justify="center"
+                                                    :gutter="20" class="comment-item">
+                                                    <el-col :span="2" class="text-center">
+                                                        <el-avatar :src="child.avatar" />
+                                                    </el-col>
+                                                    <el-col :span="22">
+                                                        <div class="comment-header">
+                                                            <span class="comment-name">{{ child.nickName }}</span>
+                                                        </div>
+                                                        <div class="comment-body" v-html="child.content"></div>
+                                                        <div class="comment-footer">
+                                                            <span class="comment-time">{{ child.createTime }}</span>
+                                                        </div>
+                                                    </el-col>
+                                                </el-row>
+                                            </div>
+                                        </el-col>
+                                    </el-row>
                                 </template>
                                 <template v-else>
                                     <el-empty description="暂无评论，快来发表评论吧！" />
@@ -487,7 +492,7 @@ getData()
             border-bottom: none;
         }
     }
-    
+
 
     .pagination-container {
         margin-bottom: 30px;
@@ -496,6 +501,16 @@ getData()
     .btn-submit {
         margin-top: 10px;
         float: right;
+    }
+}
+
+.course-table {
+    .material-icon {
+        .svg-icon {
+            width: 1.5em;
+            height: 1.5em;
+            margin-right: 5px;
+        }
     }
 }
 

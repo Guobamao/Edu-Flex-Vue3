@@ -167,12 +167,13 @@ getList();
     }
 
     .content {
-        overflow: hidden;
-        white-space: nowrap;
+        display: flex;
+        flex-wrap: wrap;
     }
 
     .content a {
         margin-right: 15px;
+        margin-bottom: 5px;
         padding: 0 5px;
     }
 

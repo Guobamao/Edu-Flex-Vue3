@@ -26,39 +26,47 @@
                     :name="course.courseId">
                     <el-card v-for="(item, index) in course.examList" :key="item.id" class="exam-card">
                         <el-tag class="orderNum">{{ index + 1 }}</el-tag>
-                        <div class="info">
-                            <div>
-                                <span class="title">{{ item.examName }}</span>
-                            </div>
-                            <div>
-                                <span class="score">试卷总分：{{ item.totalScore }}分</span>
-                                <span class="score">及格分数：{{ item.passScore }}分</span>
-                            </div>
-                            <div>
-                                <span class="duration">考试时长: {{ item.duration }}分钟</span>
-                                <span class="limited">是否限时：{{ item.limited === 0 ? '不限时' : '限时' }}</span>
-                            </div>
-                            <div v-if="item.limited === 1">
-                                <span class="limited-time">作答时间：{{ item.startTime }} - {{ item.endTime }}</span>
-                            </div>
-                            <div>
-                                <span class="desc">注意事项：多选、少选、错选不得分</span>
-                            </div>
-                        </div>
+                        <el-row :gutter="20" align="middle">
+                            <el-col :span="15">
+                                <div class="info">
+                                    <div>
+                                        <span class="title">{{ item.examName }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="score">试卷总分：{{ item.totalScore }}分</span>
+                                        <span class="score">及格分数：{{ item.passScore }}分</span>
+                                    </div>
+                                    <div>
+                                        <span class="duration">考试时长: {{ item.duration }}分钟</span>
+                                        <span class="limited">是否限时：{{ item.limited === 0 ? '不限时' : '限时' }}</span>
+                                    </div>
+                                    <div v-if="item.limited === 1">
+                                        <span class="limited-time">作答时间：{{ item.startTime }} - {{ item.endTime }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="desc">注意事项：多选、少选、错选不得分</span>
+                                    </div>
+                                </div>
+                            </el-col>
+                            <el-col :span="4">
+                                <dict-tag :options="exam_submit_status" :value="item.submitStatus"
+                                    class="submit-status" />
+                            </el-col>
+                            <el-col :span="5">
+                                <el-button v-if="item.status === 0" type="primary" icon="Clock" plain
+                                    disabled>未到考试时间</el-button>
+                                <el-button v-else-if="item.status === 1 && item.submitStatus === 0" type="primary"
+                                    icon="Edit" plain @click="handlePrepare(item)">去答卷</el-button>
+                                <el-button v-else-if="item.status === 1 && item.submitStatus === 1" type="primary"
+                                    icon="Edit" plain @click="toExam(item)">继续答卷</el-button>
+                                <el-button v-else-if="item.status === 1 && item.submitStatus === 2" type="primary"
+                                    icon="Edit" plain @click="handleView(item)">查看试卷</el-button>
+                                <el-button v-else-if="item.status === 2" type="primary" icon="View" plain
+                                    @click="handleView(item)">查看试卷</el-button>
+                            </el-col>
+                        </el-row>
                         <!-- 考试状态 -->
                         <dict-tag :options="common_status" :value="item.status" class="status" />
-                        <!-- 考试提交状态 -->
-                        <dict-tag :options="exam_submit_status" :value="item.submitStatus" class="submit-status" />
-                        <el-button v-if="item.status === 0" type="primary" icon="Clock" plain disabled
-                            class="btn-edit">未到考试时间</el-button>
-                        <el-button v-else-if="item.status === 1 && item.submitStatus === 0" type="primary" icon="Edit"
-                            plain class="btn-edit" @click="handlePrepare(item)">去答卷</el-button>
-                        <el-button v-else-if="item.status === 1 && item.submitStatus === 1" type="primary" icon="Edit"
-                            plain class="btn-edit" @click="toExam(item)">继续答卷</el-button>
-                        <el-button v-else-if="item.status === 1 && item.submitStatus === 2" type="primary" icon="Edit"
-                            plain class="btn-edit" @click="handleView(item)">查看试卷</el-button>
-                        <el-button v-else-if="item.status === 2" type="primary" icon="View" plain class="btn-edit"
-                            @click="handleView(item)">查看试卷</el-button>
                     </el-card>
                 </el-collapse-item>
             </el-collapse>
@@ -151,7 +159,7 @@ function check() {
     checkExam().then(res => {
         if (res.data && res.data.id) {
             breakShow.value = true
-            recordId.value   = res.data.id
+            recordId.value = res.data.id
         }
     })
 }
@@ -224,21 +232,11 @@ getList();
     }
 
     .submit-status {
-        position: absolute;
-        right: 20%;
-        top: 45%;
-
         :deep(.el-tag) {
             padding: 20px;
             font-size: 15px;
             font-weight: bold;
         }
-    }
-
-    .btn-edit {
-        position: absolute;
-        right: 5%;
-        top: 48%;
     }
 }
 </style>

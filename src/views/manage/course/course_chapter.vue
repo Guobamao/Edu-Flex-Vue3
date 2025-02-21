@@ -17,13 +17,12 @@
           <strong v-if="scope.row.parentId === 0 && !scope.row.chapterId">{{ scope.row.name }}</strong>
           <!-- 判断为资源 -->
           <span v-else-if="!scope.row.parentId && scope.row.chapterId">
-            <el-icon>
-              <VideoPlay v-if="scope.row.materialType === 0" />
-              <Picture v-if="scope.row.materialType === 1" />
-              <Document v-if="scope.row.materialType === 2" />
-              <Film v-if="scope.row.materialType === 3" />
-              <Memo v-if="scope.row.materialType === 4" />
-            </el-icon>
+            <svg-icon icon-class="document" v-if="scope.row.materialType === 1" />
+            <svg-icon icon-class="picture" v-if="scope.row.materialType === 2" />
+            <svg-icon icon-class="video" v-if="scope.row.materialType === 3" />
+            <svg-icon icon-class="ppt" v-if="scope.row.materialType === 4" />
+            <svg-icon icon-class="pdf" v-if="scope.row.materialType === 5" />
+            <svg-icon icon-class="other" v-if="scope.row.materialType === 6" />
             {{ scope.row.name }}
           </span>
         </template>
@@ -355,6 +354,7 @@ function getUploadFileList(fileList) {
 // 查看资料
 function viewMaterial(row) {
   if (row.materialType === 1 || row.materialType === 4 || row.materialType === 5) {
+    // 文本文件 / PPT / PDF，以图片方式预览
     previewFile(row.fileId).then(res => {
       const ids = res.data.map(item => item.id)
       previewList.value = ids.map(id => proxy.$previewFileUrl + id)
@@ -381,3 +381,12 @@ function handleRowClick(row, column, event) {
 }
 getList();
 </script>
+<style lang="scss" scoped>
+.material-icon {
+  .svg-icon {
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 5px;
+  }
+}
+</style>

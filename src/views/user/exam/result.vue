@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <h2 class="text-center">{{ paperData.examName }}</h2>
-        <p class="text-center" style="color: #666;">{{ paperData.startTime }}</p>
+        <p class="text-center" style="color: #666;">{{ paperData.createTime }}</p>
 
         <el-row style="margin-top: 20px;">
             <el-col :span="6" class="text-center">
@@ -103,7 +103,7 @@ function getData() {
 }
 
 function getOptionValue(question) {
-    return question.type === 2 ? JSON.parse(question.answer) : JSON.parse(question.answer)[0]
+    return question.answer != null ? question.type === 2 ? JSON.parse(question.answer) : JSON.parse(question.answer)[0] : null
 }
 
 getData()
