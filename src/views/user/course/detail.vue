@@ -364,7 +364,13 @@ function handleMaterialClick(row) {
                 handleSelectCourse()
             }).catch(() => { });
         } else {
-            // TODO：查看资料
+            const params = {
+                courseId: route.params.courseId,
+                chapterId: row.chapterId,
+                materialId: row.id
+            }
+            proxy.$cache.session.setJSON('study', params)
+            router.push({ name: 'UserCourseStudy', params: { materialId: row.id }})
         }
     }
 }

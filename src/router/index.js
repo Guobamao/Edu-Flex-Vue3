@@ -64,67 +64,86 @@ export const constantRoutes = [
     component: UserLayout,
     children: [
       {
+        // 用户端 - 首页页面
         path: '/index',
         component: () => import('@/views/user/index/index'),
         name: 'UserIndex',
       },
       {
+        // 用户端 - 课程列表页面
         path: '/course',
         component: () => import('@/views/user/course/index'),
         name: 'UserCourseIndex',
         hidden: true,
       },
       {
+        // 用户端 - 课程详情页面
         path: '/course/:courseId',
         component: () => import('@/views/user/course/detail'),
         name: 'UserCourseDetail',
         hidden: true,
       },
       {
+        // 用户端 - 课程学习页面
+        path: '/course/study/:materialId',
+        component: () => import('@/views/user/course/study'),
+        name: 'UserCourseStudy',
+        hidden: true,
+      },
+      {
+        // 用户端 - 搜索页面
         path: '/search',
         component: () => import('@/views/user/search/index'),
         name: 'UserSearch',
         hidden: true,
       },
       {
+        // 用户端 - 个人中心页面
         path: '/profile',
         component: () => import('@/views/user/profile/index'),
         name: 'UserProfile',
         hidden: true,
       },
       {
+        // 用户端 - 作业列表页面
         path: '/homework',
         component: () => import('@/views/user/homework/index'),
         name: 'UserHomework',
         hidden: true,
       },
       {
+        // 用户端 - 作业详情页面
         path: '/homework/:homeworkId',
         component: () => import('@/views/user/homework/detail'),
         name: 'UserHomeworkDetail',
         hidden: true,
       },
       {
+        // 用户端 - 考试列表页面
         path: '/exam',
         component: () => import('@/views/user/exam/index'),
         name: 'UserExam',
         hidden: true
       },
       {
+        // 用户端 - 考试准备页面
         path: '/exam/prepare/:examId',
         component: () => import('@/views/user/exam/prepare'),
         name: 'UserExamPrepare',
         hidden: true
       },
       {
+        // 用户端 - 考试结果页面
         path: '/exam/result/:id',
         component: () => import('@/views/user/exam/result'),
         name: 'UserExamResult',
         hidden: true
-      }
+      },
+      
     ]
   },
   {
+    // 后台管理 - 个人中心页面
     path: '/user',
     component: Layout,
     hidden: true,
@@ -139,6 +158,7 @@ export const constantRoutes = [
     ]
   },
   {
+    // 用户端 - 考试页面
     path: '/exam/start/:id',
     component: () => import('@/views/user/exam/detail'),
     name: 'UserExamDetail',
