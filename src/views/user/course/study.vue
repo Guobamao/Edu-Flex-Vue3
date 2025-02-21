@@ -28,7 +28,30 @@
                 </template>
             </el-col>
             <el-col :xs="24" :sm="24" :md="8" :lg="7" :xl="6">
-                <el-card></el-card>
+                <el-card>
+                    <el-table ref="tableRef" :data="chapterList" row-key="id" lazy :load="loadMaterials"
+                        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" @row-click="handleRowClick"
+                        class="course-table">
+                        <el-table-column prop="name" align="left">
+                            <template #default="scope">
+                                <!-- 判断为章节 -->
+                                <strong v-if="scope.row.parentId === 0 && !scope.row.chapterId">{{
+                                    scope.row.name }}</strong>
+                                <!-- 判断为资源 -->
+                                <el-link v-else-if="!scope.row.parentId && scope.row.chapterId"
+                                    @click="handleMaterialClick(scope.row)" class="material-icon">
+                                    <svg-icon icon-class="document" v-if="scope.row.materialType === 1" />
+                                    <svg-icon icon-class="picture" v-if="scope.row.materialType === 2" />
+                                    <svg-icon icon-class="video" v-if="scope.row.materialType === 3" />
+                                    <svg-icon icon-class="ppt" v-if="scope.row.materialType === 4" />
+                                    <svg-icon icon-class="pdf" v-if="scope.row.materialType === 5" />
+                                    <svg-icon icon-class="other" v-if="scope.row.materialType === 6" />
+                                    {{ scope.row.name }}
+                                </el-link>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-card>
             </el-col>
         </el-row>
 
@@ -43,6 +66,8 @@
 import { getMaterial } from '@/api/user/material';
 import { previewFile } from "@/api/manage/file";
 import { saveRecord } from '@/api/user/studyRecord';
+import { listChapter } from "@/api/user/chapter";
+import { listMaterial } from "@/api/user/material";
 
 const { proxy } = getCurrentInstance()
 
@@ -61,6 +86,10 @@ const timer = ref(null)
 const showViewer = ref(false);
 const previewList = ref([])
 
+const chapterList = ref([]);
+
+const tableRef = ref(null);
+
 function getData() {
     getMaterial(route.params.materialId).then(res => {
         materialData.value = res.data
@@ -74,6 +103,10 @@ function getData() {
             // 图片类型
             materialData.value.fileUrl = proxy.$previewUrl + materialData.value.fileId
         }
+        document.title = '章节 - ' + materialData.value.courseName
+    })
+    listChapter({ courseId: materialInfo.value.courseId }).then(res => {
+        chapterList.value = res.data
     })
 }
 
@@ -148,8 +181,41 @@ function countdown() {
 function handlePreview(url) {
     previewList.value = [url]
     showViewer.value = true
-
 }
+
+// 存储懒加载的数据
+const maps = new Map();
+function loadMaterials(row, treeNode, resolve) {
+    const _chapterId = row.id;
+
+    // 懒加载时，将数据存储到maps中
+    maps.set(_chapterId, { row, treeNode, resolve });
+
+    listMaterial({ chapterId: _chapterId }).then(res => {
+        if (res.data.length > 0) {
+            resolve(res.data)
+        } else {
+            tableRef.value.store.states.lazyTreeNodeMap.value[_chapterId] = []
+        }
+    })
+}
+
+// 树形列表点击事件 
+function handleRowClick(row, column, event) {
+    console.log(row)
+    row.expanded = !row.expanded;
+    if (row.hasChildren) {
+        const expandBtn = event.currentTarget.querySelector('.el-table__expand-icon')
+        if (expandBtn) {
+            expandBtn.click()
+        }
+    } else {
+        tableRef.value.toggleRowExpansion(row, row.expanded)
+    }
+}
+
+
+
 getData()
 countdown()
 
