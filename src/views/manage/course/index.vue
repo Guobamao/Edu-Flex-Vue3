@@ -91,8 +91,13 @@
         <el-form-item label="课程名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入课程名称" />
         </el-form-item>
+        <el-form-item label="课程方向" prop="directionId">
+          <el-select v-model="form.directionId" placeholder="请选择课程方向" clearable filterable @change="getCategoryList">
+            <el-option v-for="item in directionOptions" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="课程分类" prop="categoryId">
-          <el-select v-model="form.categoryId" placeholder="请选择课程分类" clearable filterable>
+          <el-select v-model="form.categoryId" placeholder="请选择课程分类" clearable filterable :disabled="!form.directionId">
             <el-option v-for="item in categoryOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
@@ -136,6 +141,7 @@
 import { listCourse, getCourse, delCourse, addCourse, updateCourse } from "@/api/manage/course";
 import { listTeacher } from "@/api/manage/teacher";
 import { loadAllParams } from '@/api/page';
+import { listDirection } from "@/api/manage/direction";
 import { listCategory } from "@/api/manage/category";
 
 const router = useRouter();
@@ -145,6 +151,7 @@ const { common_status } = proxy.useDict("common_status");
 
 const courseList = ref([]);
 const categoryOptions = ref([]);
+const directionOptions = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -173,6 +180,9 @@ const data = reactive({
     ],
     teacherId: [
       { required: true, message: "任课老师不能为空", trigger: "blur" }
+    ],
+    directionId: [
+      { required: true, message: "课程方向不能为空", trigger: "blur" }
     ],
     categoryId: [
       { required: true, message: "课程分类不能为空", trigger: "blur" }
@@ -261,6 +271,7 @@ function handleAdd() {
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
+  getCategoryList();
   const _id = row.id || ids.value
   getCourse(_id).then(response => {
     form.value = response.data;
@@ -321,13 +332,23 @@ function goToCourseChapters(row) {
   router.push("/admin/course/course-chapters/" + _courseId);
 }
 
+function getDirectionList() {
+  listDirection(loadAllParams).then(res => {
+    directionOptions.value = res.rows;
+  });
+}
+
 function getCategoryList() {
-  listCategory().then(response => {
+  const params = {
+    ...loadAllParams,
+    directionId: form.value.directionId
+  }
+  listCategory(params).then(response => {
     categoryOptions.value = response.rows;
   })
 }
 
 getTeacherList();
-getCategoryList();
+getDirectionList();
 getList();
 </script>

@@ -88,7 +88,7 @@
 
 <script setup name="UserIndex">
 import { listDirection } from "@/api/user/direction";
-import { listCourseByDirectionId } from "@/api/user/course";
+import { listCourse } from "@/api/user/course";
 
 const { proxy } = getCurrentInstance();
 const { common_status } = proxy.useDict('common_status')
@@ -108,7 +108,7 @@ function getList() {
         status: 1
     }
     listDirection(params).then(res => {
-        directionOptions.value = res.data;
+        directionOptions.value = res.rows;
         activeTab1.value = directionOptions.value[0].id
         activeTab2.value = directionOptions.value[0].id
         getCourseList(directionOptions.value[0].id, 'recommend')
@@ -117,14 +117,20 @@ function getList() {
 }
 
 function getCourseList(id, type) {
-    listCourseByDirectionId(id, type).then(res => {
+    const params = {
+        directionId: id,
+        type: type,
+        pageNum: 1,
+        pageSize: 8
+    }
+    listCourse(params).then(res => {
         if (type == 'recommend') {
-            recommendCourseOptions.value = res.data;
+            recommendCourseOptions.value = res.rows;
             recommendCourseOptions.value.forEach(item => {
                 item.cover = proxy.$previewUrl + item.cover
             })
         } else {
-            newCourseOptions.value = res.data;
+            newCourseOptions.value = res.rows;
             newCourseOptions.value.forEach(item => {
                 item.cover = proxy.$previewUrl + item.cover
             })

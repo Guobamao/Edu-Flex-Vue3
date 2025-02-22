@@ -10,11 +10,11 @@
             <el-breadcrumb-item>{{ materialData.name }}</el-breadcrumb-item>
         </el-breadcrumb>
 
-        <el-row :gutter="20" class="mt20">
-            <el-col :xs="24" :sm="24" :md="16" :lg="17" :xl="18">
+        <el-row :gutter="20" justify="space-between" class="container">
+            <el-col :span="18">
                 <template
                     v-if="materialData.materialType === 1 || materialData.materialType === 4 || materialData.materialType === 5">
-                    <el-carousel :autoplay="false" height="60vh" :loop="false" trigger="click" class="carousel-wrapper"
+                    <el-carousel :autoplay="false" height="68vh" :loop="false" trigger="click" class="carousel-wrapper"
                         @change="handleChange">
                         <el-carousel-item v-for="(item, index) in materialData.fileUrlList" :key="index">
                             <div style="width: 100%; height: 100%; overflow-y: auto;">
@@ -24,14 +24,15 @@
                     </el-carousel>
                 </template>
                 <template v-else-if="materialData.materialType === 2">
-                    <el-image :src="materialData.fileUrl" style="width: 100%; height: 60vh;" fit="contain" />
+                    <el-image :src="materialData.fileUrl" style="width: 100%;" fit="contain"
+                        @click="handlePreview(materialData.fileUrl)" />
                 </template>
             </el-col>
-            <el-col :xs="24" :sm="24" :md="8" :lg="7" :xl="6">
-                <el-card>
-                    <el-table ref="tableRef" :data="chapterList" row-key="id" lazy :load="loadMaterials"
-                        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" @row-click="handleRowClick"
-                        class="course-table">
+            <el-col :span="6">
+                <el-card class="material-card">
+                    课程目录
+                    <el-table ref="tableRef" :data="chapterList" row-key="id" @row-click="handleRowClick"
+                        class="course-table" :show-header="false" default-expand-all>
                         <el-table-column prop="name" align="left">
                             <template #default="scope">
                                 <!-- 判断为章节 -->
@@ -39,7 +40,8 @@
                                     scope.row.name }}</strong>
                                 <!-- 判断为资源 -->
                                 <el-link v-else-if="!scope.row.parentId && scope.row.chapterId"
-                                    @click="handleMaterialClick(scope.row)" class="material-icon">
+                                    :type="linkClass(scope.row)" @click="handleMaterialClick(scope.row)"
+                                    class="material-icon">
                                     <svg-icon icon-class="document" v-if="scope.row.materialType === 1" />
                                     <svg-icon icon-class="picture" v-if="scope.row.materialType === 2" />
                                     <svg-icon icon-class="video" v-if="scope.row.materialType === 3" />
@@ -81,7 +83,8 @@ const materialData = ref({})
 const flag = ref(true)
 // 本次学习时长
 const duration = ref(0)
-const timer = ref(null)
+const intervalTimer = ref(null)
+const timeoutTimer = ref(null)
 
 const showViewer = ref(false);
 const previewList = ref([])
@@ -90,6 +93,7 @@ const chapterList = ref([]);
 
 const tableRef = ref(null);
 
+// 获取数据
 function getData() {
     getMaterial(route.params.materialId).then(res => {
         materialData.value = res.data
@@ -107,6 +111,26 @@ function getData() {
     })
     listChapter({ courseId: materialInfo.value.courseId }).then(res => {
         chapterList.value = res.data
+
+        // 提取章节ID
+        const chapterIds = chapterList.value.flatMap(item => item.children.map(child => child.id))
+        // 批量调用 listMaterial
+        Promise.all(chapterIds.map(id => listMaterial({ chapterId: id })))
+            .then(res2 => {
+                res2.forEach((res3, index) => {
+                    const chapterId = chapterIds[index]
+                    // 更新到chapterList
+                    chapterList.value.forEach(item => {
+                        item.hasChildren = false
+                        item.children.forEach(child => {
+                            child.hasChildren = false
+                            if (child.id === chapterId) {
+                                child.children = res3.data
+                            }
+                        })
+                    })
+                })
+            })
     })
 }
 
@@ -123,7 +147,7 @@ function handleChange(current, prev) {
             }
             saveRecord(data).then(res => {
                 if (current === materialData.value.fileUrlList.length - 1 && prev !== current) {
-                    setTimeout(() => {
+                    timeoutTimer.value = setTimeout(() => {
                         const finalData = {
                             courseId: materialInfo.value.courseId,
                             chapterId: materialInfo.value.chapterId,
@@ -134,7 +158,7 @@ function handleChange(current, prev) {
                         saveRecord(finalData).then(res => {
                             if (res.msg === "当前资料已学习完成") {
                                 proxy.$modal.msgSuccess(res.msg);
-                                clearInterval(timer.value)
+                                clearInterval(intervalTimer.value)
                             }
                         })
                     }, 5000)
@@ -147,7 +171,7 @@ function handleChange(current, prev) {
                 }
                 if (res.msg === "当前资料已学习完成") {
                     proxy.$modal.msgSuccess(res.msg);
-                    clearInterval(timer.value)
+                    clearInterval(intervalTimer.value)
                 }
             })
         }
@@ -165,10 +189,28 @@ watch(() => materialData.value.fileUrlList, (newVal) => {
     }
 })
 
+// 图片类型
+watch(() => materialData.value.fileUrl, (newVal) => {
+    setTimeout(() => {
+        const data = {
+            courseId: materialInfo.value.courseId,
+            chapterId: materialInfo.value.chapterId,
+            materialId: materialInfo.value.materialId,
+            duration: duration.value,
+        }
+        saveRecord(data).then(res => {
+            if (res.msg === "当前资料已学习完成") {
+                proxy.$modal.msgSuccess(res.msg);
+                clearInterval(intervalTimer.value)
+            }
+        })
+    }, 5000)
+})
+
 // 计时器
 function countdown() {
     if (materialData.value.progress !== 100) {
-        timer.value = setInterval(() => {
+        intervalTimer.value = setInterval(() => {
             if (duration.value === 0) {
                 duration.value = 1
             }
@@ -183,26 +225,8 @@ function handlePreview(url) {
     showViewer.value = true
 }
 
-// 存储懒加载的数据
-const maps = new Map();
-function loadMaterials(row, treeNode, resolve) {
-    const _chapterId = row.id;
-
-    // 懒加载时，将数据存储到maps中
-    maps.set(_chapterId, { row, treeNode, resolve });
-
-    listMaterial({ chapterId: _chapterId }).then(res => {
-        if (res.data.length > 0) {
-            resolve(res.data)
-        } else {
-            tableRef.value.store.states.lazyTreeNodeMap.value[_chapterId] = []
-        }
-    })
-}
-
 // 树形列表点击事件 
 function handleRowClick(row, column, event) {
-    console.log(row)
     row.expanded = !row.expanded;
     if (row.hasChildren) {
         const expandBtn = event.currentTarget.querySelector('.el-table__expand-icon')
@@ -214,6 +238,33 @@ function handleRowClick(row, column, event) {
     }
 }
 
+// 链接颜色
+function linkClass(row) {
+    if (row.id === route.params.materialId) {
+        return 'warning'
+    }
+    if (row.progress === 100) {
+        return 'success'
+    }
+}
+
+// 点击资源
+function handleMaterialClick(row) {
+    clearInterval(intervalTimer.value)
+    clearTimeout(timeoutTimer.value)
+    const params = {
+        courseId: materialInfo.value.courseId,
+        chapterId: row.chapterId,
+        materialId: row.id
+    }
+    proxy.$cache.session.setJSON('study', params)
+    router.push({ name: 'UserCourseStudy', params: { materialId: row.id } })
+}
+
+onUnmounted(() => {
+    clearInterval(intervalTimer.value)
+    clearTimeout(timeoutTimer.value)
+})
 
 
 getData()
@@ -221,9 +272,26 @@ countdown()
 
 </script>
 <style lang="scss" scoped>
-.carousel-wrapper {
-    :deep(.el-carousel__button) {
-        background-color: #000000;
+.app-container {
+    .container {
+        margin-top: 20px;
+
+        .material-card {
+            :deep(.el-card__body) {
+                height: 68vh;
+                overflow-y: auto
+            }
+        }
+
+        .course-table {
+            margin-top: 20px;
+        }
+    }
+
+    .carousel-wrapper {
+        :deep(.el-carousel__button) {
+            background-color: #000000;
+        }
     }
 }
 </style>

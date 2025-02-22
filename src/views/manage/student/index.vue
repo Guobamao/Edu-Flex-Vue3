@@ -38,7 +38,7 @@
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
       <el-table-column label="头像" align="center">
         <template #default="scope">
-          <img style="width: 40px; height: 40px" :src="scope.row.avatar" />
+          <img style="width: 40px; height: 40px" :src="scope.row.avatar" @click="handlePreview(scope.row.avatar)" />
         </template>
       </el-table-column>
       <el-table-column label="登录名" align="center" prop="userName" />
@@ -110,6 +110,11 @@
       </el-descriptions>
     </el-dialog>
 
+    <!-- 图片预览 -->
+    <div>
+      <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
+        :url-list="previewList" />
+    </div>
   </div>
 </template>
 
@@ -130,6 +135,9 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+
+const showViewer = ref(false);
+const previewList = ref([])
 
 const data = reactive({
   form: {},
@@ -275,6 +283,12 @@ function getStudentInfo(row) {
     form.value = response.data;
     stuInfoOpen.value = true
   })
+}
+
+// 预览图片
+function handlePreview(url) {
+    previewList.value = [url]
+    showViewer.value = true
 }
 getList();
 </script>

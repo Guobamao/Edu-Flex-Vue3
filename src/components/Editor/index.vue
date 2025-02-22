@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-upload
-      :action="uploadUrl"
+      :action="$uploadUrl"
       :before-upload="handleBeforeUpload"
       :on-success="handleUploadSuccess"
       :on-error="handleUploadError"
@@ -34,7 +34,6 @@ import { getToken } from "@/utils/auth";
 const { proxy } = getCurrentInstance();
 
 const quillEditorRef = ref();
-const uploadUrl = ref(import.meta.env.VITE_APP_BASE_API + "/common/upload"); // 上传的图片服务器地址
 const headers = ref({
   Authorization: "Bearer " + getToken()
 });
@@ -107,6 +106,7 @@ const styles = computed(() => {
 
 const content = ref("");
 watch(() => props.modelValue, (v) => {
+  console.log(v)
   if (v !== content.value) {
     content.value = v === undefined ? "<p></p>" : v;
   }
@@ -156,7 +156,7 @@ function handleUploadSuccess(res, file) {
     // 获取光标位置
     let length = quill.selection.savedRange.index;
     // 插入图片，res.url为服务器返回的图片链接地址
-    quill.insertEmbed(length, "image", import.meta.env.VITE_APP_BASE_API + res.fileName);
+    quill.insertEmbed(length, "image", proxy.$previewUrl + res.fileId);
     // 调整光标到最后
     quill.setSelection(length + 1);
   } else {

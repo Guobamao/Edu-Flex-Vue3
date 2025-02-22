@@ -1,10 +1,6 @@
 <template>
     <div class="app-container">
         <el-form :model="queryParams" ref="queryRef" :inline="true" label-width="68px" @submit.prevent>
-            <el-form-item label="考生信息" prop="searchValue">
-                <el-input v-model="queryParams.searchValue" placeholder="请输入考生信息" clearable
-                    @keyup.enter="handleQuery" />
-            </el-form-item>
             <el-form-item label="状态" prop="status">
                 <el-select v-model="queryParams.status" placeholder="请选择状态" clearable @change="handleQuery"
                     style="width: 150px;">
@@ -23,6 +19,9 @@
                 <el-button icon="Refresh" @click="resetQuery">重置</el-button>
             </el-form-item>
         </el-form>
+        <el-row :gutter="10" class="mb8">
+            <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+        </el-row>
 
         <el-table v-loading="loading" :data="recordList">
             <el-table-column label="序号" type="index" width="50" align="center" />
@@ -84,9 +83,9 @@ const queryParams = ref({
     pageSize: 10,
     examId: route.params.examId,
     passed: null,
-    searchValue: null,
 })
 
+const showSearch = ref(true);
 const loading = ref(true);
 const total = ref(0);
 const recordList = ref([]);

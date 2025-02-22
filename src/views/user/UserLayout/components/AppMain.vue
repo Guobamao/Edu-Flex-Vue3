@@ -1,9 +1,18 @@
 <template>
     <section class="app-main">
-        <router-view />
+        <router-view :key="key" />
     </section>
 </template>
 
+<script setup>
+
+const route = useRoute()
+
+const key = computed(() => {
+    return route.path + Math.random()
+})
+
+</script>
 <style lang="scss" scoped>
 .app-main {
     min-height: calc(100vh - 120px);

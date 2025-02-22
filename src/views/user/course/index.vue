@@ -88,7 +88,7 @@ function getList() {
         status: 1
     }
     listDirection(params).then(res => {
-        directionOptions.value = res.data;
+        directionOptions.value = res.rows;
         directionOptions.value.unshift({
             id: null,
             name: '全部'

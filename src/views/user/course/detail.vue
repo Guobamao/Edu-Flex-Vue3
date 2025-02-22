@@ -72,7 +72,7 @@
                                         </span>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="progress" label="学习进度">
+                                <el-table-column prop="progress" label="学习进度" v-if="isLogin">
                                     <template #default="scope">
                                         <el-progress :percentage="scope.row.progress" :stroke-width="5" />
                                     </template>
@@ -185,8 +185,9 @@
                                     </el-col>
                                     <el-col :span="16" style="line-height: 25px;">
                                         <div class="title">
-                                            <el-link :underline="false" @click="handleRouterPush(item.id)">{{ item.name
-                                            }}</el-link>
+                                            <el-link :underline="false" @click="handleRouterPush(item.id)">
+                                                {{ item.name }}
+                                            </el-link>
                                         </div>
                                         <div class="meta">
                                             <span class="teacherName">讲师: {{ item.teacherName }}</span>
@@ -231,7 +232,7 @@ const pageParams = ref({
 })
 const total = ref(0);
 
-const comment = ref('');
+const comment = ref('<p></p>');
 const replyTo = ref({});
 
 const tableRef = ref(null);
@@ -370,7 +371,7 @@ function handleMaterialClick(row) {
                 materialId: row.id
             }
             proxy.$cache.session.setJSON('study', params)
-            router.push({ name: 'UserCourseStudy', params: { materialId: row.id }})
+            router.push({ name: 'UserCourseStudy', params: { materialId: row.id } })
         }
     }
 }
@@ -404,7 +405,7 @@ function handleComment() {
     }
     addComment(data).then(() => {
         proxy.$message.success('评论成功')
-        comment.value = ''
+        comment.value = "<p></p>"
         replyTo.value = {}
         getCommentList()
     })
