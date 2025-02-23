@@ -4,16 +4,17 @@
       <el-form-item label="课程名称" prop="name">
         <el-input v-model="queryParams.name" placeholder="请输入课程名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
-      <el-form-item label="课程分类" prop="categoryId">
-        <el-select v-model="queryParams.categoryId" style="width: 200px;" filterable clearable placeholder="请选择课程分类"
-          @change="handleQuery">
-          <el-option v-for="item in categoryOptions" :key="item.id" :label="item.name" :value="item.id" />
+      <el-form-item label="课程方向" prop="directionId">
+        <el-select v-model="queryParams.directionId" style="width: 200px;" filterable clearable placeholder="请选择课程方向"
+          @change="() => { getCategoryList(); handleQuery() }">
+          <el-option v-for="item in directionOptions" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
-      <el-form-item label="时间范围">
-        <el-date-picker clearable v-model="dateRange" value-format="YYYY-MM-DD" type="daterange" range-separator="-"
-          start-placeholder="开始日期" end-placeholder="结束日期">
-        </el-date-picker>
+      <el-form-item label="课程分类" prop="categoryId">
+        <el-select v-model="queryParams.categoryId" style="width: 200px;" filterable clearable placeholder="请选择课程分类"
+          @change="handleQuery" :disabled="!queryParams.directionId">
+          <el-option v-for="item in categoryOptions" :key="item.id" :label="item.name" :value="item.id" />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -115,11 +116,6 @@
           <el-date-picker clearable v-model="form.endTime" type="date" value-format="YYYY-MM-DD" placeholder="请选择结束时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="课程状态" prop="status">
-          <el-select v-model="form.status" placeholder="请选择课程状态" clearable>
-            <el-option v-for="dict in common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
         <el-form-item label="课程描述" prop="description">
           <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
         </el-form-item>
@@ -161,17 +157,14 @@ const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 
-const dateRange = ref([]);
-
 const data = reactive({
   form: {},
   queryParams: {
     pageNum: 1,
     pageSize: 10,
     name: null,
+    directionId: route.query.directionId || null,
     categoryId: route.query.categoryId || null,
-    startTime: null,
-    endTime: null,
     status: null,
   },
   rules: {
@@ -205,10 +198,6 @@ const { queryParams, form, rules } = toRefs(data);
 function getList() {
   loading.value = true;
   queryParams.value.params = {}
-  if (dateRange && dateRange.value) {
-    queryParams.value.params['startTime'] = dateRange.value[0];
-    queryParams.value.params['endTime'] = dateRange.value[1];
-  }
   listCourse(queryParams.value).then(response => {
     courseList.value = response.rows;
     courseList.value.forEach(item => {
@@ -249,7 +238,6 @@ function handleQuery() {
 
 /** 重置按钮操作 */
 function resetQuery() {
-  dateRange.value = [];
   proxy.resetForm("queryRef");
   handleQuery();
 }
@@ -341,7 +329,7 @@ function getDirectionList() {
 function getCategoryList() {
   const params = {
     ...loadAllParams,
-    directionId: form.value.directionId
+    directionId: queryParams.value.directionId || form.value.directionId
   }
   listCategory(params).then(response => {
     categoryOptions.value = response.rows;

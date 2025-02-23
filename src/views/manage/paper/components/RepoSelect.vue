@@ -1,5 +1,5 @@
 <template>
-    <el-select v-model="currentValue" placeholder="请选择题库" filterable clearable>
+    <el-select v-model="currentValue" placeholder="请选择题库" filterable clearable @change="handleChange">
         <el-option v-for="item in repoOptions" :key="item.id" :label="item.name" :value="item.id" />
     </el-select>
 </template>
@@ -24,6 +24,10 @@ function getRepoList() {
     }).then(res => {
         repoOptions.value = res.rows
     })
+}
+
+function handleChange(value) {
+    emit('change', value)
 }
 
 onMounted(() => {

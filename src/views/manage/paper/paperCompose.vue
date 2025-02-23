@@ -13,14 +13,14 @@
             <el-table :data="repoList" empty-text="请点击上面的`添加题库`进行设置">
                 <el-table-column label="题库名称" width="200">
                     <template #default="scope">
-                        <RepoSelect v-model="scope.row.repoId" :excludes="excludes"></RepoSelect>
+                        <RepoSelect v-model="scope.row.repoId" :excludes="excludes" @change="handleRepoChange"></RepoSelect>
                     </template>
                 </el-table-column>
                 <el-table-column label="单选题数量" align="center" width="150">
                     <template #default="scope">
                         <el-input-number v-model="scope.row.singleChoiceCount" :min="0"
                             :max="scope.row.singleChoiceTotal" :controls="false" style="width: 50px;" />
-                        /
+                            /
                         {{ scope.row.singleChoiceTotal }}
                     </template>
                 </el-table-column>
@@ -200,6 +200,15 @@ function handleRepoAdd() {
     })
 }
 
+function handleRepoChange(value) {
+    const repo = repoOptions.value.find(item => item.id === value)
+    repoList.value.find(item => item.repoId === value).singleChoiceTotal = repo.singleChoiceCount
+    repoList.value.find(item => item.repoId === value).multipleChoiceTotal = repo.multipleChoiceCount
+    repoList.value.find(item => item.repoId === value).judgeTotal = repo.judgeCount
+    repoList.value.find(item => item.repoId === value).blankTotal = repo.blankCount
+    repoList.value.find(item => item.repoId === value).shortAnswerTotal = repo.shortAnswerCount
+}
+
 function handleDelete(row) {
     const index = repoList.value.indexOf(row);
     repoList.value.splice(index, 1);
@@ -259,7 +268,7 @@ function submitCompose() {
     }
     composePaper(data).then(res => {
         proxy.$modal.msgSuccess("组卷成功")
-        router.push("/admin/exam/paper")
+        router.push("/admin/exams/paper")
     })
 
 }

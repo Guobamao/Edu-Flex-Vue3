@@ -11,12 +11,15 @@
     <el-table ref="tableRef" v-if="refreshTable" v-loading="loading" :data="chapterList" row-key="id" lazy
       :load="loadMaterials" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       @row-click="handleRowClick">
-      <el-table-column label="章节名称" align="left" prop="name">
+      <el-table-column label="章节名称" align="left" prop="chapterName">
         <template #default="scope">
           <!-- 判断为章节 -->
-          <strong v-if="scope.row.parentId === 0 && !scope.row.chapterId">{{ scope.row.name }}</strong>
+          <strong v-if="!scope.row.chapterId">
+            第{{ scope.row.sort }}章
+            {{ scope.row.chapterName }}
+          </strong>
           <!-- 判断为资源 -->
-          <span v-else-if="!scope.row.parentId && scope.row.chapterId">
+          <span v-else>
             <svg-icon icon-class="document" v-if="scope.row.materialType === 1" />
             <svg-icon icon-class="picture" v-if="scope.row.materialType === 2" />
             <svg-icon icon-class="video" v-if="scope.row.materialType === 3" />
@@ -35,10 +38,8 @@
             v-hasRole="['admin', 'teacher']" v-else>修改资料</el-button>
           <el-button link type="primary" icon="View" @click.stop="viewMaterial(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="scope.row.chapterId">查看资料</el-button>
-          <el-button link type="primary" icon="Plus" @click.stop="handleChapterAdd(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId === '0' && !scope.row.chapterId">新增小节</el-button>
           <el-button link type="primary" icon="Plus" @click.stop="handleMaterialAdd(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-if="scope.row.parentId !== '0' && !scope.row.chapterId">新增资料</el-button>
+            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">新增资料</el-button>
           <el-button link type="primary" icon="Delete" @click.stop="handleChapterDelete(scope.row)"
             v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">删除</el-button>
           <el-button link type="primary" icon="Delete" @click.stop="handleMaterialDelete(scope.row)"
@@ -50,16 +51,11 @@
     <!-- 添加或修改课程内容章节管理对话框 -->
     <el-dialog :title="title" v-model="chapterOpen" width="500px" append-to-body>
       <el-form ref="chapterRef" :model="chapterForm" :rules="rules" label-width="80px">
-        <el-form-item label="父级章节" prop="parentId">
-          <el-tree-select v-model="chapterForm.parentId" :data="chapterList"
-            :props="{ label: 'name', children: 'children', isLeaf: 'hasChildren' }" value-key="id" placeholder="请选择父级章节"
-            check-strictly clearable />
-        </el-form-item>
         <el-form-item label="章节名称" prop="name">
           <el-input v-model="chapterForm.name" placeholder="请输入章节名称" />
         </el-form-item>
-        <el-form-item label="排序" prop="orderNum">
-          <el-input v-model="chapterForm.orderNum" placeholder="请输入排序" />
+        <el-form-item label="排序" prop="sort">
+          <el-input-number v-model="chapterForm.sort" :min="1" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -74,8 +70,14 @@
     <el-dialog :title="title" v-model="materialOpen" width="500px" append-to-body>
       <el-form ref="materialRef" :model="materialForm" :rules="rules" label-width="80px">
         <el-form-item label="关联章节" prop="chapterId">
-          <el-tree-select v-model="materialForm.chapterId" :data="chapterList"
-            :props="{ value: 'id', label: 'name', children: 'children' }" value-key="id" placeholder="请选择关联章节" />
+          <el-select v-model="materialForm.chapterId" placeholder="请选择关联章节">
+            <el-option v-for="chapter in chapterList" :key="chapter.id" :label="chapter.chapterName"
+              :value="chapter.id">
+              <template #default>
+                第{{ chapter.sort }}章 {{ chapter.chapterName }}
+              </template>
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="资料名称" prop="name">
           <el-input v-model="materialForm.name" placeholder="请输入资料名称" />
@@ -102,6 +104,11 @@
       <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
         :url-list="previewList" />
     </div>
+
+
+    <el-dialog title="视频预览" v-model="videoOpen" width="800px" append-to-body @close="onClosePlayer">
+      <div ref="dplayerRef"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -109,6 +116,7 @@
 import { listChapter, getChapter, delChapter, addChapter, updateChapter } from "@/api/manage/chapter";
 import { listMaterial, getMaterial, delMaterial, addMaterial, updateMaterial } from "@/api/manage/material";
 import { previewFile } from "@/api/manage/file";
+import DPlayer from 'dplayer';
 
 const { proxy } = getCurrentInstance();
 const route = useRoute();
@@ -122,8 +130,10 @@ const loading = ref(true);
 const showSearch = ref(true);
 const title = ref("");
 const refreshTable = ref(true);
-
+const videoOpen = ref(false);
+const dplayerRef = ref(null)
 const tableRef = ref(null);
+const dp = ref(null);
 
 const data = reactive({
   chapterForm: {},
@@ -177,13 +187,7 @@ function reset() {
     id: null,
     courseId: route.params && route.params.courseId,
     name: null,
-    parentId: null,
-    ancestors: null,
-    orderNum: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null
+    sort: chapterList.value.length + 1,
   };
   materialForm.value = {
     id: null,
@@ -200,9 +204,6 @@ function reset() {
 /** 新增按钮操作 */
 function handleChapterAdd(row) {
   reset();
-  if (row != null && row.id) {
-    chapterForm.value.parentId = row.id;
-  }
   chapterOpen.value = true;
   title.value = "添加课程内容章节管理";
 }
@@ -220,14 +221,8 @@ function handleMaterialAdd(row) {
 /** 修改按钮操作 */
 async function handleChapterUpdate(row) {
   reset();
-  if (row != null) {
-    chapterForm.value.parentId = row.parentId;
-  }
   getChapter(row.id).then(res => {
     chapterForm.value = res.data;
-    if (chapterForm.value.parentId == 0) {
-      chapterForm.value.parentId = null;
-    }
     chapterOpen.value = true;
     title.value = "修改课程内容章节管理";
   });
@@ -364,7 +359,31 @@ function viewMaterial(row) {
     // 图片类型
     previewList.value = [proxy.$previewUrl + row.fileId]
     showViewer.value = true
+  } else if (row.materialType === 3) {
+    // 音视频类型
+    videoOpen.value = true
+    nextTick(() => {
+      console.log('dplayerRef', dplayerRef.value)
+      dp.value = new DPlayer({
+        container: dplayerRef.value,
+        autoplay: false,
+        live: false,
+        loop: false,
+        theme: "#b7daff",
+        lang: 'zh-cn',
+        screenshot: false,
+        hotkey: true,
+        video: {
+          type: 'auto',
+          url: proxy.$previewVideo + row.fileId,
+        }
+      })
+    })
   }
+}
+
+function onClosePlayer() {
+  dp.value.destroy()
 }
 
 // 树形列表点击事件 

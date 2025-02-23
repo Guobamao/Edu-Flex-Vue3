@@ -47,14 +47,15 @@
                             <el-table ref="tableRef" :data="chapterList" row-key="id" lazy :load="loadMaterials"
                                 :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
                                 @row-click="handleRowClick" class="course-table">
-                                <el-table-column prop="name" label="章节名称" align="left">
+                                <el-table-column prop="chapterName" label="章节名称" align="left" show-overflow-tooltip class-name="chapter-name">
                                     <template #default="scope">
                                         <!-- 判断为章节 -->
-                                        <strong v-if="scope.row.parentId === 0 && !scope.row.chapterId">{{
-                                            scope.row.name }}</strong>
+                                        <strong v-if="!scope.row.chapterId">
+                                            第{{ scope.row.sort }}章
+                                            {{ scope.row.chapterName }}
+                                        </strong>
                                         <!-- 判断为资源 -->
-                                        <el-link v-else-if="!scope.row.parentId && scope.row.chapterId"
-                                            @click="handleMaterialClick(scope.row)" class="material-icon">
+                                        <el-link v-else @click="handleMaterialClick(scope.row)" class="material-icon">
                                             <svg-icon icon-class="document" v-if="scope.row.materialType === 1" />
                                             <svg-icon icon-class="picture" v-if="scope.row.materialType === 2" />
                                             <svg-icon icon-class="video" v-if="scope.row.materialType === 3" />
@@ -65,14 +66,14 @@
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column width="100">
+                                <el-table-column width="150">
                                     <template #default="scope">
                                         <span v-if="scope.row.chapterId && scope.row.materialType === 3">
                                             {{ scope.row.duration ? formatSeconds(scope.row.duration) : '--' }}
                                         </span>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="progress" label="学习进度" v-if="isLogin">
+                                <el-table-column prop="progress" label="学习进度" v-if="isLogin && courseInfo.isSelected">
                                     <template #default="scope">
                                         <el-progress :percentage="scope.row.progress" :stroke-width="5" />
                                     </template>
@@ -518,6 +519,11 @@ getData()
             height: 1.5em;
             margin-right: 5px;
         }
+    }
+}
+:deep(.chapter-name) {
+    .cell {
+        display: flex;
     }
 }
 

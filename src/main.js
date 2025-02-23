@@ -50,6 +50,7 @@ const app = createApp(App)
 app.config.globalProperties.$uploadUrl = import.meta.env.VITE_APP_BASE_API + "/common/upload"
 app.config.globalProperties.$previewUrl = import.meta.env.VITE_APP_BASE_API + "/common/preview/"
 app.config.globalProperties.$previewFileUrl = import.meta.env.VITE_APP_BASE_API + "/manage/files/previewFile/"
+app.config.globalProperties.$previewVideo = import.meta.env.VITE_APP_BASE_API + "/common/previewVideo/"
 
 // 全局方法挂载
 app.config.globalProperties.useDict = useDict

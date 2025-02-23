@@ -7,3 +7,12 @@ export function getUserProfile() {
       method: 'get'
     })
 }
+
+// 注册账号
+export function register(data) {
+  return request({
+    url: '/user/student/register',
+    method: 'post',
+    data
+  })
+}
