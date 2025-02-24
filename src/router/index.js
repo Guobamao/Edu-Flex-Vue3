@@ -139,7 +139,13 @@ export const constantRoutes = [
         name: 'UserExamResult',
         hidden: true
       },
-      
+      {
+        // 用户端 - 我的学习目标
+        path: '/goal',
+        component: () => import('@/views/user/goal/index'),
+        name: 'UserGoalIndex',
+        hidden: true
+      }
     ]
   },
   {
