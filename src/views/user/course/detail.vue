@@ -44,95 +44,15 @@
                             <div v-html="courseInfo.description"></div>
                         </el-tab-pane>
                         <el-tab-pane label="课程目录">
-                            <el-table ref="tableRef" :data="chapterList" row-key="id" lazy :load="loadMaterials"
-                                :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-                                @row-click="handleRowClick" class="course-table">
-                                <el-table-column prop="chapterName" label="章节名称" align="left" show-overflow-tooltip class-name="chapter-name">
-                                    <template #default="scope">
-                                        <!-- 判断为章节 -->
-                                        <strong v-if="!scope.row.chapterId">
-                                            第{{ scope.row.sort }}章
-                                            {{ scope.row.chapterName }}
-                                        </strong>
-                                        <!-- 判断为资源 -->
-                                        <el-link v-else @click="handleMaterialClick(scope.row)" class="material-icon">
-                                            <svg-icon icon-class="document" v-if="scope.row.materialType === 1" />
-                                            <svg-icon icon-class="picture" v-if="scope.row.materialType === 2" />
-                                            <svg-icon icon-class="video" v-if="scope.row.materialType === 3" />
-                                            <svg-icon icon-class="ppt" v-if="scope.row.materialType === 4" />
-                                            <svg-icon icon-class="pdf" v-if="scope.row.materialType === 5" />
-                                            <svg-icon icon-class="other" v-if="scope.row.materialType === 6" />
-                                            {{ scope.row.name }}
-                                        </el-link>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column width="200" prop="progress" label="学习进度" v-if="isLogin && courseInfo.isSelected">
-                                    <template #default="scope">
-                                        <el-progress :percentage="scope.row.progress" :stroke-width="5" />
-                                    </template>
-                                </el-table-column>
-                            </el-table>
+                            <CourseDirectory :courseInfo="courseInfo" />
                         </el-tab-pane>
                         <el-tab-pane label="课程评论">
-                            <div class="comment-list">
-                                <template v-if="commentList.length">
-                                    <el-row v-for="item in commentList" :key="item.id" justify="center" :gutter="20"
-                                        class="comment-item">
-                                        <el-col :span="2" class="text-center">
-                                            <el-avatar :src="item.avatar" />
-                                        </el-col>
-                                        <el-col :span="22">
-                                            <div class="comment-header">
-                                                <span class="comment-name">{{ item.nickName }}</span>
-                                            </div>
-                                            <div class="comment-body" v-html="item.content"></div>
-                                            <div class="comment-footer">
-                                                <span class="comment-time">{{ item.createTime }}</span>
-                                                <el-link v-if="isLogin" @click="handleReply(item.id, item.nickName)"
-                                                    class="comment-reply">回复</el-link>
-                                            </div>
-                                            <div v-if="isLogin && replyTo.id === item.id">
-                                                <div class="reply-to">
-                                                    回复 {{ replyTo.nickName }}
-                                                    <el-link @click="cancelReply"
-                                                        style="margin-left: 10px;">取消回复</el-link>
-                                                </div>
-                                                <editor v-model="comment" :min-height="192" placeholder="请输入评论内容" />
-                                                <el-button type="primary" class="btn-submit" :disabled="isCommentEmpty"
-                                                    @click="handleComment">发表评论</el-button>
-                                            </div>
-                                            <div v-if="item.children && item.children.length" class="comment-children">
-                                                <el-row v-for="child in item.children" :key="child.id" justify="center"
-                                                    :gutter="20" class="comment-item">
-                                                    <el-col :span="2" class="text-center">
-                                                        <el-avatar :src="child.avatar" />
-                                                    </el-col>
-                                                    <el-col :span="22">
-                                                        <div class="comment-header">
-                                                            <span class="comment-name">{{ child.nickName }}</span>
-                                                        </div>
-                                                        <div class="comment-body" v-html="child.content"></div>
-                                                        <div class="comment-footer">
-                                                            <span class="comment-time">{{ child.createTime }}</span>
-                                                        </div>
-                                                    </el-col>
-                                                </el-row>
-                                            </div>
-                                        </el-col>
-                                    </el-row>
-                                </template>
-                                <template v-else>
-                                    <el-empty description="暂无评论，快来发表评论吧！" />
-                                </template>
-                                <pagination v-show="total > 0" :total="total" v-model:page="pageParams.pageNum"
-                                    v-model:limit="pageParams.pageSize" layout="total, prev, pager, next, jumper"
-                                    @pagination="getCommentList" />
-                                <div v-if="isLogin && !replyTo.id">
-                                    <editor v-model="comment" :min-height="192" placeholder="请输入评论内容" />
-                                    <el-button type="primary" class="btn-submit" :disabled="isCommentEmpty"
-                                        @click="handleComment">发表评论</el-button>
-                                </div>
-                            </div>
+                            <CourseComment />
+                        </el-tab-pane>
+                        <el-tab-pane v-if="isLogin" label="课程作业">
+                            <CourseHomework />
+                        </el-tab-pane>
+                        <el-tab-pane v-if="isLogin" label="课程考试">
                         </el-tab-pane>
                     </el-tabs>
                 </el-card>
@@ -200,48 +120,35 @@
 </template>
 <script setup name="UserCourseDetail">
 import { getCourse, listRelatedCourse } from "@/api/user/course"
-import { listChapter } from "@/api/user/chapter"
-import { listMaterial } from "@/api/user/material"
-import { listComment, addComment } from "@/api/user/comment"
 import { addStudentCourse } from "@/api/user/studentCourse"
 import { getTeacher } from "@/api/user/teacher"
 import { formatSeconds } from '@/utils/index';
 import { getToken } from "@/utils/auth"
 
+import CourseDirectory from "./components/CourseDirectory.vue";
+import CourseComment from "./components/CourseComment.vue";
+import CourseHomework from './components/CourseHomework.vue';
+
 const { proxy } = getCurrentInstance();
-const { common_status } = proxy.useDict('common_status')
+const { common_status } = proxy.useDict("common_status")
 const route = useRoute();
 const router = useRouter();
 
+// 课程信息
 const courseInfo = ref({})
+// 教师信息
 const teacherInfo = ref({})
-const chapterList = ref([]);
-const commentList = ref([]);
-
+// 相关课程信息
 const relatedCourseList = ref([]);
-
-const pageParams = ref({
-    pageNum: 1,
-    pageSize: 10,
-})
-const total = ref(0);
-
-const comment = ref('<p></p>');
-const replyTo = ref({});
-
-const tableRef = ref(null);
-
+// 是否已登录
 const isLogin = computed(() => getToken())
-const isCommentEmpty = computed(() => {
-    return !comment.value.trim() || !comment.value.replace(/<[^>]*>?/gm, '').trim();
-})
 
 function getData() {
     getCourse(route.params.courseId).then(res => {
         courseInfo.value = res.data
         courseInfo.value.cover = proxy.$previewUrl + courseInfo.value.cover
         courseInfo.value.videoTime = courseInfo.value.videoTime ? formatSeconds(courseInfo.value.videoTime) : '--'
-        document.title = `${courseInfo.value.name} -     学智灵云课堂`;
+        document.title = `${courseInfo.value.name} - 学智灵云课堂`;
     }).then(() => {
         getTeacher(courseInfo.value.teacherId).then(res => {
             res.data.avatar = proxy.$previewUrl + res.data.avatar
@@ -255,40 +162,6 @@ function getData() {
             })
         })
     })
-    listChapter({ courseId: route.params.courseId }).then(res => {
-        chapterList.value = res.data
-    })
-    getCommentList();
-}
-
-// 存储懒加载的数据
-const maps = new Map();
-function loadMaterials(row, treeNode, resolve) {
-    const _chapterId = row.id;
-
-    // 懒加载时，将数据存储到maps中
-    maps.set(_chapterId, { row, treeNode, resolve });
-
-    listMaterial({ chapterId: _chapterId }).then(res => {
-        if (res.data.length > 0) {
-            resolve(res.data)
-        } else {
-            tableRef.value.store.states.lazyTreeNodeMap.value[_chapterId] = []
-        }
-    })
-}
-
-// 树形列表点击事件 
-function handleRowClick(row, column, event) {
-    row.expanded = !row.expanded;
-    if (row.hasChildren) {
-        const expandBtn = event.currentTarget.querySelector('.el-table__expand-icon')
-        if (expandBtn) {
-            expandBtn.click()
-        }
-    } else {
-        tableRef.value.toggleRowExpansion(row, row.expanded)
-    }
 }
 
 // 选课/退选
@@ -337,83 +210,6 @@ function handleSelectCourse() {
 function handleRouterPush(id) {
     router.push({ name: 'UserCourseDetail', params: { courseId: id } })
 }
-
-// 点击资源
-function handleMaterialClick(row) {
-    if (!isLogin.value) {
-        proxy.$modal.confirm('您还未登录，是否前往登录？', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-        }).then(() => {
-            const redirect = '/login?redirect=' + route.fullPath
-            router.push(redirect)
-        }).catch(() => { });
-    } else {
-        if (!courseInfo.value.isSelected) {
-            proxy.$modal.confirm('您还未选择该课程，是否加入选课？', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                handleSelectCourse()
-            }).catch(() => { });
-        } else {
-            const params = {
-                courseId: route.params.courseId,
-                chapterId: row.chapterId,
-                materialId: row.id
-            }
-            proxy.$cache.session.setJSON('study', params)
-            router.push({ name: 'UserCourseStudy', params: { materialId: row.id } })
-        }
-    }
-}
-
-// 获取评论列表
-function getCommentList() {
-    listComment({ ...pageParams.value, courseId: route.params.courseId }).then(res => {
-        res.rows.forEach(item => {
-            item.avatar = proxy.$previewUrl + item.avatar
-        })
-        commentList.value = proxy.handleTree(res.rows, 'id', 'parentId')
-        total.value = res.total;
-    })
-}
-
-// 发送评论
-function handleComment() {
-    if (!isLogin) {
-        proxy.$message.error('请先登录')
-        return
-    }
-    if (!isCommentEmpty) {
-        proxy.$message.error('评论内容不能为空')
-        return
-    }
-
-    const data = {
-        courseId: route.params.courseId,
-        content: comment.value,
-        parentId: replyTo.value.id || null
-    }
-    addComment(data).then(() => {
-        proxy.$message.success('评论成功')
-        comment.value = "<p></p>"
-        replyTo.value = {}
-        getCommentList()
-    })
-}
-
-// 回复评论
-function handleReply(id, nickName) {
-    console.log(id, nickName)
-    replyTo.value = { id, nickName }
-}
-// 取消回复
-function cancelReply() {
-    replyTo.value = {}
-}
 getData()
 </script>
 
@@ -439,85 +235,6 @@ getData()
             right: 0;
             top: 0;
         }
-    }
-}
-
-.comment-list {
-    .comment-item {
-        border-bottom: 1px solid #eee;
-        margin-bottom: 5px;
-        padding-bottom: 5px;
-        margin-top: 5px;
-        padding-top: 5px;
-    }
-
-    .comment-header {
-        .comment-name {
-            font-size: 14px;
-        }
-    }
-
-    .comment-body {
-        color: #666;
-        font-size: 15px;
-
-        * {
-            margin: 5px 0;
-        }
-    }
-
-    .comment-footer {
-        display: flex;
-        align-items: baseline;
-
-        .comment-time {
-            font-size: 13px;
-            color: #999;
-        }
-
-        .comment-reply {
-            font-size: 13px;
-            margin-left: 10px;
-        }
-    }
-
-    .reply-to {
-        display: flex;
-        align-items: baseline;
-        font-size: 13px;
-        margin-top: 5px;
-    }
-
-    .comment-children {
-        .comment-item {
-            border-bottom: none;
-        }
-    }
-
-
-    .pagination-container {
-        margin-bottom: 30px;
-    }
-
-    .btn-submit {
-        margin-top: 10px;
-        float: right;
-    }
-}
-
-.course-table {
-    .material-icon {
-        .svg-icon {
-            width: 1.5em;
-            height: 1.5em;
-            margin-right: 5px;
-        }
-    }
-}
-:deep(.chapter-name) {
-    .cell {
-        display: flex;
-        align-items: center;
     }
 }
 

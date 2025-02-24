@@ -345,7 +345,7 @@ getData()
 
         .material-card {
             :deep(.el-card__body) {
-                height: 68vh;
+                height: 60vh;
                 overflow-y: auto
             }
         }
