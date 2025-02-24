@@ -5,7 +5,7 @@
                 <el-form :model="queryParams" ref="queryRef" :inline="true" label-width="68px">
                     <el-form-item label="课程名称" prop="courseId">
                         <el-select v-model="queryParams.courseId" placeholder="请选择课程" clearable filterable
-                            @change="handleQuery" @clear="handleQuery" style="width: 200px;">
+                            @change="handleQuery" @clear="resetQuery" style="width: 200px;">
                             <el-option v-for="item in courseOptions" :key="item.id" :label="item.courseName"
                                 :value="item.courseId" />
                         </el-select>
@@ -59,7 +59,7 @@
                                     icon="Edit" plain @click="handlePrepare(item)">去答卷</el-button>
                                 <el-button v-else-if="item.status === 1 && item.submitStatus === 1" type="primary"
                                     icon="Edit" plain @click="toExam(item)">继续答卷</el-button>
-                                <el-button v-else-if="item.status === 1 && item.submitStatus === 2" type="primary"
+                                <el-button v-else-if="item.status === 1 && (item.submitStatus === 2 || item.submitStatus === 3)" type="primary"
                                     icon="Edit" plain @click="handleView(item)">查看试卷</el-button>
                                 <el-button v-else-if="item.status === 2" type="primary" icon="View" plain
                                     @click="handleView(item)">查看试卷</el-button>

@@ -37,7 +37,7 @@
         </el-card>
 
         <el-row :gutter="20" class="mt20">
-            <el-col :xs="24" :sm="24" :md="14" :lg="16" :xl="18">
+            <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="18">
                 <el-card class="mb20">
                     <el-tabs>
                         <el-tab-pane label="课程介绍">
@@ -66,14 +66,7 @@
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column width="150">
-                                    <template #default="scope">
-                                        <span v-if="scope.row.chapterId && scope.row.materialType === 3">
-                                            {{ scope.row.duration ? formatSeconds(scope.row.duration) : '--' }}
-                                        </span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column prop="progress" label="学习进度" v-if="isLogin && courseInfo.isSelected">
+                                <el-table-column width="200" prop="progress" label="学习进度" v-if="isLogin && courseInfo.isSelected">
                                     <template #default="scope">
                                         <el-progress :percentage="scope.row.progress" :stroke-width="5" />
                                     </template>
@@ -144,7 +137,7 @@
                     </el-tabs>
                 </el-card>
             </el-col>
-            <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="6">
+            <el-col :xs="24" :sm="24" :md="24" :lg="8" :xl="6">
                 <!-- 选课 -->
                 <el-row class="mb20">
                     <el-col>
@@ -524,6 +517,7 @@ getData()
 :deep(.chapter-name) {
     .cell {
         display: flex;
+        align-items: center;
     }
 }
 

@@ -5,7 +5,7 @@
                 <el-form :model="queryParams" ref="queryRef" :inline="true" label-width="68px">
                     <el-form-item label="课程名称" prop="courseId">
                         <el-select v-model="queryParams.courseId" placeholder="请选择课程" clearable filterable
-                            @change="handleQuery" @clear="handleQuery" style="width: 200px;">
+                            @change="handleQuery" @clear="resetQuery" style="width: 200px;">
                             <el-option v-for="item in courseOptions" :key="item.id" :label="item.courseName"
                                 :value="item.courseId" />
                         </el-select>

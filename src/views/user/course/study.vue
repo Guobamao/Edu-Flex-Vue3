@@ -11,11 +11,11 @@
         </el-breadcrumb>
 
         <el-row :gutter="20" justify="space-between" class="container">
-            <el-col :span="18">
+            <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="18" class="material-container">
                 <template
                     v-if="materialData.materialType === 1 || materialData.materialType === 4 || materialData.materialType === 5">
-                    <el-carousel :autoplay="false" height="68vh" :loop="false" trigger="click" class="carousel-wrapper"
-                        @change="handleChange">
+                    <el-carousel :autoplay="false" height="68vh" :loop="false" indicator-position="none"
+                        class="carousel-wrapper" @change="handleChange">
                         <el-carousel-item v-for="(item, index) in materialData.fileUrlList" :key="index">
                             <div style="width: 100%; height: 100%; overflow-y: auto;">
                                 <el-image :src="item" style="width: 100%;" fit="cover" @click="handlePreview(item)" />
@@ -27,17 +27,23 @@
                     <el-image :src="materialData.fileUrl" style="width: 100%;" fit="contain"
                         @click="handlePreview(materialData.fileUrl)" />
                 </template>
+                <template v-else-if="materialData.materialType === 3">
+                    <div ref="dplayerRef"></div>
+                </template>
             </el-col>
-            <el-col :span="6">
+            <el-col :xs="24" :sm="24" :md="24" :lg="8" :xl="6">
                 <el-card class="material-card">
                     课程目录
                     <el-table ref="tableRef" :data="chapterList" row-key="id" @row-click="handleRowClick"
                         class="course-table" :show-header="false" default-expand-all>
-                        <el-table-column prop="name" align="left">
+                        <el-table-column prop="chapterName" label="章节名称" align="left" show-overflow-tooltip
+                            class-name="chapter-name">
                             <template #default="scope">
                                 <!-- 判断为章节 -->
-                                <strong v-if="scope.row.parentId === 0 && !scope.row.chapterId">{{
-                                    scope.row.name }}</strong>
+                                <strong v-if="!scope.row.chapterId">
+                                    第{{ scope.row.sort }}章
+                                    {{ scope.row.chapterName }}
+                                </strong>
                                 <!-- 判断为资源 -->
                                 <el-link v-else-if="!scope.row.parentId && scope.row.chapterId"
                                     :type="linkClass(scope.row)" @click="handleMaterialClick(scope.row)"
@@ -50,6 +56,12 @@
                                     <svg-icon icon-class="other" v-if="scope.row.materialType === 6" />
                                     {{ scope.row.name }}
                                 </el-link>
+                            </template>
+                        </el-table-column>
+                        <el-table-column width="70" prop="progress" align="left">
+                            <template #default="scope">
+                                <el-progress width="16" stroke-width="2" type="circle" :percentage="scope.row.progress"
+                                    class="progress" />
                             </template>
                         </el-table-column>
                     </el-table>
@@ -70,6 +82,7 @@ import { previewFile } from "@/api/manage/file";
 import { saveRecord } from '@/api/user/studyRecord';
 import { listChapter } from "@/api/user/chapter";
 import { listMaterial } from "@/api/user/material";
+import DPlayer from 'dplayer';
 
 const { proxy } = getCurrentInstance()
 
@@ -79,19 +92,20 @@ const router = useRouter()
 const materialInfo = ref(proxy.$cache.session.getJSON('study'))
 const materialData = ref({})
 
-// 允许上传标识
-const flag = ref(true)
 // 本次学习时长
 const duration = ref(0)
-const intervalTimer = ref(null)
-const timeoutTimer = ref(null)
-
+// 计时timer
+const intervalTimer = ref(null);
+// 保存视频学习记录timer
+const saveRecordTimer = ref(null);
 const showViewer = ref(false);
 const previewList = ref([])
 
 const chapterList = ref([]);
 
 const tableRef = ref(null);
+const dp = ref(null);
+const dplayerRef = ref(null)
 
 // 获取数据
 function getData() {
@@ -106,6 +120,54 @@ function getData() {
         } else if (materialData.value.materialType === 2) {
             // 图片类型
             materialData.value.fileUrl = proxy.$previewUrl + materialData.value.fileId
+        } else if (materialData.value.materialType === 3) {
+            nextTick(() => {
+                // 音视频类型
+                dp.value = new DPlayer({
+                    container: dplayerRef.value,
+                    autoplay: false,
+                    live: false,
+                    loop: false,
+                    theme: "#b7daff",
+                    lang: 'zh-cn',
+                    screenshot: false,
+                    hotkey: true,
+                    video: {
+                        type: 'auto',
+                        url: proxy.$previewVideo + materialData.value.fileId,
+                    }
+                })
+                if (materialData.value.lastPosition && materialData.value.lastPosition > 0) {
+                    dp.value.seek(materialData.value.lastPosition)
+                }
+
+                // 点击播放事件
+                dp.value.on('play', () => {
+                    countdown();
+                })
+
+                dp.value.on('playing', () => {
+                    saveRecordTimer.value = setInterval(() => {
+                        saveVideoRecord();
+                    }, 5000)
+                })
+
+                // 暂时时触发
+                dp.value.on('pause', () => {
+                    clearInterval(intervalTimer.value)
+                    duration.value = 0;
+                    clearInterval(saveRecordTimer.value)
+                    saveVideoRecord();
+                })
+
+                // 播放结束事件
+                dp.value.on('ended', () => {
+                    clearInterval(intervalTimer.value)
+                    duration.value = 0;
+                    clearInterval(saveRecordTimer.value)
+                    saveVideoRecord();
+                })
+            })
         }
         document.title = '章节 - ' + materialData.value.courseName
     })
@@ -113,21 +175,17 @@ function getData() {
         chapterList.value = res.data
 
         // 提取章节ID
-        const chapterIds = chapterList.value.flatMap(item => item.children.map(child => child.id))
+        const chapterIds = chapterList.value.map(item => item.id)
         // 批量调用 listMaterial
         Promise.all(chapterIds.map(id => listMaterial({ chapterId: id })))
             .then(res2 => {
                 res2.forEach((res3, index) => {
-                    const chapterId = chapterIds[index]
                     // 更新到chapterList
                     chapterList.value.forEach(item => {
                         item.hasChildren = false
-                        item.children.forEach(child => {
-                            child.hasChildren = false
-                            if (child.id === chapterId) {
-                                child.children = res3.data
-                            }
-                        })
+                        if (item.id === chapterIds[index]) {
+                            item.children = res3.data
+                        }
                     })
                 })
             })
@@ -137,7 +195,22 @@ function getData() {
 // 切换图片
 function handleChange(current, prev) {
     if (materialData.value.progress !== 100) {
-        if (flag.value) {
+        if (current === materialData.value.fileUrlList.length - 1) {
+            const finalData = {
+                courseId: materialInfo.value.courseId,
+                chapterId: materialInfo.value.chapterId,
+                materialId: materialInfo.value.materialId,
+                picIndex: current, // 最后一张图片序号
+                duration: duration.value,
+            }
+            saveRecord(finalData).then(res => {
+                if (res.msg === "当前资料已学习完成") {
+                    proxy.$modal.msgSuccess(res.msg);
+                    clearInterval(intervalTimer.value)
+                    duration.value = 0;
+                }
+            })
+        } else {
             const data = {
                 courseId: materialInfo.value.courseId,
                 chapterId: materialInfo.value.chapterId,
@@ -146,35 +219,14 @@ function handleChange(current, prev) {
                 duration: duration.value,
             }
             saveRecord(data).then(res => {
-                if (current === materialData.value.fileUrlList.length - 1 && prev !== current) {
-                    timeoutTimer.value = setTimeout(() => {
-                        const finalData = {
-                            courseId: materialInfo.value.courseId,
-                            chapterId: materialInfo.value.chapterId,
-                            materialId: materialInfo.value.materialId,
-                            picIndex: current, // 最后一张图片序号
-                            duration: duration.value,
-                        }
-                        saveRecord(finalData).then(res => {
-                            if (res.msg === "当前资料已学习完成") {
-                                proxy.$modal.msgSuccess(res.msg);
-                                clearInterval(intervalTimer.value)
-                            }
-                        })
-                    }, 5000)
-                } else {
-                    // 计时设置标识
-                    flag.value = false
-                    setTimeout(() => {
-                        flag.value = true
-                    }, 5000)
-                }
                 if (res.msg === "当前资料已学习完成") {
                     proxy.$modal.msgSuccess(res.msg);
                     clearInterval(intervalTimer.value)
+                    duration.value = 0;
                 }
             })
         }
+
     }
 }
 
@@ -182,9 +234,10 @@ function handleChange(current, prev) {
 watch(() => materialData.value.fileUrlList, (newVal) => {
     if (newVal.length === 1) {
         if (materialData.value.progress !== 100) {
+            countdown()
             setTimeout(() => {
                 handleChange(0, 0);
-            }, 5000)
+            }, 1000)
         }
     }
 })
@@ -192,6 +245,7 @@ watch(() => materialData.value.fileUrlList, (newVal) => {
 // 图片类型
 watch(() => materialData.value.fileUrl, (newVal) => {
     setTimeout(() => {
+        countdown()
         const data = {
             courseId: materialInfo.value.courseId,
             chapterId: materialInfo.value.chapterId,
@@ -202,9 +256,10 @@ watch(() => materialData.value.fileUrl, (newVal) => {
             if (res.msg === "当前资料已学习完成") {
                 proxy.$modal.msgSuccess(res.msg);
                 clearInterval(intervalTimer.value)
+                duration.value = 0;
             }
         })
-    }, 5000)
+    }, 1000)
 })
 
 // 计时器
@@ -227,15 +282,24 @@ function handlePreview(url) {
 
 // 树形列表点击事件 
 function handleRowClick(row, column, event) {
-    row.expanded = !row.expanded;
-    if (row.hasChildren) {
-        const expandBtn = event.currentTarget.querySelector('.el-table__expand-icon')
-        if (expandBtn) {
-            expandBtn.click()
-        }
-    } else {
-        tableRef.value.toggleRowExpansion(row, row.expanded)
+    const expandBtn = event.currentTarget.querySelector('.el-table__expand-icon')
+    if (expandBtn) {
+        expandBtn.click()
     }
+}
+
+// 保存视频学习进度
+function saveVideoRecord() {
+    const data = {
+        courseId: materialInfo.value.courseId,
+        chapterId: materialData.value.chapterId,
+        materialId: materialData.value.id,
+        duration: duration.value,
+        lastPosition: parseInt(dp.value.video.currentTime),
+    }
+    saveRecord(data).then(res => {
+        duration.value = 0;
+    })
 }
 
 // 链接颜色
@@ -251,7 +315,7 @@ function linkClass(row) {
 // 点击资源
 function handleMaterialClick(row) {
     clearInterval(intervalTimer.value)
-    clearTimeout(timeoutTimer.value)
+    duration.value = 0;
     const params = {
         courseId: materialInfo.value.courseId,
         chapterId: row.chapterId,
@@ -263,18 +327,21 @@ function handleMaterialClick(row) {
 
 onUnmounted(() => {
     clearInterval(intervalTimer.value)
-    clearTimeout(timeoutTimer.value)
+    duration.value = 0;
 })
 
 
 getData()
-countdown()
 
 </script>
 <style lang="scss" scoped>
 .app-container {
     .container {
         margin-top: 20px;
+
+        .material-container {
+            margin-bottom: 20px;
+        }
 
         .material-card {
             :deep(.el-card__body) {
@@ -284,8 +351,30 @@ countdown()
         }
 
         .course-table {
-            margin-top: 20px;
+            margin-top: 10px;
+            .material-icon {
+                .svg-icon {
+                    width: 1.5em;
+                    height: 1.5em;
+                    margin-right: 5px;
+                }
+            }
         }
+
+        .progress {
+            :deep(.el-progress__text) {
+                font-size: 14px !important; 
+                margin-left: 10px;
+            }
+        }
+
+        :deep(.chapter-name) {
+            .cell {
+                display: flex;
+                align-items: center;
+            }
+        }
+
     }
 
     .carousel-wrapper {

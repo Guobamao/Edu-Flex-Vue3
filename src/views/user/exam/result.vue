@@ -67,18 +67,19 @@
                     <el-col :span="12" style="color: #24da70">
                         正确答案：{{ question.rightAnswer }}
                     </el-col>
-                    <el-col v-if="question.answer === null" :span="12" style="text-align: right; color: #ff0000;">
+                    <el-col v-if="!question.answer" :span="12" style="text-align: right; color: #ff0000;">
                         答题结果：未作答
                     </el-col>
-                    <el-col v-if="question.answer !== null && question.isRight === 0"
+                    <el-col v-if="question.answer && question.isRight === 0" :span="12"
                         style="text-align: right; color: #ff0000;">
                         答题结果：{{ question.answer }}
                     </el-col>
-                    <el-col v-if="question.answer !== null && question.isRight === 1"
+                    <el-col v-if="question.answer && question.isRight === 1" :span="12"
                         style="text-align: right; color: #24da70;">
                         答题结果：{{ question.answer }}
                     </el-col>
                 </el-row>
+                <span class="score">获得分数：{{ question.getScore ? question.getScore : 0 }}分</span>
             </div>
         </el-card>
     </div>
@@ -118,6 +119,7 @@ getData()
 
     .question-item {
         border-bottom: 1px solid #d8d8d8;
+        position: relative;
     }
 
     .options-group {
@@ -141,6 +143,11 @@ getData()
                 line-height: 20px;
             }
         }
+    }
+    .score {
+        position: absolute;
+        right: 0%;
+        top: 25%;
     }
 }
 </style>

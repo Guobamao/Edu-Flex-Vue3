@@ -363,7 +363,6 @@ function viewMaterial(row) {
     // 音视频类型
     videoOpen.value = true
     nextTick(() => {
-      console.log('dplayerRef', dplayerRef.value)
       dp.value = new DPlayer({
         container: dplayerRef.value,
         autoplay: false,
