@@ -336,6 +336,20 @@ export const dynamicRoutes = [
       }
     ]
   },
+  {
+    path: '/admin/exams/exam/record/pending',
+    hidden: true,
+    component: Layout,
+    permissions: ['manage:exam:list', 'manage:student:list'],
+    children: [
+      {
+        path: ':id(\\d+)',
+        component: () => import('@/views/manage/exam/ExamPending'),
+        name: 'ExamRecordPending',
+        meta: { title: '考试阅卷', activeMenu: '/admin/exams/exam' }
+      }
+    ]
+  },
   
 ]
 

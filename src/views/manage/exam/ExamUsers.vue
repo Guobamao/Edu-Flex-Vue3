@@ -34,7 +34,7 @@
             </el-table-column>
             <el-table-column label="状态" align="center" prop="status">
                 <template #default="scope">
-                    <dict-tag :options="common_status" :value="scope.row.status" />
+                    <dict-tag :options="exam_submit_status" :value="scope.row.status" />
                 </template>
             </el-table-column>
             <el-table-column label="是否通过" align="center" prop="passed">
@@ -42,14 +42,14 @@
                     <dict-tag :options="exam_passed" :value="scope.row.passed" />
                 </template>
             </el-table-column>
-            <el-table-column label="开始时间" align="center" prop="startTime">
+            <el-table-column label="开始时间" align="center" prop="createTime">
                 <template #default="scope">
-                    {{ scope.row.startTime ? scope.row.startTime : '-' }}
+                    {{ scope.row.createTime ? scope.row.createTime : '-' }}
                 </template>
             </el-table-column>
-            <el-table-column label="结束时间" align="center" prop="endTime">
+            <el-table-column label="结束时间" align="center" prop="submitTime">
                 <template #default="scope">
-                    {{ scope.row.endTime ? scope.row.endTime : '-' }}
+                    {{ scope.row.submitTime ? scope.row.submitTime : '-' }}
                 </template>
             </el-table-column>
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -57,6 +57,9 @@
                     <el-button link type="primary" icon="Document" @click="handleDetail(scope.row)"
                         v-if="scope.status !== 0">
                         详情
+                    </el-button>
+                    <el-button link type="primary" icon="Edit" v-if="scope.row.status === 2" @click="handlePending(scope.row)">
+                        阅卷
                     </el-button>
                 </template>
             </el-table-column>
@@ -72,7 +75,7 @@ import { listRecord } from "@/api/manage/examRecord";
 
 const { proxy } = getCurrentInstance();
 
-const { common_status } = proxy.useDict("common_status")
+const { exam_submit_status } = proxy.useDict("exam_submit_status")
 const { exam_passed } = proxy.useDict("exam_passed")
 
 const route = useRoute();
@@ -110,8 +113,14 @@ function resetQuery() {
     handleQuery();
 }
 
+// 查看试卷详情
 function handleDetail(row) {
     router.push("/admin/exams/exam/record/" + row.id)
+}
+
+// 阅卷
+function handlePending(row) {
+    router.push("/admin/exams/exam/record/pending/" + row.id)
 }
 getList();
 </script>

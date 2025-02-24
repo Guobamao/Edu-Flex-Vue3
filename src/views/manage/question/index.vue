@@ -100,7 +100,7 @@
           </div>
           <el-button type="primary" text @click="addOptions">+ 添加选项</el-button>
         </el-form-item>
-        <el-form-item label="正确答案" prop="answer">
+        <el-form-item label="正确答案" prop="answer" class="answer-container">
           <!-- 单选题为单选框 -->
           <template v-if="form.type === 1">
             <el-radio-group v-model="form.answer">
@@ -278,6 +278,9 @@ function submitForm() {
     if (valid) {
       const params = { ...form.value }
       params.options = JSON.stringify(form.value.options)
+      if (form.value.type === 2) {
+        form.value.answer = form.value.answer.toSorted()
+      }
       params.answer = JSON.stringify(form.value.type === 2 ? form.value.answer : [form.value.answer])
       if (form.value.id != null) {
         updateQuestion(params).then(response => {
@@ -345,3 +348,21 @@ function handleTypeChange() {
 getList();
 getRepoList();
 </script>
+<style lang="scss" scoped>
+.answer-container {
+    .el-checkbox-group {
+      width: -webkit-fill-available;
+
+      .el-checkbox {
+        height: fit-content;
+        display: flex;
+        align-items: flex-start;
+      }
+
+      :deep(.el-checkbox__label) {
+        line-height: 20px;
+        white-space: break-spaces;
+      }
+    }
+}
+</style>

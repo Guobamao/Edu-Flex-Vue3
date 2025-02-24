@@ -42,3 +42,12 @@ export function delRecord(id) {
     method: 'delete'
   })
 }
+
+// 批阅
+export function pending(data) {
+  return request({
+    url: '/manage/exam/record/pending',
+    method: 'put',
+    data: data
+  })
+}

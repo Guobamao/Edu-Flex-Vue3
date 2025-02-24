@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <h2 class="text-center">{{ paperData.examName }}</h2>
-        <p class="text-center" style="color: #666;">{{ paperData.createTime }}</p>
+        <p class="text-center" style="color: #666;">{{ paperData.startTime }}</p>
 
         <el-row style="margin-top: 20px;">
             <el-col :span="6" class="text-center">
@@ -54,13 +54,26 @@
                 </template>
                 <!-- 填空题与简答题 -->
                 <template v-else>
-                    <el-row :gutter="10" class="mt10 mb10">
+                    <el-row :gutter="10" align="middle" class="mt10 mb10">
                         <el-col :span="1.5">
                             <span>答案：</span>
                         </el-col>
                         <el-col :span="12">
                             <el-input v-model="question.answer" placeholder="请输入答案" class="options" readonly></el-input>
                         </el-col>
+                        <el-col :span="2" />
+                        <template v-if="!question.isChecked || question.isChecked === 0">
+                            <el-col :span="1.5">
+                                <span>得分：</span>
+                            </el-col>
+                            <el-col :span="4">
+                                <el-input-number v-model="question.pendingScore" :min="0" :max="question.score"
+                                    class="options"></el-input-number>
+                            </el-col>
+                            <el-col :span="1.5">
+                                <el-button type="primary" @click="handlePending(question)">确认</el-button>
+                            </el-col>
+                        </template>
                     </el-row>
                 </template>
                 <el-row :gutter="20">
@@ -83,16 +96,17 @@
         </el-card>
     </div>
 </template>
-<script setup name="UserExamResult">
-import { getExamResult } from '@/api/user/exam'
+<script setup>
+import { getRecord, pending } from '@/api/manage/examRecord';
 import { formatSeconds } from "@/utils/index";
 
-const { proxy } = getCurrentInstance()
-const route = useRoute()
+const { proxy } = getCurrentInstance();
 
+const route = useRoute();
 const paperData = ref({})
-function getData() {
-    getExamResult(route.params.id).then(res => {
+
+function getList() {
+    getRecord(route.params.id).then(res => {
         paperData.value = res.data
         paperData.value.duration = formatSeconds(paperData.value.duration)
         paperData.value.questionList.forEach(item => {
@@ -108,8 +122,21 @@ function getOptionValue(question) {
     return question.answer != null ? question.type === 2 ? JSON.parse(question.answer) : JSON.parse(question.answer)[0] : null
 }
 
-getData()
+// 批阅题目
+function handlePending(question) {
+    const data = {
+        recordId: route.params.id,
+        questionId: question.id,
+        pendingScore: question.pendingScore
+    }
+    pending(data).then(res => {
+        question.isChecked = 1
+        proxy.$message.success("批阅成功")
+    })
+}
+getList()
 </script>
+
 <style lang="scss" scoped>
 .app-container {
     display: flex;

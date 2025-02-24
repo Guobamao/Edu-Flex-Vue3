@@ -18,8 +18,7 @@
             </el-col>
         </el-row>
         <el-card style="margin-top: 20px">
-
-            <div v-for="(question, questionIndex) in allQuestionData" :key="questionIndex" class="question-item">
+            <div v-for="(question, questionIndex) in paperData.questionList" :key="questionIndex" class="question-item">
                 <el-row :gutter="10" class="mt10">
                     <el-col :span="20">
                         <span>
@@ -64,6 +63,22 @@
                         </el-col>
                     </el-row>
                 </template>
+                <el-row :gutter="20">
+                    <el-col :span="12" style="color: #24da70">
+                        正确答案：{{ question.rightAnswer }}
+                    </el-col>
+                    <el-col v-if="question.answer === null" :span="12" style="text-align: right; color: #ff0000;">
+                        答题结果：未作答
+                    </el-col>
+                    <el-col v-if="question.answer !== null && question.isRight === 0"
+                        style="text-align: right; color: #ff0000;">
+                        答题结果：{{ question.answer }}
+                    </el-col>
+                    <el-col v-if="question.answer !== null && question.isRight === 1"
+                        style="text-align: right; color: #24da70;">
+                        答题结果：{{ question.answer }}
+                    </el-col>
+                </el-row>
             </div>
         </el-card>
     </div>
@@ -77,55 +92,25 @@ const { proxy } = getCurrentInstance();
 
 const route = useRoute();
 
-const examAnswerList = ref([])
 const paperData = ref({})
-const allQuestionData = ref([])
 
 function getList() {
     getRecord(route.params.id).then(res => {
         paperData.value = res.data
         paperData.value.duration = formatSeconds(paperData.value.duration)
-        examAnswerList.value = res.data.examAnswerList
-
-        paperData.value.singleChoiceQuestionList.forEach(item => {
+        paperData.value.questionList.forEach(item => {
             item.options = JSON.parse(item.options)
-            item.answered = isAnswered(item.id)
+            item.rightAnswer = JSON.parse(item.rightAnswer)
+            console.log(item)
             item.answer = getOptionValue(item)
-            allQuestionData.value.push(item)
-        })
-        paperData.value.multipleChoiceQuestionList.forEach(item => {
-            item.options = JSON.parse(item.options)
-            item.answered = isAnswered(item.id)
-            item.answer = getOptionValue(item)
-            allQuestionData.value.push(item)
-        })
-        paperData.value.judgeQuestionList.forEach(item => {
-            item.answered = isAnswered(item.id)
-            item.answer = getOptionValue(item)
-            allQuestionData.value.push(item)
-        })
-        paperData.value.fillQuestionList.forEach(item => {
-            item.answered = isAnswered(item.id)
-            item.answer = getOptionValue(item)
-            allQuestionData.value.push(item)
-        })
-        paperData.value.shortAnswerQuestionList.forEach(item => {
-            item.answered = isAnswered(item.id)
-            item.answer = getOptionValue(item)
-            allQuestionData.value.push(item)
         })
     })
 }
 
 function getOptionValue(question) {
-    const answer = examAnswerList.value.find(item => item.questionId === question.id)
-    return answer ? question.type === 2 ? JSON.parse(answer.answer) : JSON.parse(answer.answer)[0] : question.type === 2 ? [] : ''
+    return question.answer != null ? question.type === 2 ? JSON.parse(question.answer) : JSON.parse(question.answer)[0] : null
 }
 
-// 判断题目是否已做
-function isAnswered(questionId) {
-    return examAnswerList.value.some(item => item.questionId === questionId)
-}
 getList()
 </script>
 
