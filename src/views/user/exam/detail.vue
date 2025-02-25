@@ -241,6 +241,7 @@ function saveAnswer(item, callback) {
         answers.push(radioValue.value);
     } else if (checkboxValue.value.length > 0) {
         answers.push(...checkboxValue.value);
+        answers.sort();
     } else if (inputValue.value !== '') {
         answers.push(inputValue.value);
     }

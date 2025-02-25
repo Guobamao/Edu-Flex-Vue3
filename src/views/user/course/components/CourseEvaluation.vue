@@ -121,6 +121,6 @@ getList();
 
     .pagination-container {
         margin-bottom: 30px;
-    }   
+    }
 }
 </style>

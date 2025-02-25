@@ -34,7 +34,7 @@
                         结束时间：{{ courseInfo.endTime }}
                     </div>
                     <div class="course-description">
-                        简介：<div v-html="courseInfo.description"></div>
+                        简介：{{ courseInfo.description }}
                     </div>
                     <div class="course-num">
                         <el-icon>
@@ -70,6 +70,7 @@
                             <CourseHomework />
                         </el-tab-pane>
                         <el-tab-pane v-if="isLogin" label="课程考试">
+                            <CourseExam />
                         </el-tab-pane>
                     </el-tabs>
                 </el-card>
@@ -88,6 +89,7 @@ import CourseChapter from "./components/CourseChapter.vue";
 import CourseEvaluation from "./components/CourseEvaluation.vue";
 import CourseComment from "./components/CourseComment.vue";
 import CourseHomework from './components/CourseHomework.vue';
+import CourseExam from "./components/CourseExam.vue";
 
 const { proxy } = getCurrentInstance();
 const { common_status } = proxy.useDict("common_status")
@@ -191,15 +193,15 @@ getData()
         }
 
         .course-description {
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .course-category {
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .course-time {
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .course-num {

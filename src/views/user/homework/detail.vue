@@ -2,8 +2,9 @@
     <div class="app-container">
         <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/index' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item :to="{ path: '/homework' }">作业</el-breadcrumb-item>
-            <el-breadcrumb-item>{{ homeworkInfo.title }}</el-breadcrumb-item>
+            <el-breadcrumb-item :to="{ path: '/course' }">全部课程</el-breadcrumb-item>
+            <el-breadcrumb-item :to="{ path: '/course/' + courseInfo.id }">{{ courseInfo.name }}</el-breadcrumb-item>
+            <el-breadcrumb-item>作业：{{ homeworkInfo.title }}</el-breadcrumb-item>
         </el-breadcrumb>
 
         <el-card class="homework-info-card">
@@ -24,13 +25,13 @@
                 </div>
                 <div class="content">
                     <span class="label">当前提交状态：</span>
-                    <span class="value">{{ homeworkInfo.homeworkStatus }}</span>
+                    <span class="value">{{ homeworkInfo.homeworkStatusLabel }}</span>
                     <span class="label" v-if="homeworkInfo.submitTime">提交时间：</span>
                     <span class="value">{{ homeworkInfo.submitTime }}</span>
                 </div>
                 <div class="content">
                     <span class="label">当前作业状态：</span>
-                    <span class="value">{{ homeworkInfo.status }}</span>
+                    <span class="value">{{ homeworkInfo.statusLabel }}</span>
                 </div>
             </div>
         </el-card>
@@ -50,6 +51,7 @@
 </template>
 <script setup name="UserHomeworkDetail">
 import { getHomework, submitHomework } from '@/api/user/homework'
+import { getCourse } from "@/api/user/course"
 
 const { proxy } = getCurrentInstance()
 const { common_status } = proxy.useDict('common_status')
@@ -58,6 +60,7 @@ const { homework_status } = proxy.useDict('homework_status')
 const route = useRoute()
 const router = useRouter()
 
+const courseInfo = ref({})
 const homeworkInfo = ref({})
 const isAnswerEmpty = computed(() => {
     return homeworkInfo.value.answer == null || !homeworkInfo.value.answer.trim() || !homeworkInfo.value.answer.replace(/<[^>]*>?/gm, '').trim();
@@ -66,8 +69,12 @@ const isAnswerEmpty = computed(() => {
 function getData() {
     getHomework(route.params.homeworkId).then(res => {
         homeworkInfo.value = res.data
-        homeworkInfo.value.status = getCommonStatusLabel(homeworkInfo.value.status)
-        homeworkInfo.value.homeworkStatus = getHomeworkStatusLabel(homeworkInfo.value.homeworkStatus)
+        homeworkInfo.value.statusLabel = getCommonStatusLabel(homeworkInfo.value.status)
+        homeworkInfo.value.homeworkStatusLabel = getHomeworkStatusLabel(homeworkInfo.value.homeworkStatus)
+    }).then(() => {
+        getCourse(homeworkInfo.value.courseId).then(res => {
+            courseInfo.value = res.data
+        })
     })
 }
 

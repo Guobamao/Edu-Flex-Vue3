@@ -70,12 +70,8 @@
                     <el-col v-if="!question.answer" :span="12" style="text-align: right; color: #ff0000;">
                         答题结果：未作答
                     </el-col>
-                    <el-col v-if="question.answer && question.isRight === 0" :span="12"
-                        style="text-align: right; color: #ff0000;">
-                        答题结果：{{ question.answer }}
-                    </el-col>
-                    <el-col v-if="question.answer && question.isRight === 1" :span="12"
-                        style="text-align: right; color: #24da70;">
+                    <el-col v-if="question.answer" :span="12" style="text-align: right;"
+                        :style="'color: ' + (question.isRight === 1 ? '#24da70' : '#ff0000') + ';'">
                         答题结果：{{ question.answer }}
                     </el-col>
                 </el-row>
@@ -99,8 +95,7 @@ function getData() {
         paperData.value.questionList.forEach(item => {
             item.options = JSON.parse(item.options)
             item.rightAnswer = JSON.parse(item.rightAnswer)
-            console.log(item)
-            item.answer = getOptionValue(item)
+            item.answer = JSON.parse(item.answer)
         })
     })
 }
@@ -144,6 +139,7 @@ getData()
             }
         }
     }
+
     .score {
         position: absolute;
         right: 0%;

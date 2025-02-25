@@ -21,53 +21,57 @@
             <div v-if="breakShow" style="cursor: pointer;" @click="toExam">
                 <el-alert :closable="false" title="您有正在进行的考试，离线太久考试将被作废哦，点击此处可继续考试！" type="error" />
             </div>
-            <el-collapse v-model="activeNames" accordion @change="handleChange" class="mt5">
+            <el-collapse v-model="activeNames" @change="handleChange" class="mt5">
                 <el-collapse-item v-for="course in filterCourseOptions" :key="course.id" :title="course.courseName"
                     :name="course.courseId">
-                    <el-card v-for="(item, index) in course.examList" :key="item.id" class="exam-card">
-                        <el-tag class="orderNum">{{ index + 1 }}</el-tag>
-                        <el-row :gutter="20" align="middle">
-                            <el-col :span="15">
+                    <div class="exam-list">
+                        <template v-if="!examList.length">
+                            <el-empty description="暂无考试！" />
+                        </template>
+                        <template v-else>
+                            <el-card v-for="(item, index) in examList" :key="item.id" class="exam-card" shadow="never">
+                                <el-tag class="orderNum">{{ index + 1 }}</el-tag>
                                 <div class="info">
-                                    <div>
+                                    <div class="header">
                                         <span class="title">{{ item.examName }}</span>
                                     </div>
-                                    <div>
-                                        <span class="score">试卷总分：{{ item.totalScore }}分</span>
-                                        <span class="score">及格分数：{{ item.passScore }}分</span>
+                                    <div class="body">
+                                        <span class="item">试卷总分：{{ item.totalScore }}分</span>
+                                        <span class="item">及格分数：{{ item.passScore }}分</span>
                                     </div>
-                                    <div>
-                                        <span class="duration">考试时长: {{ item.duration }}分钟</span>
-                                        <span class="limited">是否限时：{{ item.limited === 0 ? '不限时' : '限时' }}</span>
+                                    <div class="body">
+                                        <span class="item">考试时长: {{ item.duration }}分钟</span>
+                                        <span class="item">是否限时：{{ item.limited === 0 ? '不限时' : '限时' }}</span>
                                     </div>
-                                    <div v-if="item.limited === 1">
-                                        <span class="limited-time">作答时间：{{ item.startTime }} - {{ item.endTime }}</span>
+                                    <div v-if="item.limited === 1" class="body">
+                                        <span class="item">作答时间：{{ item.startTime }} - {{ item.endTime }}</span>
                                     </div>
-                                    <div>
-                                        <span class="desc">注意事项：多选、少选、错选不得分</span>
+                                    <div class="body">
+                                        <span class="item">注意事项：多选、少选、错选不得分</span>
                                     </div>
                                 </div>
-                            </el-col>
-                            <el-col :span="4">
-                                <dict-tag :options="exam_submit_status" :value="item.submitStatus"
-                                    class="submit-status" />
-                            </el-col>
-                            <el-col :span="5">
-                                <el-button v-if="item.status === 0" type="primary" icon="Clock" plain
-                                    disabled>未到考试时间</el-button>
-                                <el-button v-else-if="item.status === 1 && item.submitStatus === 0" type="primary"
-                                    icon="Edit" plain @click="handlePrepare(item)">去答卷</el-button>
-                                <el-button v-else-if="item.status === 1 && item.submitStatus === 1" type="primary"
-                                    icon="Edit" plain @click="toExam(item)">继续答卷</el-button>
-                                <el-button v-else-if="item.status === 1 && (item.submitStatus === 2 || item.submitStatus === 3)" type="primary"
-                                    icon="Edit" plain @click="handleView(item)">查看试卷</el-button>
-                                <el-button v-else-if="item.status === 2" type="primary" icon="View" plain
-                                    @click="handleView(item)">查看试卷</el-button>
-                            </el-col>
-                        </el-row>
-                        <!-- 考试状态 -->
-                        <dict-tag :options="common_status" :value="item.status" class="status" />
-                    </el-card>
+                                <dict-tag v-if="item.submitStatus !== 3" :options="exam_submit_status"
+                                    :value="item.submitStatus" class="submit-status" />
+                                <div v-else class="final-status">
+                                    <div class="score">{{ item.finalScore }}分</div>
+                                    <div class="passed">{{ item.passed ? '通过' : '未通过' }}</div>
+                                </div>
+                                <div class="action-btn">
+                                    <el-button v-if="item.status === 0" type="primary" icon="Clock" plain
+                                        disabled>未到考试时间</el-button>
+                                    <el-button v-else-if="item.status === 1 && item.submitStatus === 0" type="primary"
+                                        icon="Edit" plain @click="handlePrepare(item)">去答卷</el-button>
+                                    <el-button v-else-if="item.status === 1 && item.submitStatus === 1" type="primary"
+                                        icon="Edit" plain @click="toExam(item)">继续答卷</el-button>
+                                    <el-button
+                                        v-else-if="item.status === 1 && (item.submitStatus === 2 || item.submitStatus === 3)"
+                                        type="primary" icon="Edit" plain @click="handleView(item)">查看试卷</el-button>
+                                    <el-button v-else-if="item.status === 2" type="primary" icon="View" plain
+                                        @click="handleView(item)">查看试卷</el-button>
+                                </div>
+                            </el-card>
+                        </template>
+                    </div>
                 </el-collapse-item>
             </el-collapse>
         </el-card>
@@ -78,7 +82,6 @@ import { listStudentCourse } from "@/api/user/studentCourse";
 import { listExam, checkExam } from "@/api/user/exam"
 
 const { proxy } = getCurrentInstance();
-const { common_status } = proxy.useDict("common_status")
 const { exam_submit_status } = proxy.useDict("exam_submit_status")
 
 const router = useRouter();
@@ -115,7 +118,6 @@ function getList() {
 /** 搜索按钮操作 */
 function handleQuery() {
     queryParams.value.pageNum = 1;
-    // getList();
     filterCourseOptions.value = courseOptions.value.filter(item => item.courseId == queryParams.value.courseId)
 }
 
@@ -161,7 +163,7 @@ function check() {
             breakShow.value = true
             recordId.value = res.data.id
         }
-    })
+    })                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 }
 
 getCourseList();
@@ -170,72 +172,55 @@ getList();
 </script>
 
 <style lang="scss" scoped>
-.exam-card {
-    position: relative;
-    margin: 10px 20px 10px 20px;
+.exam-list {
 
-    .orderNum {
-        position: absolute;
-        left: 0;
-        top: 0;
-    }
+    .exam-card {
+        position: relative;
 
-    .info {
-        margin-left: 20px;
-
-        .title {
-            font-size: 16px;
-            color: #101010;
+        :deep(.el-card__body) {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        span {
-            color: #999;
+        .orderNum {
+            position: absolute;
+            left: 0;
+            top: 0;
         }
 
-        .score {
-            margin-right: 20px;
+        .info {
+            flex: 0.8;
+            margin-left: 20px;
+
+            .header {
+                .title {
+                    font-size: 16px;
+                }
+            }
+
+            .body {
+                font-size: 14px;
+
+                .item {
+                    color: #999;
+                    line-height: 25px;
+                    margin-right: 15px;
+                }
+            }
         }
 
-        .duration {
-            margin-right: 20px;
+        .submit-status {
+            flex: 0.1;
+
+            :deep(.el-tag) {
+                padding: 15px 20px;
+                font-size: 15px;
+            }
         }
-    }
 
-    .exam-status {
-        position: absolute;
-        right: 20%;
-        top: 45%;
-        text-align: center;
-        padding: 5px 10px;
-        border-radius: 10px;
-    }
-
-    .exam-status.undo {
-        color: red;
-        border: 1px solid red;
-    }
-
-    .exam-status.pending {
-        color: green;
-        border: 1px solid green;
-    }
-
-    .exam-status.done {
-        color: blue;
-        border: 1px solid blue;
-    }
-
-    .status {
-        position: absolute;
-        right: 0;
-        top: 0;
-    }
-
-    .submit-status {
-        :deep(.el-tag) {
-            padding: 20px;
-            font-size: 15px;
-            font-weight: bold;
+        .action-btn {
+            flex: 0.15;
         }
     }
 }

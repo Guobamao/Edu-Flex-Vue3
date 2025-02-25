@@ -34,16 +34,13 @@ import Search from './Search.vue';
 import { getToken } from "@/utils/auth"
 
 const { proxy } = getCurrentInstance();
+const router = useRouter()
 
 const userStore = useUserStore()
 
 const isLogin = computed(() => getToken())
 
-const defaultActive = computed(() => {
-    const path = location.pathname
-    const match = path.match(/^\/[^\/]+/)
-    return match ? match[0] : path
-})
+const defaultActive = ref('/index')
 
 const dialogVisible = ref(false)
 function logout() {
@@ -61,6 +58,14 @@ function logout() {
 function handleSearch() {
     dialogVisible.value = true
 }
+
+watch(() => router.currentRoute.value.path, () => {
+    const path = router.currentRoute.value.path
+    const match = path.match(/^\/[^\/]+/)
+    if (match) {
+        defaultActive.value = match[0]
+    }
+}, { immediate: true })
 </script>
 
 <style lang="scss" scoped>
