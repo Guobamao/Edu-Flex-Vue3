@@ -28,7 +28,7 @@
         </el-table-column>
     </el-table>
 </template>
-<script setup name="CourseDirectory">
+<script setup name="CourseChapter">
 import { listChapter } from "@/api/user/chapter";
 import { listMaterial } from "@/api/user/material";
 import { getToken } from "@/utils/auth";

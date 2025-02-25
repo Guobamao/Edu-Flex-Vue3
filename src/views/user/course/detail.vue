@@ -5,46 +5,63 @@
             <el-breadcrumb-item :to="{ path: '/course' }">全部课程</el-breadcrumb-item>
             <el-breadcrumb-item>{{ courseInfo.name }}</el-breadcrumb-item>
         </el-breadcrumb>
-        <el-card class="course-meta">
-            <el-row :gutter="20" class="course-info">
-                <el-col :span="6">
-                    <el-image :src="courseInfo.cover" style="width: 100%; height: 150px;" />
+        <el-card class="course-meta-card">
+            <el-row :gutter="20">
+                <el-col :span="12">
+                    <el-image :src="courseInfo.cover" style="width: 100%; height: 300px;" />
                 </el-col>
-                <el-col :span="18">
-                    <p class="item">
-                        <span class="label">课程名称</span>
-                        <span class="value">{{ courseInfo.name }}</span>
-                    </p>
-                    <p class="item">
-                        <span class="label">课程时长</span>
-                        <span class="value">{{ courseInfo.videoTime }}</span>
-                    </p>
-                    <p class="item">
-                        <span class="label">开始时间</span>
-                        <span class="value">{{ courseInfo.startTime }}</span>
-                        <span class="label">结束时间</span>
-                        <span class="value">{{ courseInfo.endTime }}</span>
-                    </p>
-                    <p class="item">
-                        <span class="label">所属分类</span>
-                        <span class="value">{{ courseInfo.categoryName }}</span>
-                        <span class="label">已选人数</span>
-                        <span class="value">{{ courseInfo.selectedNum }}</span>
-                    </p>
+                <el-col :span="12" class="course-info">
+                    <dict-tag :options="common_status" :value="courseInfo.status" class="course-status" />
+                    <div class="course-name">
+                        {{ courseInfo.name }}
+                    </div>
+                    <div class="teacher-info">
+                        <el-avatar :src="teacherInfo.avatar">
+                            {{ teacherInfo.nickName }}
+                        </el-avatar>
+                        <span class="teacher-name">
+                            <el-link :underline="false" @click="gotoTeacher(teacherInfo.id)">
+                                {{ teacherInfo.nickName }}
+                            </el-link>
+                        </span>
+                    </div>
+                    <div class="course-category">
+                        所属分类：{{ courseInfo.categoryName }}
+                    </div>
+                    <div class="course-time">
+                        开始时间：{{ courseInfo.startTime }}
+                        &nbsp;&nbsp;
+                        结束时间：{{ courseInfo.endTime }}
+                    </div>
+                    <div class="course-description">
+                        简介：<div v-html="courseInfo.description"></div>
+                    </div>
+                    <div class="course-num">
+                        <el-icon>
+                            <medal />
+                        </el-icon>
+                        <span>{{ courseInfo.selectedNum }}人已选</span>
+                    </div>
+                    <div v-if="!isLogin" class="login-btn">
+                        <el-button type="success" @click="router.push('/login')">用户登录</el-button>
+                    </div>
+                    <div v-else class="login-btn">
+                        <el-button v-if="!courseInfo.isSelected" type="primary" @click="handleSelectCourse">加入选课</el-button>
+                        <el-button v-else type="danger" @click="handleSelectCourse">取消选课</el-button>
+                    </div>
                 </el-col>
-                <dict-tag :options="common_status" :value="courseInfo.status" class="course-status" />
             </el-row>
         </el-card>
 
-        <el-row :gutter="20" class="mt20">
-            <el-col :xs="24" :sm="24" :md="24" :lg="16" :xl="18">
+        <el-row class="mt20">
+            <el-col :span="24">
                 <el-card class="mb20">
                     <el-tabs>
-                        <el-tab-pane label="课程介绍">
-                            <div v-html="courseInfo.description"></div>
+                        <el-tab-pane label="课程章节">
+                            <CourseChapter :courseInfo="courseInfo" />
                         </el-tab-pane>
-                        <el-tab-pane label="课程目录">
-                            <CourseDirectory :courseInfo="courseInfo" />
+                        <el-tab-pane label="课程评价">
+                            <CourseEvaluation />
                         </el-tab-pane>
                         <el-tab-pane label="课程评论">
                             <CourseComment />
@@ -57,75 +74,18 @@
                     </el-tabs>
                 </el-card>
             </el-col>
-            <el-col :xs="24" :sm="24" :md="24" :lg="8" :xl="6">
-                <!-- 选课 -->
-                <el-row class="mb20">
-                    <el-col>
-                        <el-card>
-                            <el-button type="success" class="action-button" v-if="!isLogin"
-                                @click="router.push('/login')">用户登录</el-button>
-                            <el-button type="primary" class="action-button"
-                                v-else-if="isLogin && !courseInfo.isSelected"
-                                @click="handleSelectCourse">加入选课</el-button>
-                            <el-button type="danger" class="action-button" v-else-if="isLogin && courseInfo.isSelected"
-                                @click="handleSelectCourse">取消选课</el-button>
-                        </el-card>
-                    </el-col>
-                </el-row>
-                <el-row class="mb20">
-                    <el-col>
-                        <el-card>
-                            <span style="font-size: 14px;">授课老师</span>
-                            <el-row justify="center" align="middle" :gutter="10" class="mt10">
-                                <el-col :span="4" class="text-center">
-                                    <el-avatar :src="teacherInfo.avatar" />
-                                </el-col>
-                                <el-col :span="20">
-                                    <span class="teacher-name">{{ teacherInfo.nickName }}</span>
-                                </el-col>
-                            </el-row>
-                        </el-card>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col>
-                        <el-card class="related-course">
-                            <span style="font-size: 14px;">相关课程</span>
-                            <div v-for="item in relatedCourseList" :key="item.id" class="related-course-item">
-                                <el-row :gutter="10" align="middle">
-                                    <el-col :span="8">
-                                        <el-image :src="item.cover" fit="cover" style="width: 100%; height: 60px;">
-                                        </el-image>
-                                    </el-col>
-                                    <el-col :span="16" style="line-height: 25px;">
-                                        <div class="title">
-                                            <el-link :underline="false" @click="handleRouterPush(item.id)">
-                                                {{ item.name }}
-                                            </el-link>
-                                        </div>
-                                        <div class="meta">
-                                            <span class="teacherName">讲师: {{ item.teacherName }}</span>
-                                            <span class="videoNum">{{ item.videoNum }} 节课</span>
-                                            <span class="selectedNum">{{ item.selectedNum }} 人已选</span>
-                                        </div>
-                                    </el-col>
-                                </el-row>
-                            </div>
-                        </el-card>
-                    </el-col>
-                </el-row>
-            </el-col>
         </el-row>
     </div>
 </template>
 <script setup name="UserCourseDetail">
-import { getCourse, listRelatedCourse } from "@/api/user/course"
+import { getCourse } from "@/api/user/course"
 import { addStudentCourse } from "@/api/user/studentCourse"
 import { getTeacher } from "@/api/user/teacher"
 import { formatSeconds } from '@/utils/index';
 import { getToken } from "@/utils/auth"
 
-import CourseDirectory from "./components/CourseDirectory.vue";
+import CourseChapter from "./components/CourseChapter.vue";
+import CourseEvaluation from "./components/CourseEvaluation.vue";
 import CourseComment from "./components/CourseComment.vue";
 import CourseHomework from './components/CourseHomework.vue';
 
@@ -138,8 +98,6 @@ const router = useRouter();
 const courseInfo = ref({})
 // 教师信息
 const teacherInfo = ref({})
-// 相关课程信息
-const relatedCourseList = ref([]);
 // 是否已登录
 const isLogin = computed(() => getToken())
 
@@ -153,13 +111,6 @@ function getData() {
         getTeacher(courseInfo.value.teacherId).then(res => {
             res.data.avatar = proxy.$previewUrl + res.data.avatar
             teacherInfo.value = res.data
-        })
-    }).then(() => {
-        listRelatedCourse(courseInfo.value.id).then(res => {
-            relatedCourseList.value = res.data
-            relatedCourseList.value.forEach(item => {
-                item.cover = proxy.$previewUrl + item.cover
-            })
         })
     })
 }
@@ -210,69 +161,57 @@ function handleSelectCourse() {
 function handleRouterPush(id) {
     router.push({ name: 'UserCourseDetail', params: { courseId: id } })
 }
+
 getData()
 </script>
 
 <style lang="scss" scoped>
-.course-meta {
+.course-meta-card {
     margin-top: 20px;
 
     .course-info {
-        align-items: center;
-
-        .label {
-            margin-right: 5px;
-        }
-
-        .value {
-            margin-left: 5px;
-            margin-right: 15px;
-            color: #666;
-        }
-
         .course-status {
             position: absolute;
-            right: 0;
             top: 0;
-        }
-    }
-}
-
-.action-button {
-    width: 100%;
-    height: 40px;
-}
-
-.teacher-name {
-    font-size: 14px;
-}
-
-.related-course {
-    .related-course-item {
-        margin-top: 10px;
-        margin-bottom: 10px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .course-name {
-        font-size: 14px;
-    }
-
-    .title {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .meta {
-        font-size: 13px;
-
-        .videoNum {
-            margin-left: 10px;
+            right: 0;
         }
 
-        .selectedNum {
-            margin-left: 10px;
+        .course-name {
+            font-size: 20px;
+        }
+
+        .teacher-info {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+
+            .teacher-name {
+                margin-left: 10px;
+            }
+        }
+
+        .course-description {
+            margin-top: 20px;
+        }
+
+        .course-category {
+            margin-top: 20px;
+        }
+
+        .course-time {
+            margin-top: 20px;
+        }
+
+        .course-num {
+            position: absolute;
+            bottom: 0px;
+            color: #67C23A;
+        }
+
+        .login-btn {
+            position: absolute;
+            bottom: 0;
+            right: 10px;
         }
     }
 }

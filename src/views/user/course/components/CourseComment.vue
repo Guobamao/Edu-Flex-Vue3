@@ -74,7 +74,8 @@ const replyTo = ref({});
 const queryParams = ref({
     pageNum: 1,
     pageSize: 10,
-    courseId: route.params.courseId
+    courseId: route.params.courseId,
+    parentId: 0
 })
 const total = ref(0);
 
