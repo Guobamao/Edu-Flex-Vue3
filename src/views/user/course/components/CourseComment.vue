@@ -43,12 +43,12 @@
                     </div>
                 </el-col>
             </el-row>
+            <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+                v-model:limit="queryParams.pageSize" layout="total, prev, pager, next, jumper" @pagination="getList" />
         </template>
         <template v-else>
             <el-empty description="暂无评论，快来发表评论吧！" />
         </template>
-        <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
-            v-model:limit="queryParams.pageSize" layout="total, prev, pager, next, jumper" @pagination="getList" />
         <div v-if="isLogin && !replyTo.id">
             <editor v-model="inputValue" :min-height="192" placeholder="请输入评论内容" />
             <el-button type="primary" class="btn-submit" :disabled="isCommentEmpty"
@@ -88,7 +88,6 @@ const isCommentEmpty = computed(() => {
 
 // 获取评论列表
 function getList() {
-
     listComment(queryParams.value).then(res => {
         res.rows.forEach(item => {
             item.avatar = proxy.$previewUrl + item.avatar
