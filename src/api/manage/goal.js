@@ -9,6 +9,15 @@ export function listGoal(query) {
   })
 }
 
+// 新增学习目标管理
+export function addGoal(data) {
+  return request({
+    url: '/manage/goal',
+    method: 'post',
+    data: data
+  })
+}
+
 // 查询学习目标管理详细
 export function getGoal(id) {
   return request({

@@ -22,6 +22,9 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['manage:goal:add']">新增</el-button>
+      </el-col>
+      <el-col :span="1.5">
         <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
           v-hasPermi="['manage:goal:edit']">修改</el-button>
       </el-col>
@@ -83,12 +86,21 @@
     </el-dialog>
     <!-- 修改学习目标管理对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="goalRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="goalRef" :model="form" :rules="rules" label-width="110px">
+        <el-form-item label="关联用户" prop="userId">
+          <el-select v-model="form.userId" placeholder="请选择关联用户" clearable :options="studentOptions" filterable remote
+            :remote-method="onSearchStudent" :loading="stuLoading">
+            <el-option v-for="item in studentOptions" :key="item.id" :label="item.nickName" :value="item.userId">
+              <span style="float: left;">{{ item.nickName }}</span>
+              <span style="float: right; color: #8492a6;">{{ item.userName }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="名称" prop="goalName">
           <el-input v-model="form.goalName" placeholder="请输入名称" />
         </el-form-item>
-        <el-form-item label="目标完成" prop="deadline">
-          <el-date-picker v-model="form.deadline" type="date" placeholder="请选择目标完成期限" value-format="YYYY-MM-DD" />
+        <el-form-item label="目标完成日期" prop="deadline">
+          <el-date-picker v-model="form.deadline" type="date" placeholder="请选择目标完成日期" value-format="YYYY-MM-DD" />
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input v-model="form.description" type="textarea" placeholder="请输入内容" :rows="3" />
@@ -115,9 +127,9 @@
 </template>
 
 <script setup name="Goal">
-import { listGoal, getGoal, delGoal, updateGoal } from "@/api/manage/goal";
-import { useRouter } from "vue-router";
-
+import { listGoal, getGoal, delGoal, addGoal, updateGoal } from "@/api/manage/goal";
+import { listStudent } from "@/api/manage/student";
+import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 const { goal_status } = proxy.useDict('goal_status')
@@ -132,7 +144,9 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
-const router = useRouter();
+
+const stuLoading = ref(false);
+const studentOptions = ref([]);
 
 const data = reactive({
   form: {},
@@ -143,6 +157,9 @@ const data = reactive({
     status: null
   },
   rules: {
+    userId: [
+      { required: true, message: "关联用户不能为空", trigger: "blur" }
+    ],
     goalName: [
       { required: true, message: "名称不能为空", trigger: "blur" }
     ],
@@ -174,6 +191,7 @@ function cancel() {
 function reset() {
   form.value = {
     id: null,
+    userId: null,
     goalName: null,
     description: null,
     deadline: null,
@@ -201,12 +219,11 @@ function handleSelectionChange(selection) {
   multiple.value = !selection.length;
 }
 
-/** 查看按钮操作 */
-function handleView(row) {
-  getGoal(row.id).then(res => {
-    form.value = res.data;
-    goalDetailOpen.value = true;
-  })
+/** 新增按钮操作 */
+function handleAdd() {
+  reset();
+  open.value = true;
+  title.value = "添加学习目标管理";
 }
 
 /** 修改按钮操作 */
@@ -227,6 +244,12 @@ function submitForm() {
       if (form.value.id != null) {
         updateGoal(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
+          open.value = false;
+          getList();
+        });
+      } else {
+        addGoal(form.value).then(response => {
+          proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
         });
@@ -251,6 +274,24 @@ function handleExport() {
   proxy.download('manage/goal/export', {
     ...queryParams.value
   }, `goal_${new Date().getTime()}.xlsx`)
+}
+
+
+function onSearchStudent(keyword) {
+  if (keyword) {
+    stuLoading.value = true
+    const params = {
+      ...loadAllParams,
+      searchValue: keyword
+    }
+    listStudent(params).then(res => {
+      studentOptions.value = res.rows
+    }).catch(() => {
+      studentOptions.value = []
+    }).finally(() => {
+      stuLoading.value = false
+    })
+  }
 }
 
 getList();

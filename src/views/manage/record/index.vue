@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="关联学生" prop="stuId">
-        <el-select v-model="queryParams.stuId" placeholder="请选择关联学生" clearable @change="handleQuery"
+      <el-form-item label="关联学生" prop="userId">
+        <el-select v-model="queryParams.userId" placeholder="请选择关联学生" clearable @change="handleQuery"
           :options="studentOptions" style="width:250px;" filterable remote :remote-method="onSearchStudent"
           :loading="stuLoading">
           <el-option v-for="item in studentOptions" :key="item.id" :label="item.nickName" :value="item.userId">
@@ -130,7 +130,7 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    stuId: null,
+    userId: null,
     courseId: null,
     status: null,
   },
