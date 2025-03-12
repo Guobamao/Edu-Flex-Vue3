@@ -301,20 +301,6 @@ export const dynamicRoutes = [
     ]
   },
   {
-    path: '/admin/study/goal/student',
-    hidden: true,
-    component: Layout,
-    permissions: ['manage:goal:list', 'manage:student:list'],
-    children: [
-      {
-        path: ':goalId(\\d+)',
-        component: () => import('@/views/manage/goal/GoalStudent'),
-        name: 'GoalStudent',
-        meta: { title: '学习目标-学生关联管理', activeMenu: '/admin/study/goal' }
-      }
-    ]
-  },
-  {
     path: '/admin/exams/exam/users',
     hidden: true,
     component: Layout,

@@ -17,15 +17,6 @@ export function getGoal(id) {
   })
 }
 
-// 新增学习目标管理
-export function addGoal(data) {
-  return request({
-    url: '/manage/goal',
-    method: 'post',
-    data: data
-  })
-}
-
 // 修改学习目标管理
 export function updateGoal(data) {
   return request({

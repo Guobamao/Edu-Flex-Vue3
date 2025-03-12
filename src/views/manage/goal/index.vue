@@ -1,8 +1,18 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="50px">
       <el-form-item label="名称" prop="goalName">
         <el-input v-model="queryParams.goalName" placeholder="请输入名称" clearable @keyup.enter="handleQuery" />
+      </el-form-item>
+      <el-form-item label="状态" prop="status">
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable @change="handleQuery" style="width: 150px;">
+          <el-option
+            v-for="dict in goal_status"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -11,9 +21,6 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['manage:goal:add']">新增</el-button>
-      </el-col>
       <el-col :span="1.5">
         <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
           v-hasPermi="['manage:goal:edit']">修改</el-button>
@@ -33,14 +40,22 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" width="50" type="index" align="center" prop="id" />
       <el-table-column label="名称" align="center" prop="goalName" />
-      <el-table-column label="目标完成期限(天)" align="center" prop="deadline" />
-      <el-table-column label="创建者" align="center" prop="createBy" width="80" />
-      <el-table-column label="创建时间" align="center" prop="createTime" />
+      <el-table-column label="所有者" align="center" prop="userName">
+        <template #default="scope">
+          {{ scope.row.nickName }}({{ scope.row.userName }})
+        </template>
+      </el-table-column>
+      <el-table-column label="目标完成日期" align="center" prop="deadline" />
+      <el-table-column label="描述" align="center" prop="description" show-overflow-tooltip />
+      <el-table-column label="状态" align="center" prop="status">
+        <template #default="scope">
+          <dict-tag :options="goal_status" :value="scope.row.status" />
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-link type="primary" icon="User" @click="handleUser(scope.row)" v-hasRole="['admin']">关联用户</el-link>
-          <el-link link type="primary" icon="Connection" @click="handleRoute(scope.row)"
-            v-hasRole="['admin']">关联学习路线</el-link>
+          <el-link link type="primary" icon="View" @click="handleView(scope.row)"
+            v-hasPermi="['manage:goal:view']">查看</el-link>
           <el-link link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:goal:edit']">修改</el-link>
           <el-link link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -52,18 +67,41 @@
     <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
       v-model:limit="queryParams.pageSize" @pagination="getList" />
 
-    <!-- 添加或修改学习目标管理对话框 -->
+    <!-- 查看学习目标详情对话框 -->
+    <el-dialog title="学习目标详情" v-model="goalDetailOpen" width="500" append-to-body>
+      <el-descriptions border :column="1" label-width="120px">
+        <el-descriptions-item label="名称">{{ form.goalName }}</el-descriptions-item>
+        <el-descriptions-item label="所有者">{{ form.nickName }}({{ form.userName }})</el-descriptions-item>
+        <el-descriptions-item label="目标完成日期">{{ form.deadline }}</el-descriptions-item>
+        <el-descriptions-item label="描述">{{ form.description }}</el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <dict-tag :options="goal_status" :value="form.status" />
+        </el-descriptions-item>
+        <el-descriptions-item label="创建者">{{ form.createBy }}</el-descriptions-item>
+        <el-descriptions-item label="创建时间">{{ form.createTime }}</el-descriptions-item>
+      </el-descriptions>
+    </el-dialog>
+    <!-- 修改学习目标管理对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="goalRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="名称" prop="goalName">
           <el-input v-model="form.goalName" placeholder="请输入名称" />
         </el-form-item>
-        <el-form-item label="完成期限" prop="deadline">
-          <el-input-number v-model="form.deadline" placeholder="完成期限" />
-          <span style="margin-left: 10px">天</span>
+        <el-form-item label="目标完成" prop="deadline">
+          <el-date-picker v-model="form.deadline" type="date" placeholder="请选择目标完成期限" value-format="YYYY-MM-DD" />
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input v-model="form.description" type="textarea" placeholder="请输入内容" :rows="3" />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="form.status" placeholder="请选择状态">
+            <el-option
+              v-for="dict in goal_status"
+              :key="dict.value"
+              :label="dict.label"
+              :value="parseInt(dict.value)"
+            />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -77,14 +115,16 @@
 </template>
 
 <script setup name="Goal">
-import { listGoal, getGoal, delGoal, addGoal, updateGoal } from "@/api/manage/goal";
+import { listGoal, getGoal, delGoal, updateGoal } from "@/api/manage/goal";
 import { useRouter } from "vue-router";
 
 
 const { proxy } = getCurrentInstance();
+const { goal_status } = proxy.useDict('goal_status')
 
 const goalList = ref([]);
 const open = ref(false);
+const goalDetailOpen = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
 const ids = ref([]);
@@ -100,6 +140,7 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     goalName: null,
+    status: null
   },
   rules: {
     goalName: [
@@ -136,6 +177,7 @@ function reset() {
     goalName: null,
     description: null,
     deadline: null,
+    status: 0,
   };
   proxy.resetForm("goalRef");
 }
@@ -159,11 +201,12 @@ function handleSelectionChange(selection) {
   multiple.value = !selection.length;
 }
 
-/** 新增按钮操作 */
-function handleAdd() {
-  reset();
-  open.value = true;
-  title.value = "添加学习目标管理";
+/** 查看按钮操作 */
+function handleView(row) {
+  getGoal(row.id).then(res => {
+    form.value = res.data;
+    goalDetailOpen.value = true;
+  })
 }
 
 /** 修改按钮操作 */
@@ -184,12 +227,6 @@ function submitForm() {
       if (form.value.id != null) {
         updateGoal(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
-          open.value = false;
-          getList();
-        });
-      } else {
-        addGoal(form.value).then(response => {
-          proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
         });
@@ -214,17 +251,6 @@ function handleExport() {
   proxy.download('manage/goal/export', {
     ...queryParams.value
   }, `goal_${new Date().getTime()}.xlsx`)
-}
-
-/** 关联用户 */
-function handleUser(row) {
-  const _goalId = row.id;
-  router.push("/admin/study/goal/student/" + _goalId)
-}
-
-/** 关联学习路线 */
-function handleRoute(row) {
-  router.push({ name: 'Route', query: { goalId: row.id }})
 }
 
 getList();
