@@ -58,23 +58,10 @@
       </el-table-column>
       <el-table-column label="课程分类" align="center" prop="categoryName">
       </el-table-column>
-      <el-table-column label="开始时间" align="center" prop="startTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="结束时间" align="center" prop="endTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.endTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="课程状态" align="center" prop="status">
-        <template #default="scope">
-          <dict-tag :options="common_status" :value="scope.row.status" />
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
+          <el-button link type="primary" icon="View" @click="goToCourseChapters(scope.row)"
+            v-hasRole="['admin', 'teacher']">查看章节</el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasRole="['admin']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -107,15 +94,6 @@
             <el-option v-for="item in teacherList" :key="item.userId" :label="item.nickName" :value="item.userId" />
           </el-select>
         </el-form-item>
-        <el-form-item label="开始时间" prop="startTime">
-          <el-date-picker clearable v-model="form.startTime" type="date" value-format="YYYY-MM-DD"
-            placeholder="请选择开始时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="结束时间" prop="endTime">
-          <el-date-picker clearable v-model="form.endTime" type="date" value-format="YYYY-MM-DD" placeholder="请选择结束时间">
-          </el-date-picker>
-        </el-form-item>
         <el-form-item label="课程描述" prop="description">
           <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
         </el-form-item>
@@ -143,7 +121,6 @@ import { listCategory } from "@/api/manage/category";
 const router = useRouter();
 const route = useRoute();
 const { proxy } = getCurrentInstance();
-const { common_status } = proxy.useDict("common_status");
 
 const courseList = ref([]);
 const categoryOptions = ref([]);
@@ -165,7 +142,6 @@ const data = reactive({
     name: null,
     directionId: route.query.directionId || null,
     categoryId: route.query.categoryId || null,
-    status: null,
   },
   rules: {
     name: [
@@ -179,15 +155,6 @@ const data = reactive({
     ],
     categoryId: [
       { required: true, message: "课程分类不能为空", trigger: "blur" }
-    ],
-    startTime: [
-      { required: true, message: "开始时间不能为空", trigger: "blur" }
-    ],
-    endTime: [
-      { required: true, message: "结束时间不能为空", trigger: "blur" }
-    ],
-    status: [
-      { required: true, message: "课程状态不能为空", trigger: "change" }
     ],
   }
 });
@@ -221,9 +188,6 @@ function reset() {
     name: null,
     categoryId: null,
     teacherId: null,
-    startTime: null,
-    endTime: null,
-    status: null,
     description: null,
     cover: null
   };

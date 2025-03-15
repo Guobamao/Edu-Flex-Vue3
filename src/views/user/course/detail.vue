@@ -28,11 +28,6 @@
                     <div class="course-category">
                         所属分类：{{ courseInfo.categoryName }}
                     </div>
-                    <div class="course-time">
-                        开始时间：{{ courseInfo.startTime }}
-                        &nbsp;&nbsp;
-                        结束时间：{{ courseInfo.endTime }}
-                    </div>
                     <div class="course-description">
                         简介：{{ courseInfo.description }}
                     </div>
@@ -197,10 +192,6 @@ getData()
         }
 
         .course-category {
-            margin-top: 10px;
-        }
-
-        .course-time {
             margin-top: 10px;
         }
 
