@@ -100,6 +100,7 @@ import Calendar from '@toast-ui/calendar';
 import '@toast-ui/calendar/dist/toastui-calendar.css';
 import { listPlan, addPlan, delPlan, getPlan, updatePlan } from '@/api/user/plan';
 import { listGoal } from '@/api/user/goal';
+import { loadAllParams } from "@/api/page"
 import { parseTime } from '@/utils/ruoyi';
 
 const { proxy } = getCurrentInstance();
@@ -297,9 +298,19 @@ function submitForm() {
                     proxy.$message.success('添加成功');
                 })
             }
+            const event = {
+                id: form.value.id,
+                calendarId: '1',
+                title: form.value.title,
+                category: 'time',
+                start: form.value.startTime,
+                end: form.value.endTime,
+                body: form.value.content,
+                location: form.value.goalId,
+                backgroundColor: goalColorMap.value[form.value.goalId].color,
+            }
+            calendar.value.createEvents([event]);
             handleClose();
-            calendar.value.clear();
-            getPlanList();
         }
     })
 }
@@ -370,7 +381,6 @@ function getPlanList() {
     listPlan().then(res => {
         planList.value = res.data
         const goalIds = [...new Set(planList.value.map(item => item.goalId))]
-        console.log(goalIds)
         goalIds.forEach((item, index) => {
             goalColorMap.value[item] = {
                 goalId: item,
@@ -399,8 +409,8 @@ function getPlanList() {
 }
 
 function getGoalList() {
-    listGoal().then(res => {
-        goalList.value = res.data;
+    listGoal(loadAllParams).then(res => {
+        goalList.value = res.rows;
     })
 }
 

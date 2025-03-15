@@ -31,21 +31,21 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="fileList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="fileList" border @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" width="50" type="index" align="center" prop="id" />
-      <el-table-column label="文件名" align="center" prop="originName">
+      <el-table-column label="文件名" align="center" prop="originName" show-overflow-tooltip>
         <template #default="scope">
           <el-link type="primary" @click="handlePreview(scope.row)">{{ scope.row.originName }}</el-link>
         </template>
       </el-table-column>
       <el-table-column label="库文件名" align="center" prop="name" show-overflow-tooltip />
-      <el-table-column label="文件类型" align="center" prop="fileType">
+      <el-table-column label="文件类型" align="center" width="80" prop="fileType">
         <template #default="scope">
           <dict-tag :options="material_type" :value="scope.row.fileType" />
         </template>
       </el-table-column>
-      <el-table-column label="文件大小" align="center" prop="size">
+      <el-table-column label="文件大小" align="center" width="100" prop="size">
         <template #default="scope">
           {{ getFileSize(scope.row.size) }}
         </template>
@@ -99,12 +99,18 @@
       <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
         :url-list="previewList" />
     </div>
+
+
+    <el-dialog title="视频预览" v-model="videoOpen" width="800px" append-to-body @close="onClosePlayer">
+      <div ref="dplayerRef"></div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup name="File">
 import { listFile, getFile, delFile, updateFile, previewFile } from "@/api/manage/file";
-import { getFileSize } from "@/utils/index"
+import { getFileSize } from "@/utils/index";
+import DPlayer from 'dplayer';
 
 const { proxy } = getCurrentInstance();
 const { material_type } = proxy.useDict('material_type');
@@ -118,6 +124,9 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+const videoOpen = ref(false);
+const dplayerRef = ref(null)
+const dp = ref(null);
 
 const data = reactive({
   form: {},
@@ -242,17 +251,40 @@ function handlePreview(row) {
       previewList.value = ids.map(id => proxy.$previewFileUrl + id)
       showViewer.value = true
     })
-  }
-  else if (row.fileType === 2) {
+  } else if (row.fileType === 2) {
     // 图片类型
     previewList.value = [proxy.$previewUrl + row.id]
     showViewer.value = true
+  } else if (row.fileType === 3) {
+    // 视频类型
+    // 音视频类型
+    videoOpen.value = true
+    nextTick(() => {
+      dp.value = new DPlayer({
+        container: dplayerRef.value,
+        autoplay: false,
+        live: false,
+        loop: false,
+        theme: "#b7daff",
+        lang: 'zh-cn',
+        screenshot: false,
+        hotkey: true,
+        video: {
+          type: 'auto',
+          url: proxy.$previewVideo + row.id,
+        }
+      })
+    })
   }
 }
 
 // 下载
 function downloadFile(row) {
   proxy.download('/common/download/' + row.id, {}, row.originName)
+}
+
+function onClosePlayer() {
+  dp.value.destroy()
 }
 getList();
 </script>

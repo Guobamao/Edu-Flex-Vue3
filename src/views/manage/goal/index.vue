@@ -219,6 +219,14 @@ function handleSelectionChange(selection) {
   multiple.value = !selection.length;
 }
 
+/** 查看学习目标详情 */
+function handleView(row) {
+  getGoal(row.id).then(res => {
+    form.value = res.data;
+    goalDetailOpen.value = true;
+  })
+}
+
 /** 新增按钮操作 */
 function handleAdd() {
   reset();
@@ -232,6 +240,7 @@ function handleUpdate(row) {
   const _id = row.id || ids.value
   getGoal(_id).then(response => {
     form.value = response.data;
+    onSearchStudent(form.value.userName);
     open.value = true;
     title.value = "修改学习目标管理";
   });

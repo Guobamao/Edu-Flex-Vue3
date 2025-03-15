@@ -47,19 +47,19 @@
         </el-card>
         <div class="tab-wrapper">
             <el-tabs v-model="activeTab">
-                <el-tab-pane label="我的课程" name="course">
+                <el-tab-pane label="我的课程" name="course" lazy>
                     <MyCourse />
                 </el-tab-pane>
-                <el-tab-pane label="我的评价" name="evaluation">
+                <el-tab-pane label="我的评价" name="evaluation" lazy>
                     <MyEvaluation />
                 </el-tab-pane>
-                <el-tab-pane label="我的评论" name="comment">
+                <el-tab-pane label="我的评论" name="comment" lazy>
                     <MyComment />
                 </el-tab-pane>
-                <el-tab-pane label="我的学习目标" name="goal">
+                <el-tab-pane label="我的学习目标" name="goal" lazy>
                     <MyGoal />
                 </el-tab-pane>
-                <el-tab-pane label="我的学习计划" name="plan" :lazy="true">
+                <el-tab-pane label="我的学习计划" name="plan" lazy>
                     <MyPlan />
                 </el-tab-pane>
             </el-tabs>

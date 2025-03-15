@@ -127,6 +127,9 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询课程评价管理列表 */
 function getList() {
   loading.value = true;
+  if (queryParams.value.score === 0) {
+    queryParams.value.score = null;
+  }
   listEvaluation(queryParams.value).then(response => {
     evaluationList.value = response.rows;
     total.value = response.total;
