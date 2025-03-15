@@ -1,11 +1,11 @@
 <template>
     <div class="app-wrapper">
         <el-container>
-            <div class="fixed-header">
+            <el-header class="fixed-header">
                 <Navbar />
-            </div>
+            </el-header>
+
             <AppMain />
-            <el-footer></el-footer>
         </el-container>
     </div>
 </template>
@@ -19,9 +19,15 @@ import AppMain from './components/AppMain.vue';
 .app-wrapper {
     background-color: #F2F2F2;
 }
+
 .fixed-header {
     position: fixed;
     width: 100%;
+    padding: 0;
     z-index: 10;
+}
+
+.app-main {
+    padding: 0;
 }
 </style>

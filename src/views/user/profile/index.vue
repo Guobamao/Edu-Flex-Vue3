@@ -45,23 +45,25 @@
                 </el-col>
             </el-row>
         </el-card>
-        <el-row justify="center">
-            <el-col :span="24">
-                <div class="tab-wrapper">
-                    <el-tabs v-model="activeTab">
-                        <el-tab-pane label="我的课程" name="course">
-                            <MyCourse />
-                        </el-tab-pane>
-                        <el-tab-pane label="我的评价" name="evaluation">
-                            <MyEvaluation />
-                        </el-tab-pane>
-                        <el-tab-pane label="我的评论" name="comment">
-                            <MyComment />
-                        </el-tab-pane>
-                    </el-tabs>
-                </div>
-            </el-col>
-        </el-row>
+        <div class="tab-wrapper">
+            <el-tabs v-model="activeTab">
+                <el-tab-pane label="我的课程" name="course">
+                    <MyCourse />
+                </el-tab-pane>
+                <el-tab-pane label="我的评价" name="evaluation">
+                    <MyEvaluation />
+                </el-tab-pane>
+                <el-tab-pane label="我的评论" name="comment">
+                    <MyComment />
+                </el-tab-pane>
+                <el-tab-pane label="我的学习目标" name="goal">
+                    <MyGoal />
+                </el-tab-pane>
+                <el-tab-pane label="我的学习计划" name="plan" :lazy="true">
+                    <MyPlan />
+                </el-tab-pane>
+            </el-tabs>
+        </div>
 
         <el-dialog title="修改个人信息" v-model="open" width="600px" append-to-body>
             <el-tabs v-model="activeDialogTab">
@@ -121,6 +123,8 @@ import { updateUserProfile, updateUserPwd } from "@/api/system/user";
 import MyCourse from "./components/MyCourse.vue";
 import MyEvaluation from "./components/MyEvaluation.vue";
 import MyComment from "./components/MyComment.vue";
+import MyGoal from './components/MyGoal.vue';
+import MyPlan from './components/MyPlan.vue';
 import { parseTime } from '@/utils/ruoyi'
 import useUserStore from '@/store/modules/user'
 
@@ -220,6 +224,11 @@ getUser();
 </script>
 
 <style lang="scss" scoped>
+.app-container {
+    margin: 20px;
+    padding: 0;
+}
+
 .info-card {
     margin-top: 20px;
 
@@ -230,6 +239,12 @@ getUser();
             margin-right: 20px;
             color: #666;
         }
+    }
+}
+
+.tab-wrapper {
+    :deep(.el-tabs__content) {
+        position: unset;
     }
 }
 </style>

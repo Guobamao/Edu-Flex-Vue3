@@ -54,16 +54,8 @@
       </el-table-column>
       <el-table-column label="计划标题" align="center" prop="title" />
       <el-table-column label="计划内容" align="center" prop="content" show-overflow-tooltip />
-      <el-table-column label="开始日期" align="center" prop="startTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="结束日期" align="center" prop="endTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.endTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="开始时间" align="center" prop="startTime" width="180" />
+      <el-table-column label="结束时间" align="center" prop="endTime" width="180" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -101,13 +93,14 @@
         <el-form-item label="计划内容" prop="content">
           <el-input v-model="form.content" type="textarea" placeholder="请输入内容" />
         </el-form-item>
-        <el-form-item label="开始日期" prop="startTime" v-if="form.goalId">
-          <el-date-picker clearable v-model="form.startTime" type="date" value-format="YYYY-MM-DD" placeholder="请选择开始日期"
-            :disabled-date="disabledDate">
+        <el-form-item label="开始时间" prop="startTime" v-if="form.goalId">
+          <el-date-picker clearable v-model="form.startTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"
+            placeholder="请选择开始时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="结束日期" prop="endTime" v-if="form.goalId">
-          <el-date-picker clearable v-model="form.endTime" type="date" value-format="YYYY-MM-DD" placeholder="请选择结束日期">
+        <el-form-item label="结束时间" prop="endTime" v-if="form.goalId">
+          <el-date-picker clearable v-model="form.endTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"
+            placeholder="请选择结束时间">
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -170,10 +163,10 @@ const data = reactive({
       { required: true, message: "计划内容不能为空", trigger: "blur" }
     ],
     startTime: [
-      { required: true, message: "开始日期不能为空", trigger: "blur" }
+      { required: true, message: "开始时间不能为空", trigger: "blur" }
     ],
     endTime: [
-      { required: true, message: "结束日期不能为空", trigger: "blur" }
+      { required: true, message: "结束时间不能为空", trigger: "blur" }
     ],
   }
 });
