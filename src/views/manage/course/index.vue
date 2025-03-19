@@ -48,12 +48,7 @@
           <img :src="scope.row.cover" width="40%" height="10%" />
         </template>
       </el-table-column>
-      <el-table-column label="课程名称" align="center" prop="name">
-        <template #default="scope">
-          <el-link type="primary" @click="goToCourseChapters(scope.row)" v-hasRole="['admin', 'teacher']">
-            {{ scope.row.name }}</el-link>
-        </template>
-      </el-table-column>
+      <el-table-column label="课程名称" align="center" prop="name" />
       <el-table-column label="任课老师" align="center" prop="teacherName">
       </el-table-column>
       <el-table-column label="课程分类" align="center" prop="categoryName">
@@ -62,6 +57,8 @@
         <template #default="scope">
           <el-button link type="primary" icon="View" @click="goToCourseChapters(scope.row)"
             v-hasRole="['admin', 'teacher']">查看章节</el-button>
+          <el-button link type="primary" icon="Connection" @click="goToStudentCourses(scope.row)"
+            v-hasRole="['admin', 'teacher']">查看学生</el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasRole="['admin']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -282,6 +279,12 @@ function getTeacherList() {
 function goToCourseChapters(row) {
   const _courseId = row.id;
   router.push("/admin/course/course-chapters/" + _courseId);
+}
+
+// 跳转到学生选课
+function goToStudentCourses(row) {
+  const _courseId = row.id;
+  router.push("/admin/course/student_course/" + _courseId);
 }
 
 function getDirectionList() {

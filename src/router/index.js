@@ -252,6 +252,20 @@ export const dynamicRoutes = [
     ]
   },
   {
+    path: '/admin/course/student_course',
+    hidden: true,
+    component: Layout,
+    roles: ['admin', 'teacher'],
+    children: [
+      {
+        path: ':courseId(\\d+)',
+        component: () => import('@/views/manage/course/student_course'),
+        name: 'StudentCourse',
+        meta: { title: '学生选课管理', activeMenu: '/admin/course/course' }
+      }
+    ]
+  },
+  {
     path: '/admin/exam/paper-compose',
     component: Layout,
     hidden: true,
@@ -335,7 +349,6 @@ export const dynamicRoutes = [
       }
     ]
   },
-  
 ]
 
 const router = createRouter({

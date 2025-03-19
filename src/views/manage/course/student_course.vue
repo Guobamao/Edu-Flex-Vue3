@@ -3,19 +3,13 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="80px">
       <el-form-item label="关联学生" prop="userId">
-        <el-select v-model="queryParams.userId" placeholder="请选择关联用户" clearable @change="handleQuery"
+        <el-select v-model="queryParams.userId" placeholder="请选择关联学生" clearable @change="handleQuery"
           :options="studentOptions" style="width: 250px;" filterable remote :remote-method="onSearchStudent"
           :loading="stuLoading">
           <el-option v-for="item in studentOptions" :key="item.id" :label="item.nickName" :value="item.userId">
             <span style="float: left;">{{ item.nickName }}</span>
             <span style="float: right; color: #8492a6;">{{ item.userName }}</span>
           </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="课程" prop="courseId">
-        <el-select v-model="queryParams.courseId" placeholder="请选择课程" clearable @change="handleQuery" filterable
-          style="width: 150px;">
-          <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="进度(%)" prop="progress">
@@ -36,14 +30,6 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd"
-          v-hasPermi="['manage:student_course:add']">新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['manage:student_course:edit']">修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
         <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
           v-hasPermi="['manage:student_course:remove']">删除</el-button>
       </el-col>
@@ -57,27 +43,9 @@
     <el-table v-loading="loading" :data="StudentCourseList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" width="50" type="index" align="center" prop="id" />
-      <el-table-column label="学号" align="center" prop="userName">
-        <template #default="scope">
-          <el-link type="primary" @click="showStudentCourse(scope.row, 0)" v-hasRole="['admin']">
-            {{ scope.row.userName }}
-          </el-link>
-        </template>
-      </el-table-column>
-      <el-table-column label="学生姓名" align="center" prop="nickName">
-        <template #default="scope">
-          <el-link type="primary" @click="showStudentCourse(scope.row, 0)" v-hasRole="['admin']">
-            {{ scope.row.nickName }}
-          </el-link>
-        </template>
-      </el-table-column>
-      <el-table-column label="课程名称" align="center" prop="courseName">
-        <template #default="scope">
-          <el-link type="primary" @click="showStudentCourse(scope.row, 1)" v-hasRole="['admin']">
-            {{ scope.row.courseName }}
-          </el-link>
-        </template>
-      </el-table-column>
+      <el-table-column label="学号" align="center" prop="userName" />
+      <el-table-column label="学生姓名" align="center" prop="nickName" />
+      <el-table-column label="课程名称" align="center" prop="courseName" />
       <el-table-column label="学习进度(%)" align="center" prop="progress">
         <template #default="scope">
           {{ scope.row.progress.toFixed(2) }}%
@@ -97,9 +65,9 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['manage:student_course:edit']">修改</el-button>
+            v-hasRole="['admin']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['manage:student_course:remove']">删除</el-button>
+            v-hasRole="['admin']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -111,7 +79,7 @@
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="StudentCourseRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="关联学生" prop="userId">
-          <el-select v-model="form.userId" placeholder="请选择关联用户" clearable :options="studentOptions" filterable remote
+          <el-select v-model="form.userId" placeholder="请选择关联学生" clearable :options="studentOptions" filterable remote
             :remote-method="onSearchStudent" :loading="stuLoading" :disabled="form.id">
             <el-option v-for="item in studentOptions" :key="item.id" :label="item.nickName" :value="item.userId">
               <span style="float: left;">{{ item.nickName }}</span>
@@ -152,6 +120,8 @@ import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 
+const route = useRoute();
+
 const { common_status } = proxy.useDict("common_status");
 
 const StudentCourseList = ref([]);
@@ -181,7 +151,7 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     userId: null,
-    courseId: null,
+    courseId: route.params.courseId,
     status: null,
     progressList: [0, 100],
   },
