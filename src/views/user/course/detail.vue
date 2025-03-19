@@ -11,7 +11,6 @@
                     <el-image :src="courseInfo.cover" style="width: 100%; height: 300px;" />
                 </el-col>
                 <el-col :span="12" class="course-info">
-                    <dict-tag :options="common_status" :value="courseInfo.status" class="course-status" />
                     <div class="course-name">
                         {{ courseInfo.name }}
                     </div>
@@ -52,19 +51,19 @@
             <el-col :span="24">
                 <el-card class="mb20">
                     <el-tabs>
-                        <el-tab-pane label="课程章节">
+                        <el-tab-pane label="课程章节" lazy>
                             <CourseChapter :courseInfo="courseInfo" />
                         </el-tab-pane>
-                        <el-tab-pane label="课程评价">
+                        <el-tab-pane label="课程评价" lazy>
                             <CourseEvaluation />
                         </el-tab-pane>
-                        <el-tab-pane label="课程评论">
+                        <el-tab-pane label="课程评论" lazy>
                             <CourseComment />
                         </el-tab-pane>
-                        <el-tab-pane v-if="isLogin" label="课程作业">
+                        <el-tab-pane v-if="isLogin" label="课程作业" lazy>
                             <CourseHomework />
                         </el-tab-pane>
-                        <el-tab-pane v-if="isLogin" label="课程考试">
+                        <el-tab-pane v-if="isLogin" label="课程考试" lazy>
                             <CourseExam />
                         </el-tab-pane>
                     </el-tabs>
@@ -87,7 +86,6 @@ import CourseHomework from './components/CourseHomework.vue';
 import CourseExam from "./components/CourseExam.vue";
 
 const { proxy } = getCurrentInstance();
-const { common_status } = proxy.useDict("common_status")
 const route = useRoute();
 const router = useRouter();
 
@@ -154,11 +152,6 @@ function handleSelectCourse() {
     }
 }
 
-// 路由跳转
-function handleRouterPush(id) {
-    router.push({ name: 'UserCourseDetail', params: { courseId: id } })
-}
-
 getData()
 </script>
 
@@ -167,11 +160,6 @@ getData()
     margin-top: 20px;
 
     .course-info {
-        .course-status {
-            position: absolute;
-            top: 0;
-            right: 0;
-        }
 
         .course-name {
             font-size: 20px;
