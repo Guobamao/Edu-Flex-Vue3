@@ -4,9 +4,6 @@
       <el-form-item label="名称" prop="name">
         <el-input v-model="queryParams.name" placeholder="请输入名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-switch v-model="queryParams.status" :active-value="1" :inactive-value="0" @change="handleQuery" />
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -23,11 +20,7 @@
 
     <el-table v-loading="loading" :data="directionList">
       <el-table-column label="序号" width="50" type="index" align="center" />
-      <el-table-column label="名称" align="center" prop="name">
-        <template #default="scope">
-           <el-link type="primary" @click="goToCategory(scope.row)">{{ scope.row.name }}</el-link>
-        </template>
-      </el-table-column>
+      <el-table-column label="名称" align="center" prop="name" />
       <el-table-column label="状态" align="center" prop="status">
         <template #default="scope">
           <el-switch v-model="scope.row.status" :active-value="1" :inactive-value="0"
@@ -36,7 +29,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Connection" @click="goToCategory(scope.row)">
+          <el-button link type="primary" icon="Connection" @click="handleViewCategory(scope.row)">
             关联分类
           </el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -67,15 +60,19 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 关联分类对话框 -->
+     <el-dialog :title="categoryTitle" v-model="categoryOpen" width="800px" append-to-body>
+        <Category v-if="categoryOpen" :directionId="directionId" />
+     </el-dialog>
   </div>
 </template>
 
 <script setup name="Direction">
 import { listDirection, getDirection, delDirection, addDirection, updateDirection } from "@/api/manage/direction";
+import Category from "./components/Category.vue";
 
 const { proxy } = getCurrentInstance();
-
-const router = useRouter();
 
 const directionList = ref([]);
 const open = ref(false);
@@ -83,6 +80,9 @@ const loading = ref(true);
 const showSearch = ref(true);
 const total = ref(0);
 const title = ref("");
+const categoryTitle = ref("");
+const categoryOpen = ref(false);
+const directionId = ref(null);
 
 const data = reactive({
   form: {},
@@ -90,14 +90,13 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     name: null,
-    status: 1,
   },
   rules: {
     name: [
       { required: true, message: "名称不能为空", trigger: "blur" }
     ],
     status: [
-      { required: true, message: "启用状态(0-禁用 1-启用)不能为空", trigger: "blur" }
+      { required: true, message: "启用状态不能为空", trigger: "blur" }
     ],
   }
 });
@@ -209,8 +208,10 @@ function handleStatusChange(row) {
 }
 
 // 关联方向
-function goToCategory(row) {
-  router.push({ name: 'Category', query: { directionId: row.id } })
+function handleViewCategory(row) {
+  categoryTitle.value = '关联分类 - ' + row.name;
+  directionId.value = row.id;
+  categoryOpen.value = true;
 }
 
 getList();

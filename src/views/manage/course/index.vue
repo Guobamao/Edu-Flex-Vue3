@@ -285,7 +285,11 @@ function goToCourseChapters(row) {
 }
 
 function getDirectionList() {
-  listDirection(loadAllParams).then(res => {
+  const params = {
+    ...loadAllParams,
+    status: 1
+  }
+  listDirection(params).then(res => {
     directionOptions.value = res.rows;
   });
 }
