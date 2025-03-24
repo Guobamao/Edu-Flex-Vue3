@@ -42,3 +42,11 @@ export function delEvaluation(id) {
     method: 'delete'
   })
 }
+
+// 课程评价统计管理
+export function statistics(courseId) {
+  return request({
+    url: '/manage/evaluation/statistics/' + courseId,
+    method: 'get'
+  })
+}

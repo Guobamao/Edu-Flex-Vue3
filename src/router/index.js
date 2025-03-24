@@ -266,6 +266,20 @@ export const dynamicRoutes = [
     ]
   },
   {
+    path: '/admin/course/evaluation',
+    hidden: true,
+    component: Layout,
+    roles: ['admin', 'teacher'],
+    children: [
+      {
+        path: ':courseId(\\d+)',
+        component: () => import('@/views/manage/course/course_evaluation'),
+        name: 'CourseEvaluation',
+        meta: { title: '课程评价管理', activeMenu: '/admin/course/course' }
+      }
+    ]
+  },
+  {
     path: '/admin/exam/paper-compose',
     component: Layout,
     hidden: true,

@@ -1,11 +1,6 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="课程ID" prop="courseId">
-        <el-select v-model="queryParams.courseId" placeholder="请选择课程" filterable clearable @change="handleQuery" style="width: 200px;">
-          <el-option v-for="item in courseList" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
-      </el-form-item>
       <el-form-item label="评分" prop="score">
         <el-rate v-model="queryParams.score" @change="handleQuery" />
       </el-form-item>
@@ -13,17 +8,36 @@
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
+      <div class="demo-progress">
+        <el-progress :percentage="statisticsList.fiveStarPercent" status="warning">
+          <template #default>
+            <div class="demo-progress-item">{{ statisticsList.fiveStarNum }}</div>
+          </template>
+        </el-progress>
+        <el-progress :percentage="statisticsList.fourStarPercent" status="warning">
+          <template #default>
+            <div class="demo-progress-item">{{ statisticsList.fourStarNum }}</div>
+          </template>
+        </el-progress>
+        <el-progress :percentage="statisticsList.threeStarPercent" status="warning">
+          <template #default>
+            <div class="demo-progress-item">{{ statisticsList.threeStarNum }}</div>
+          </template>
+        </el-progress>
+        <el-progress :percentage="statisticsList.twoStarPercent" status="warning">
+          <template #default>
+            <div class="demo-progress-item">{{ statisticsList.twoStarNum }}</div>
+          </template>
+        </el-progress>
+        <el-progress :percentage="statisticsList.oneStarPercent" status="warning">
+          <template #default>
+            <div class="demo-progress-item">{{ statisticsList.oneStarNum }}</div>
+          </template>
+        </el-progress>
+      </div>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd"
-          v-hasPermi="['manage:evaluation:add']">新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['manage:evaluation:edit']">修改</el-button>
-      </el-col>
       <el-col :span="1.5">
         <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
           v-hasPermi="['manage:evaluation:remove']">删除</el-button>
@@ -38,8 +52,12 @@
     <el-table v-loading="loading" :data="evaluationList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" width="50" align="center" />
-      <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="课程ID" align="center" prop="courseId" />
+      <el-table-column label="用户" align="center" prop="userName">
+        <template #default="scope">
+          {{ scope.row.nickName }}({{ scope.row.userName }})
+        </template>
+      </el-table-column>
+      <el-table-column label="课程" align="center" prop="courseName" />
       <el-table-column label="评分" align="center" prop="score">
         <template #default="scope">
           <el-rate v-model="scope.row.score" disabled />
@@ -85,10 +103,13 @@
 </template>
 
 <script setup name="Evaluation">
-import { listEvaluation, getEvaluation, delEvaluation, addEvaluation, updateEvaluation } from "@/api/manage/evaluation";
+import { listEvaluation, getEvaluation, delEvaluation, addEvaluation, updateEvaluation, statistics } from "@/api/manage/evaluation";
 import { listCourse } from "@/api/manage/course";
 import { loadAllParams } from "@/api/page"
+
 const { proxy } = getCurrentInstance();
+
+const route = useRoute();
 
 const evaluationList = ref([]);
 const open = ref(false);
@@ -101,13 +122,15 @@ const total = ref(0);
 const title = ref("");
 
 const courseList = ref([]);
+const statisticsList = ref([]);
+
 const data = reactive({
   form: {},
   queryParams: {
     pageNum: 1,
     pageSize: 10,
     score: null,
-    courseId: null,
+    courseId: route.params.courseId,
   },
   rules: {
     score: [
@@ -135,6 +158,22 @@ function getList() {
     total.value = response.total;
     loading.value = false;
   });
+  statistics(queryParams.value.courseId).then(res => {
+    statisticsList.value = res.data
+    statisticsList.value.oneStarNum = statisticsList.value.oneStarNum ? statisticsList.value.oneStarNum : 0
+    statisticsList.value.twoStarNum = statisticsList.value.twoStarNum ? statisticsList.value.twoStarNum : 0
+    statisticsList.value.threeStarNum = statisticsList.value.threeStarNum ? statisticsList.value.threeStarNum : 0
+    statisticsList.value.fourStarNum = statisticsList.value.fourStarNum ? statisticsList.value.fourStarNum : 0
+    statisticsList.value.fiveStarNum = statisticsList.value.fiveStarNum ? statisticsList.value.fiveStarNum : 0
+
+    const maxNum = Math.max(statisticsList.value.oneStarNum, statisticsList.value.twoStarNum, statisticsList.value.threeStarNum, statisticsList.value.fourStarNum, statisticsList.value.fiveStarNum)
+
+    statisticsList.value.oneStarPercent = statisticsList.value.oneStarNum / maxNum * 100
+    statisticsList.value.twoStarPercent = statisticsList.value.twoStarNum / maxNum * 100
+    statisticsList.value.threeStarPercent = statisticsList.value.threeStarNum / maxNum * 100
+    statisticsList.value.fourStarPercent = statisticsList.value.fourStarNum / maxNum * 100
+    statisticsList.value.fiveStarPercent = statisticsList.value.fiveStarNum / maxNum * 100
+  })
 }
 
 // 取消按钮
@@ -240,3 +279,14 @@ function getCourseList() {
 getCourseList();
 getList();
 </script>
+<style lang="scss" scoped>
+.app-container {
+  .demo-progress {
+    position: absolute;
+    width: 230px;
+    height: 72px;
+    right: 10%;
+    top: 3%;
+  }
+}
+</style>
