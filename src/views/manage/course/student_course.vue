@@ -64,6 +64,8 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
+          <el-button link type="primary" icon="View" @click="goToRecord(scope.row)"
+            v-hasRole="['admin', 'teacher']">查看学习详情</el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasRole="['admin']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -85,11 +87,6 @@
               <span style="float: left;">{{ item.nickName }}</span>
               <span style="float: right; color: #8492a6;">{{ item.userName }}</span>
             </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="关联课程" prop="courseId">
-          <el-select v-model="form.courseId" placeholder="请选择关联课程" clearable :disabled="form.id">
-            <el-option v-for="item in courseOptions" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态" prop="status">
@@ -114,12 +111,12 @@
 
 <script setup name="StudentCourse">
 import { listStudentCourse, getStudentCourse, delStudentCourse, addStudentCourse, updateStudentCourse } from "@/api/manage/studentCourse";
-import { listCourse } from '@/api/manage/course';
 import { listStudent } from "@/api/manage/student";
 import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 
+const router = useRouter();
 const route = useRoute();
 
 const { common_status } = proxy.useDict("common_status");
@@ -138,9 +135,6 @@ const title = ref("");
 const formatTooltip = (val) => {
   return Number(val).toFixed(2)
 }
-
-
-const courseOptions = ref([]);
 
 const stuLoading = ref(false);
 const studentOptions = ref([]);
@@ -287,13 +281,6 @@ function handleExport() {
   }, `StudentCourse_${new Date().getTime()}.xlsx`)
 }
 
-// 查询课程列表
-onMounted(() => {
-  listCourse(loadAllParams).then(res => {
-    courseOptions.value = res.rows
-  })
-})
-
 function onSearchStudent(keyword) {
   if (keyword) {
     stuLoading.value = true
@@ -310,9 +297,9 @@ function onSearchStudent(keyword) {
   }
 }
 
-function showStudentCourse(row, searchType) {
-  searchType === 0 ? queryParams.value.userId = row.userId : queryParams.value.courseId = row.courseId
-  handleQuery()
+function goToRecord(row) {
+  router.push("/admin/course/record/" + row.id);
 }
+
 getList();
 </script>

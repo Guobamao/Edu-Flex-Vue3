@@ -5,13 +5,9 @@
         <el-input v-model="queryParams.goalName" placeholder="请输入名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable @change="handleQuery" style="width: 150px;">
-          <el-option
-            v-for="dict in goal_status"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable @change="handleQuery"
+          style="width: 150px;">
+          <el-option v-for="dict in goal_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -58,11 +54,13 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-link link type="primary" icon="View" @click="handleView(scope.row)"
-            v-hasPermi="['manage:goal:view']">查看</el-link>
+            v-hasRole="['admin', 'teacher']">查看</el-link>
+          <el-link link type="primary" icon="Connection" @click="goToPlan(scope.row)"
+            v-hasRole="['admin', 'teacher']">查看学习计划</el-link>
           <el-link link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['manage:goal:edit']">修改</el-link>
+            v-hasRole="['admin', 'teacher']">修改</el-link>
           <el-link link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['manage:goal:remove']">删除</el-link>
+            v-hasRole="['admin', 'teacher']">删除</el-link>
         </template>
       </el-table-column>
     </el-table>
@@ -107,12 +105,8 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select v-model="form.status" placeholder="请选择状态">
-            <el-option
-              v-for="dict in goal_status"
-              :key="dict.value"
-              :label="dict.label"
-              :value="parseInt(dict.value)"
-            />
+            <el-option v-for="dict in goal_status" :key="dict.value" :label="dict.label"
+              :value="parseInt(dict.value)" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -133,6 +127,8 @@ import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 const { goal_status } = proxy.useDict('goal_status')
+
+const router = useRouter();
 
 const goalList = ref([]);
 const open = ref(false);
@@ -301,6 +297,15 @@ function onSearchStudent(keyword) {
       stuLoading.value = false
     })
   }
+}
+
+function goToPlan(row) {
+  router.push({
+    name: 'Plan',
+    query: {
+      goalId: row.id
+    }
+  })
 }
 
 getList();

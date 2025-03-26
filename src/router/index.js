@@ -171,7 +171,7 @@ export const dynamicRoutes = [
     path: '/admin/system/user-auth',
     component: Layout,
     hidden: true,
-    permissions: ['system:user:edit'],
+    roles: ['admin'],
     children: [
       {
         path: 'role/:userId(\\d+)',
@@ -185,7 +185,7 @@ export const dynamicRoutes = [
     path: '/admin/system/role-auth',
     component: Layout,
     hidden: true,
-    permissions: ['system:role:edit'],
+    roles: ['admin'],
     children: [
       {
         path: 'user/:roleId(\\d+)',
@@ -199,7 +199,7 @@ export const dynamicRoutes = [
     path: '/admin/system/dict-data',
     component: Layout,
     hidden: true,
-    permissions: ['system:dict:list'],
+    roles: ['admin'],
     children: [
       {
         path: 'index/:dictId(\\d+)',
@@ -213,7 +213,7 @@ export const dynamicRoutes = [
     path: '/admin/monitor/job-log',
     component: Layout,
     hidden: true,
-    permissions: ['monitor:job:list'],
+    roles: ['admin'],
     children: [
       {
         path: 'index/:jobId(\\d+)',
@@ -227,7 +227,7 @@ export const dynamicRoutes = [
     path: '/admin/tool/gen-edit',
     component: Layout,
     hidden: true,
-    permissions: ['tool:gen:edit'],
+    roles: ['admin'],
     children: [
       {
         path: 'index/:tableId(\\d+)',
@@ -238,44 +238,48 @@ export const dynamicRoutes = [
     ]
   },
   {
-    path: '/admin/course/course-chapters',
+    path: '/admin/course',
     component: Layout,
     hidden: true,
-    permissions: ['manage:chapter:list'],
+    roles: ['admin', 'teacher'],
     children: [
       {
-        path: ':courseId(\\d+)',
+        path: 'course-chapters/:courseId(\\d+)',
         component: () => import('@/views/manage/course/course_chapter'),
         name: 'CourseChapter',
         meta: { title: '课程章节管理', activeMenu: '/admin/course/course' }
-      }
-    ]
-  },
-  {
-    path: '/admin/course/student_course',
-    hidden: true,
-    component: Layout,
-    roles: ['admin', 'teacher'],
-    children: [
+      },
       {
-        path: ':courseId(\\d+)',
+        path: 'student_course/:courseId(\\d+)',
         component: () => import('@/views/manage/course/student_course'),
         name: 'StudentCourse',
-        meta: { title: '学生选课管理', activeMenu: '/admin/course/course' }
+        meta: { title: '学生选课管理', activeMenu: '/admin/course/course' },
+      },
+      {
+        path: 'homeworks/:courseId(\\d+)',
+        component: () => import('@/views/manage/homework/homework'),
+        name: 'CourseHomework',
+        meta: { title: '课程作业管理', activeMenu: '/admin/course/homework' }
+      },
+      {
+        path: 'record/:recordId(\\d+)',
+        component: () => import('@/views/manage/course/study_record'),
+        name: 'StudyRecord',
+        meta: { title: '学习进度管理', activeMenu: '/admin/course/course' }
       }
     ]
   },
   {
-    path: '/admin/course/evaluation',
+    path: '/admin/evaluations',
     hidden: true,
     component: Layout,
     roles: ['admin', 'teacher'],
     children: [
       {
         path: ':courseId(\\d+)',
-        component: () => import('@/views/manage/course/course_evaluation'),
+        component: () => import('@/views/manage/evaluation/evaluation'),
         name: 'CourseEvaluation',
-        meta: { title: '课程评价管理', activeMenu: '/admin/course/course' }
+        meta: { title: '课程评价管理', activeMenu: '/admin/evaluation' }
       }
     ]
   },
@@ -283,7 +287,7 @@ export const dynamicRoutes = [
     path: '/admin/exam/paper-compose',
     component: Layout,
     hidden: true,
-    permissions: ['manage:paper:list'],
+    roles: ['admin', 'teacher'],
     children: [
       {
         path: ':paperId(\\d+)',
@@ -294,30 +298,58 @@ export const dynamicRoutes = [
     ]
   },
   {
-    path: '/admin/comments/user-comments',
+    path: '/admin/comments/',
     hidden: true,
     component: Layout,
-    permissions: ['manage:comment:list'],
+    roles: ['admin', 'teacher'],
     children: [
       {
-        path: ':userId(\\d+)',
-        component: () => import('@/views/manage/comments/userComments'),
-        name: 'UserComments',
-        meta: { title: '用户评论管理', activeMenu: '/admin/comments' }
+        path: ':courseId(\\d+)',
+        component: () => import('@/views/manage/comment/comment'),
+        name: 'CourseComment',
+        meta: { title: '课程评论管理', activeMenu: '/admin/comment' }
       }
     ]
   },
   {
-    path: '/admin/comments/course-comments',
+    path: '/admin/exams/repos/',
     hidden: true,
     component: Layout,
-    permissions: ['manage:comment:list'],
+    roles: ['admin', 'teacher'],
     children: [
       {
         path: ':courseId(\\d+)',
-        component: () => import('@/views/manage/comments/courseComments'),
-        name: 'CourseComments',
-        meta: { title: '课程评论管理', activeMenu: '/admin/comments' }
+        component: () => import('@/views/manage/repo/repo'),
+        name: 'CourseRepos',
+        meta: { title: '课程题库管理', activeMenu: '/admin/exams/repo' }
+      }
+    ]
+  },
+  {
+    path: '/admin/exams/papers/',
+    hidden: true,
+    component: Layout,
+    roles: ['admin', 'teacher'],
+    children: [
+      {
+        path: ':courseId(\\d+)',
+        component: () => import('@/views/manage/paper/paper'),
+        name: 'CoursePapers',
+        meta: { title: '课程试卷管理', activeMenu: '/admin/exams/paper' }
+      }
+    ]
+  },
+  {
+    path: '/admin/exams/exams/',
+    hidden: true,
+    component: Layout,
+    roles: ['admin', 'teacher'],
+    children: [
+      {
+        path: ':courseId(\\d+)',
+        component: () => import('@/views/manage/exam/exam'),
+        name: 'CourseExams',
+        meta: { title: '课程考试管理', activeMenu: '/admin/exams/exam' }
       }
     ]
   },
@@ -325,7 +357,7 @@ export const dynamicRoutes = [
     path: '/admin/exams/exam/users',
     hidden: true,
     component: Layout,
-    permissions: ['manage:exam:list', 'manage:student:list'],
+    roles: ['admin', 'teacher'],
     children: [
       {
         path: ':examId(\\d+)',
@@ -339,7 +371,7 @@ export const dynamicRoutes = [
     path: '/admin/exams/exam/record',
     hidden: true,
     component: Layout,
-    permissions: ['manage:exam:list', 'manage:student:list'],
+    roles: ['admin', 'teacher'],
     children: [
       {
         path: ':id(\\d+)',
@@ -353,7 +385,7 @@ export const dynamicRoutes = [
     path: '/admin/exams/exam/record/pending',
     hidden: true,
     component: Layout,
-    permissions: ['manage:exam:list', 'manage:student:list'],
+    roles: ['admin', 'teacher'],
     children: [
       {
         path: ':id(\\d+)',

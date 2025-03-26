@@ -42,3 +42,12 @@ export function delMaterial(id) {
     method: 'delete'
   })
 }
+
+// 查询课程资料列表
+export function listMaterialWithProgress(query) {
+  return request({
+    url: '/manage/material/list/withProgress',
+    method: 'get',
+    params: query
+  })
+}

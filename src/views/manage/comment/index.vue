@@ -1,8 +1,8 @@
 <template>
   <course-components>
     <template #action="{ row }">
-      <el-button link type="primary" icon="View" @click="goToHomework(row)"
-        v-hasRole="['admin', 'teacher']">查看作业</el-button>
+      <el-button link type="primary" icon="View" @click="goToComment(row)"
+        v-hasRole="['admin', 'teacher']">查看评论</el-button>
     </template>
   </course-components>
 </template>
@@ -13,9 +13,9 @@ import CourseComponents from '@/views/manage/course/components/CourseComponents.
 const router = useRouter();
 
 // 跳转到课程作业
-function goToHomework(row) {
+function goToComment(row) {
   const _courseId = row.id;
-  router.push("/admin/course/homeworks/" + _courseId);
+  router.push("/admin/comments/" + _courseId);
 }
 
 </script>

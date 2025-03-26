@@ -52,7 +52,7 @@
           {{ scope.row.goalName }}
         </template>
       </el-table-column>
-      <el-table-column label="计划标题" align="center" prop="title" />
+      <el-table-column label="计划标题" align="center" prop="title" show-overflow-tooltip="" />
       <el-table-column label="计划内容" align="center" prop="content" show-overflow-tooltip />
       <el-table-column label="开始时间" align="center" prop="startTime" width="180" />
       <el-table-column label="结束时间" align="center" prop="endTime" width="180" />
@@ -119,8 +119,11 @@ import { listPlan, getPlan, delPlan, addPlan, updatePlan } from "@/api/manage/pl
 import { listGoal } from "@/api/manage/goal";
 import { listStudent } from "@/api/manage/student";
 import { loadAllParams } from '@/api/page';
+import { watchEffect } from "vue";
 
 const { proxy } = getCurrentInstance();
+
+const route = useRoute();
 
 const planList = ref([]);
 const open = ref(false);
@@ -151,10 +154,10 @@ const data = reactive({
   },
   rules: {
     userId: [
-      { required: true, message: "用户ID不能为空", trigger: "blur" }
+      { required: true, message: "关联用户不能为空", trigger: "blur" }
     ],
     goalId: [
-      { required: true, message: "学习目标ID不能为空", trigger: "blur" }
+      { required: true, message: "关联学习目标不能为空", trigger: "blur" }
     ],
     title: [
       { required: true, message: "计划标题不能为空", trigger: "blur" }
@@ -172,6 +175,14 @@ const data = reactive({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+
+queryParams.value.goalId = computed(() => {
+  return route.query.goalId || null;
+})
+
+watchEffect(() => {
+  getList();
+}, [queryParams.value.goalId]);
 
 /** 查询学习计划管理列表 */
 function getList() {
@@ -199,11 +210,6 @@ function reset() {
     content: null,
     startTime: null,
     endTime: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
-    deleted: null
   };
   proxy.resetForm("planRef");
 }
@@ -313,5 +319,5 @@ function getGoalList() {
   })
 }
 
-getList();
+// getList();
 </script>

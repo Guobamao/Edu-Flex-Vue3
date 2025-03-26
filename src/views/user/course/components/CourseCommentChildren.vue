@@ -1,5 +1,5 @@
 <template>
-    <div class="comments-children">
+    <div class="comment-children">
         <div v-for="item in commentList" :key="item.id" class="comment-item">
             <div class="comment-body">
                 <el-avatar :src="item.avatar" />
@@ -57,7 +57,7 @@ function getList() {
 getList()
 </script>
 <style lang="scss" scoped>
-.comments-children {
+.comment-children {
     .comment-item {
         display: flex;
         flex-direction: column;

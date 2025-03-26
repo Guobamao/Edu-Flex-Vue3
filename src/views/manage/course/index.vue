@@ -66,8 +66,6 @@
             v-hasRole="['admin', 'teacher']">查看章节</el-button>
           <el-button link type="primary" icon="Connection" @click="goToStudentCourses(scope.row)"
             v-hasRole="['admin', 'teacher']">查看学生</el-button>
-          <el-button link type="primary" icon="Medal" @click="goToEvaluation(scope.row)"
-            v-hasRole="['admin', 'teacher']">查看评价</el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasRole="['admin']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -294,12 +292,6 @@ function goToCourseChapters(row) {
 function goToStudentCourses(row) {
   const _courseId = row.id;
   router.push("/admin/course/student_course/" + _courseId);
-}
-
-// 跳转到学生选课
-function goToEvaluation(row) {
-  const _courseId = row.id;
-  router.push("/admin/course/evaluation/" + _courseId);
 }
 
 function getDirectionList() {

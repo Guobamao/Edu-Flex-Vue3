@@ -34,9 +34,8 @@
             <!-- 遮罩 -->
             <div class="mask" v-show="showPopover" @click="handleClose"></div>
             <!-- 创建计划 popover -->
-            <el-popover ref="createPlanPopoverRef" :virtual-ref="triggerRef" virtual-triggering placement="right"
-                :title="title" :width="400" :visible="showPopover"
-                :popper-options="{ boundariesElement: 'viewport', removeOnDestroy: true }">
+            <el-popover :virtual-ref="triggerRef" virtual-triggering placement="right" :title="title" :width="400"
+                :visible="showPopover" :popper-options="{ boundariesElement: 'viewport', removeOnDestroy: true }">
                 <el-form ref="planRef" :model="form" :rules="rules" label-width="80px">
                     <el-form-item label="关联目标" prop="goalId">
                         <el-select v-model="form.goalId" placeholder="请选择学习目标">
@@ -65,9 +64,8 @@
             </el-popover>
             <!-- 查看计划 popover -->
             <div class="mask" v-show="showDetailPopover" @click="handleDetailClose"></div>
-            <el-popover ref="planDetailPopoverRef" :virtual-ref="triggerRef" virtual-triggering placement="top"
-                :width="280" :visible="showDetailPopover"
-                :popper-style="{ 'border-top': `4px solid ${currentPlan.color}` }">
+            <el-popover :virtual-ref="triggerRef" virtual-triggering placement="top" :width="280"
+                :visible="showDetailPopover" :popper-style="{ 'border-top': `4px solid ${currentPlan.color}` }">
                 <div class="plan-container">
                     <div class="plan-header">
                         <div class="plan-title">{{ currentPlan.title }}</div>
@@ -88,6 +86,10 @@
                             <el-button plain size="small" icon="Edit" @click="handleUpdate">修改</el-button>
                             <el-button type="danger" plain size="small" icon="Delete"
                                 @click="handleDelete">删除</el-button>
+                            <el-button v-if="currentPlan.status === 0" type="primary" size="small" icon="Check"
+                                @click="startPlan">开始</el-button>
+                            <el-button v-if="currentPlan.status === 1" type="primary" size="small" icon="Check"
+                                @click="endPlan">结束</el-button>
                         </div>
                     </div>
                 </div>
@@ -112,7 +114,6 @@ const showPopover = ref(false); // 创建计划 Popover
 const showDetailPopover = ref(false); // 计划详情 Popover
 const title = ref('')
 const triggerRef = ref(null); // 触发 popover 的元素
-const createPlanPopoverRef = ref(null); // 创建计划 popover
 
 const goalList = ref([]); // 目标列表
 const planList = ref([]); // 计划列表
@@ -157,7 +158,7 @@ function init() {
             dayNames: ['日', '一', '二', '三', '四', '五', '六'],
             workweek: showWorkWeek.value, // 是否显示周末
             showNowIndicator: true, // 当前时刻指示器
-            eventView: ['time', 'allday'],
+            eventView: ['time'],
             taskView: ['task'],
         },
         month: {
@@ -211,6 +212,7 @@ function init() {
         }
         updatePlan(data).then(res => {
             calendar.value.updateEvent(event.id, event.calendarId, changes);
+            proxy.$modal.msgSuccess("修改成功");
         })
     })
     setDateRangeText();
@@ -414,6 +416,26 @@ function getGoalList() {
     })
 }
 
+function startPlan() {
+    if (currentPlan.value.status === 0) {
+        const data = currentPlan.value;
+        data.status = 1;
+        updatePlan(data).then(res => {
+            proxy.$message.success('开始学习计划');
+        })
+    }
+}
+
+function endPlan() {
+    if (currentPlan.value.status === 1) {
+        const data = currentPlan.value;
+        data.status = 2;
+        updatePlan(data).then(res => {
+            proxy.$message.success('结束学习计划');
+        })
+    }
+}
+
 onMounted(() => {
     init();
     getGoalList();
@@ -532,5 +554,9 @@ onMounted(() => {
 :deep(.toastui-calendar-column .toastui-calendar-grid-selection) {
     left: 0;
     right: 0;
+}
+
+:deep(.toastui-calendar-template-time) {
+    white-space: break-spaces;
 }
 </style>

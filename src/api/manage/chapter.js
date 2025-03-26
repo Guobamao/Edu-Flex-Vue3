@@ -50,3 +50,12 @@ export function delChapter(id) {
     method: 'delete'
   })
 }
+
+// 查询课程内容章节管理列表
+export function listChapterWithProgress(query) {
+  return request({
+    url: '/manage/chapter/list/withProgress',
+    method: 'get',
+    params: query
+  })
+}
