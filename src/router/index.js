@@ -1,7 +1,7 @@
-import { createWebHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from "vue-router";
 /* Layout */
-import Layout from '@/layout'
-import UserLayout from '@/views/user/UserLayout';
+import Layout from "@/layout";
+import UserLayout from "@/views/user/UserLayout";
 
 /**
  * Note: 路由配置项
@@ -28,383 +28,349 @@ import UserLayout from '@/views/user/UserLayout';
 // 公共路由
 export const constantRoutes = [
   {
-    path: '/redirect',
+    path: "/redirect",
     component: Layout,
     hidden: true,
     children: [
       {
-        path: '/redirect/:path(.*)',
-        component: () => import('@/views/redirect/index.vue')
-      }
-    ]
+        path: "/redirect/:path(.*)",
+        component: () => import("@/views/redirect/index.vue"),
+      },
+    ],
   },
   {
-    path: '/login',
-    component: () => import('@/views/login'),
-    hidden: true
+    path: "/login",
+    component: () => import("@/views/login"),
+    hidden: true,
   },
   {
-    path: '/register',
-    component: () => import('@/views/register'),
-    hidden: true
+    path: "/register",
+    component: () => import("@/views/register"),
+    hidden: true,
   },
   {
     path: "/:pathMatch(.*)*",
-    component: () => import('@/views/error/404'),
-    hidden: true
+    component: () => import("@/views/error/404"),
+    hidden: true,
   },
   {
-    path: '/401',
-    component: () => import('@/views/error/401'),
-    hidden: true
+    path: "/401",
+    component: () => import("@/views/error/401"),
+    hidden: true,
   },
   {
-    path: '',
-    redirect: '/index',
+    path: "",
+    redirect: "/index",
     component: UserLayout,
     children: [
       {
         // 用户端 - 首页页面
-        path: '/index',
-        component: () => import('@/views/user/index/index'),
-        name: 'UserIndex',
+        path: "/index",
+        component: () => import("@/views/user/index/index"),
+        name: "UserIndex",
       },
       {
         // 用户端 - 课程列表页面
-        path: '/course',
-        component: () => import('@/views/user/course/index'),
-        name: 'UserCourseIndex',
+        path: "/course",
+        component: () => import("@/views/user/course/index"),
+        name: "UserCourseIndex",
         hidden: true,
       },
       {
         // 用户端 - 课程详情页面
-        path: '/course/:courseId',
-        component: () => import('@/views/user/course/detail'),
-        name: 'UserCourseDetail',
+        path: "/course/:courseId",
+        component: () => import("@/views/user/course/detail"),
+        name: "UserCourseDetail",
         hidden: true,
       },
       {
         // 用户端 - 课程学习页面
-        path: '/course/study/:materialId',
-        component: () => import('@/views/user/course/study'),
-        name: 'UserCourseStudy',
+        path: "/course/study/:materialId",
+        component: () => import("@/views/user/course/study"),
+        name: "UserCourseStudy",
         hidden: true,
       },
       {
         // 用户端 - 搜索页面
-        path: '/search',
-        component: () => import('@/views/user/search/index'),
-        name: 'UserSearch',
+        path: "/search",
+        component: () => import("@/views/user/search/index"),
+        name: "UserSearch",
         hidden: true,
       },
       {
         // 用户端 - 个人中心页面
-        path: '/profile',
-        component: () => import('@/views/user/profile/index'),
-        name: 'UserProfile',
+        path: "/profile",
+        component: () => import("@/views/user/profile/index"),
+        name: "UserProfile",
         hidden: true,
       },
       {
         // 用户端 - 作业列表页面
-        path: '/homework',
-        component: () => import('@/views/user/homework/index'),
-        name: 'UserHomework',
+        path: "/homework",
+        component: () => import("@/views/user/homework/index"),
+        name: "UserHomework",
         hidden: true,
       },
       {
         // 用户端 - 作业详情页面
-        path: '/homework/:homeworkId',
-        component: () => import('@/views/user/homework/detail'),
-        name: 'UserHomeworkDetail',
+        path: "/homework/:homeworkId",
+        component: () => import("@/views/user/homework/detail"),
+        name: "UserHomeworkDetail",
         hidden: true,
       },
       {
         // 用户端 - 考试列表页面
-        path: '/exam',
-        component: () => import('@/views/user/exam/index'),
-        name: 'UserExam',
-        hidden: true
+        path: "/exam",
+        component: () => import("@/views/user/exam/index"),
+        name: "UserExam",
+        hidden: true,
       },
       {
         // 用户端 - 考试准备页面
-        path: '/exam/prepare/:examId',
-        component: () => import('@/views/user/exam/prepare'),
-        name: 'UserExamPrepare',
-        hidden: true
+        path: "/exam/prepare/:examId",
+        component: () => import("@/views/user/exam/prepare"),
+        name: "UserExamPrepare",
+        hidden: true,
       },
       {
         // 用户端 - 考试结果页面
-        path: '/exam/result/:id',
-        component: () => import('@/views/user/exam/result'),
-        name: 'UserExamResult',
-        hidden: true
+        path: "/exam/result/:id",
+        component: () => import("@/views/user/exam/result"),
+        name: "UserExamResult",
+        hidden: true,
       },
-    ]
+    ],
   },
   {
     // 后台管理 - 个人中心页面
-    path: '/user',
+    path: "/user",
     component: Layout,
     hidden: true,
-    redirect: 'noredirect',
+    redirect: "noredirect",
     children: [
       {
-        path: 'profile',
-        component: () => import('@/views/system/user/profile/index'),
-        name: 'Profile',
-        meta: { title: '个人中心', icon: 'user' }
-      }
-    ]
+        path: "profile",
+        component: () => import("@/views/system/user/profile/index"),
+        name: "Profile",
+        meta: { title: "个人中心", icon: "user" },
+      },
+    ],
   },
   {
     // 用户端 - 考试页面
-    path: '/exam/start/:id',
-    component: () => import('@/views/user/exam/detail'),
-    name: 'UserExamDetail',
+    path: "/exam/start/:id",
+    component: () => import("@/views/user/exam/detail"),
+    name: "UserExamDetail",
     hidden: true,
   },
-]
+];
 
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
   {
-    path: '/admin/system/user-auth',
+    path: "/admin/system/user-auth",
     component: Layout,
     hidden: true,
-    roles: ['admin'],
+    roles: ["admin"],
     children: [
       {
-        path: 'role/:userId(\\d+)',
-        component: () => import('@/views/system/user/authRole'),
-        name: 'AuthRole',
-        meta: { title: '分配角色', activeMenu: '/admin/system/user' }
-      }
-    ]
+        path: "role/:userId(\\d+)",
+        component: () => import("@/views/system/user/authRole"),
+        name: "AuthRole",
+        meta: { title: "分配角色", activeMenu: "/admin/system/user" },
+      },
+    ],
   },
   {
-    path: '/admin/system/role-auth',
+    path: "/admin/system/role-auth",
     component: Layout,
     hidden: true,
-    roles: ['admin'],
+    roles: ["admin"],
     children: [
       {
-        path: 'user/:roleId(\\d+)',
-        component: () => import('@/views/system/role/authUser'),
-        name: 'AuthUser',
-        meta: { title: '分配用户', activeMenu: '/admin/system/role' }
-      }
-    ]
+        path: "user/:roleId(\\d+)",
+        component: () => import("@/views/system/role/authUser"),
+        name: "AuthUser",
+        meta: { title: "分配用户", activeMenu: "/admin/system/role" },
+      },
+    ],
   },
   {
-    path: '/admin/system/dict-data',
+    path: "/admin/system/dict-data",
     component: Layout,
     hidden: true,
-    roles: ['admin'],
+    roles: ["admin"],
     children: [
       {
-        path: 'index/:dictId(\\d+)',
-        component: () => import('@/views/system/dict/data'),
-        name: 'Data',
-        meta: { title: '字典数据', activeMenu: '/admin/system/dict' }
-      }
-    ]
+        path: "index/:dictId(\\d+)",
+        component: () => import("@/views/system/dict/data"),
+        name: "Data",
+        meta: { title: "字典数据", activeMenu: "/admin/system/dict" },
+      },
+    ],
   },
   {
-    path: '/admin/monitor/job-log',
+    path: "/admin/monitor/job-log",
     component: Layout,
     hidden: true,
-    roles: ['admin'],
+    roles: ["admin"],
     children: [
       {
-        path: 'index/:jobId(\\d+)',
-        component: () => import('@/views/monitor/job/log'),
-        name: 'JobLog',
-        meta: { title: '调度日志', activeMenu: '/admin/monitor/job' }
-      }
-    ]
+        path: "index/:jobId(\\d+)",
+        component: () => import("@/views/monitor/job/log"),
+        name: "JobLog",
+        meta: { title: "调度日志", activeMenu: "/admin/monitor/job" },
+      },
+    ],
   },
   {
-    path: '/admin/tool/gen-edit',
+    path: "/admin/tool/gen-edit",
     component: Layout,
     hidden: true,
-    roles: ['admin'],
+    roles: ["admin"],
     children: [
       {
-        path: 'index/:tableId(\\d+)',
-        component: () => import('@/views/tool/gen/editTable'),
-        name: 'GenEdit',
-        meta: { title: '修改生成配置', activeMenu: '/admin/tool/gen' }
-      }
-    ]
+        path: "index/:tableId(\\d+)",
+        component: () => import("@/views/tool/gen/editTable"),
+        name: "GenEdit",
+        meta: { title: "修改生成配置", activeMenu: "/admin/tool/gen" },
+      },
+    ],
   },
   {
-    path: '/admin/course',
+    path: "/admin/course",
     component: Layout,
     hidden: true,
-    roles: ['admin', 'teacher'],
+    roles: ["admin", "teacher"],
     children: [
       {
-        path: 'course-chapters/:courseId(\\d+)',
-        component: () => import('@/views/manage/course/course_chapter'),
-        name: 'CourseChapter',
-        meta: { title: '课程章节管理', activeMenu: '/admin/course/course' }
+        path: "course-chapters/:courseId(\\d+)",
+        component: () => import("@/views/manage/course/course_chapter"),
+        name: "CourseChapter",
+        meta: { title: "课程章节管理", activeMenu: "/admin/course/course" },
       },
       {
-        path: 'student_course/:courseId(\\d+)',
-        component: () => import('@/views/manage/course/student_course'),
-        name: 'StudentCourse',
-        meta: { title: '学生选课管理', activeMenu: '/admin/course/course' },
+        path: "student_course/:courseId(\\d+)",
+        component: () => import("@/views/manage/course/student_course"),
+        name: "StudentCourse",
+        meta: { title: "学生选课管理", activeMenu: "/admin/course/course" },
       },
       {
-        path: 'homeworks/:courseId(\\d+)',
-        component: () => import('@/views/manage/homework/homework'),
-        name: 'CourseHomework',
-        meta: { title: '课程作业管理', activeMenu: '/admin/course/homework' }
+        path: "homeworks/:courseId(\\d+)",
+        component: () => import("@/views/manage/homework/homework"),
+        name: "CourseHomework",
+        meta: { title: "课程作业管理", activeMenu: "/admin/course/homework" },
       },
       {
-        path: 'record/:recordId(\\d+)',
-        component: () => import('@/views/manage/course/study_record'),
-        name: 'StudyRecord',
-        meta: { title: '学习进度管理', activeMenu: '/admin/course/course' }
-      }
-    ]
+        path: "record/:recordId(\\d+)",
+        component: () => import("@/views/manage/course/study_record"),
+        name: "StudyRecord",
+        meta: { title: "学习进度管理", activeMenu: "/admin/course/course" },
+      },
+    ],
   },
   {
-    path: '/admin/evaluations',
+    path: "/admin/evaluations",
     hidden: true,
     component: Layout,
-    roles: ['admin', 'teacher'],
+    roles: ["admin", "teacher"],
     children: [
       {
-        path: ':courseId(\\d+)',
-        component: () => import('@/views/manage/evaluation/evaluation'),
-        name: 'CourseEvaluation',
-        meta: { title: '课程评价管理', activeMenu: '/admin/evaluation' }
-      }
-    ]
+        path: ":courseId(\\d+)",
+        component: () => import("@/views/manage/evaluation/evaluation"),
+        name: "CourseEvaluation",
+        meta: { title: "课程评价管理", activeMenu: "/admin/evaluation" },
+      },
+    ],
   },
   {
-    path: '/admin/exam/paper-compose',
+    path: "/admin/exams",
     component: Layout,
     hidden: true,
-    roles: ['admin', 'teacher'],
+    roles: ["admin", "teacher"],
     children: [
       {
-        path: ':paperId(\\d+)',
-        component: () => import('@/views/manage/paper/PaperCompose'),
-        name: 'PaperCompose',
-        meta: { title: '试卷试题管理', activeMenu: '/admin/exams/paper' }
-      }
-    ]
+        path: "paper-compose/:paperId(\\d+)",
+        component: () => import("@/views/manage/paper/PaperCompose"),
+        name: "PaperCompose",
+        meta: { title: "试卷试题管理", activeMenu: "/admin/exams/paper" },
+      },
+      {
+        path: "repos/:courseId(\\d+)",
+        component: () => import("@/views/manage/repo/repo"),
+        name: "CourseRepos",
+        meta: { title: "课程题库管理", activeMenu: "/admin/exams/repo" },
+      },
+      {
+        path: "papers/:courseId(\\d+)",
+        component: () => import("@/views/manage/paper/paper"),
+        name: "CoursePapers",
+        meta: { title: "课程试卷管理", activeMenu: "/admin/exams/paper" },
+      },
+      {
+        path: "exams/:courseId(\\d+)",
+        component: () => import("@/views/manage/exam/exam"),
+        name: "CourseExams",
+        meta: { title: "课程考试管理", activeMenu: "/admin/exams/exam" },
+      },
+      {
+        path: "exam/users/:examId(\\d+)",
+        component: () => import("@/views/manage/exam/ExamUsers"),
+        name: "ExamUsers",
+        meta: { title: "考试人员", activeMenu: "/admin/exams/exam" },
+      },
+      {
+        path: "exam/record/:id(\\d+)",
+        component: () => import("@/views/manage/exam/ExamRecord"),
+        name: "ExamRecord",
+        meta: { title: "考试记录详情", activeMenu: "/admin/exams/exam" },
+      },
+      {
+        path: "exam/record/pending/:id(\\d+)",
+        component: () => import("@/views/manage/exam/ExamPending"),
+        name: "ExamRecordPending",
+        meta: { title: "考试阅卷", activeMenu: "/admin/exams/exam" },
+      },
+    ],
   },
   {
-    path: '/admin/comments/',
+    path: "/admin/comment/",
     hidden: true,
     component: Layout,
-    roles: ['admin', 'teacher'],
+    roles: ["admin", "teacher"],
     children: [
       {
-        path: ':courseId(\\d+)',
-        component: () => import('@/views/manage/comment/comment'),
-        name: 'CourseComment',
-        meta: { title: '课程评论管理', activeMenu: '/admin/comment' }
-      }
-    ]
+        path: ":courseId(\\d+)",
+        component: () => import("@/views/manage/comment/comment"),
+        name: "CourseComment",
+        meta: { title: "课程评论管理", activeMenu: "/admin/comment" },
+      },
+    ],
   },
   {
-    path: '/admin/exams/repos/',
+    path: "/admin/study/",
     hidden: true,
     component: Layout,
-    roles: ['admin', 'teacher'],
+    roles: ["admin", "teacher"],
     children: [
       {
-        path: ':courseId(\\d+)',
-        component: () => import('@/views/manage/repo/repo'),
-        name: 'CourseRepos',
-        meta: { title: '课程题库管理', activeMenu: '/admin/exams/repo' }
-      }
-    ]
+        path: "plan/:userId(\\d+)",
+        component: () => import("@/views/manage/plan/plan"),
+        name: "StudentPlan",
+        meta: { title: "学习计划管理", activeMenu: "/admin/study/plan" },
+      },
+    ],
   },
-  {
-    path: '/admin/exams/papers/',
-    hidden: true,
-    component: Layout,
-    roles: ['admin', 'teacher'],
-    children: [
-      {
-        path: ':courseId(\\d+)',
-        component: () => import('@/views/manage/paper/paper'),
-        name: 'CoursePapers',
-        meta: { title: '课程试卷管理', activeMenu: '/admin/exams/paper' }
-      }
-    ]
-  },
-  {
-    path: '/admin/exams/exams/',
-    hidden: true,
-    component: Layout,
-    roles: ['admin', 'teacher'],
-    children: [
-      {
-        path: ':courseId(\\d+)',
-        component: () => import('@/views/manage/exam/exam'),
-        name: 'CourseExams',
-        meta: { title: '课程考试管理', activeMenu: '/admin/exams/exam' }
-      }
-    ]
-  },
-  {
-    path: '/admin/exams/exam/users',
-    hidden: true,
-    component: Layout,
-    roles: ['admin', 'teacher'],
-    children: [
-      {
-        path: ':examId(\\d+)',
-        component: () => import('@/views/manage/exam/ExamUsers'),
-        name: 'ExamUsers',
-        meta: { title: '考试人员', activeMenu: '/admin/exams/exam' }
-      }
-    ]
-  },
-  {
-    path: '/admin/exams/exam/record',
-    hidden: true,
-    component: Layout,
-    roles: ['admin', 'teacher'],
-    children: [
-      {
-        path: ':id(\\d+)',
-        component: () => import('@/views/manage/exam/ExamRecord'),
-        name: 'ExamRecord',
-        meta: { title: '考试记录详情', activeMenu: '/admin/exams/exam' }
-      }
-    ]
-  },
-  {
-    path: '/admin/exams/exam/record/pending',
-    hidden: true,
-    component: Layout,
-    roles: ['admin', 'teacher'],
-    children: [
-      {
-        path: ':id(\\d+)',
-        component: () => import('@/views/manage/exam/ExamPending'),
-        name: 'ExamRecordPending',
-        meta: { title: '考试阅卷', activeMenu: '/admin/exams/exam' }
-      }
-    ]
-  },
-]
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes: constantRoutes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
-      return savedPosition
+      return savedPosition;
     } else {
-      return { top: 0 }
+      return { top: 0 };
     }
   },
 });

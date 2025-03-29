@@ -55,8 +55,6 @@
         <template #default="scope">
           <el-link link type="primary" icon="View" @click="handleView(scope.row)"
             v-hasRole="['admin', 'teacher']">查看</el-link>
-          <el-link link type="primary" icon="Connection" @click="goToPlan(scope.row)"
-            v-hasRole="['admin', 'teacher']">查看学习计划</el-link>
           <el-link link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasRole="['admin', 'teacher']">修改</el-link>
           <el-link link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -127,8 +125,6 @@ import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 const { goal_status } = proxy.useDict('goal_status')
-
-const router = useRouter();
 
 const goalList = ref([]);
 const open = ref(false);
@@ -297,15 +293,6 @@ function onSearchStudent(keyword) {
       stuLoading.value = false
     })
   }
-}
-
-function goToPlan(row) {
-  router.push({
-    name: 'Plan',
-    query: {
-      goalId: row.id
-    }
-  })
 }
 
 getList();

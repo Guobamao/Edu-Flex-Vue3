@@ -12,10 +12,9 @@ import CourseComponents from '@/views/manage/course/components/CourseComponents.
 
 const router = useRouter();
 
-// 跳转到学生选课
+// 跳转到评价
 function goToEvaluation(row) {
-  const _courseId = row.id;
-  router.push("/admin/evaluations/" + _courseId);
+  router.push("/admin/evaluations/" + row.id);
 }
 
 </script>

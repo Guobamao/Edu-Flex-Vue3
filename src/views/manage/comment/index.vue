@@ -15,7 +15,7 @@ const router = useRouter();
 // 跳转到课程作业
 function goToComment(row) {
   const _courseId = row.id;
-  router.push("/admin/comments/" + _courseId);
+  router.push("/admin/comment/" + _courseId);
 }
 
 </script>

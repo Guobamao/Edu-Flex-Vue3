@@ -35,7 +35,7 @@
             </el-table-column>
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                 <template #default="scope">
-                    <slot name="action" :row="scope.row"> </slot>
+                    <slot name="action" :row="scope.row"></slot>
                 </template>
             </el-table-column>
         </el-table>
@@ -48,7 +48,6 @@
 <script setup name="Course">
 import { listCourse } from "@/api/manage/course";
 
-const router = useRouter();
 const { proxy } = getCurrentInstance();
 
 const courseList = ref([]);

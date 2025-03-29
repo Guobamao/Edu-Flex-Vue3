@@ -22,6 +22,7 @@
                 <el-button type="primary" @click="changeView('month')">月视图</el-button>
                 <el-button type="primary" @click="changeView('week')">周视图</el-button>
                 <el-button type="primary" @click="changeView('day')">日视图</el-button>
+                <slot name="change"></slot>
             </el-button-group>
             <div class="calendar-date">
                 <el-button round @click="onSwitchToday()">今天</el-button>
@@ -116,17 +117,18 @@
         </el-main>
     </el-container>
 </template>
-<script setup name="MyPlan">
+<script setup>
 import Calendar from '@toast-ui/calendar';
 import '@toast-ui/calendar/dist/toastui-calendar.css';
-import { listPlan, addPlan, delPlan, getPlan, updatePlan } from '@/api/user/plan';
-import { listGoal } from '@/api/user/goal';
-import { loadAllParams } from "@/api/page"
+import { listPlan, getPlan, delPlan, addPlan, updatePlan } from "@/api/manage/plan";
+import { listGoal } from "@/api/manage/goal";
+import { loadAllParams } from '@/api/page';
 import { parseTime } from '@/utils/ruoyi';
 
 const { proxy } = getCurrentInstance();
 const { common_status } = proxy.useDict("common_status")
 
+const route = useRoute();
 const calendar = ref();
 
 const showWorkWeek = ref(false); // 是否显示周末 true-不显示 false-显示
@@ -327,7 +329,7 @@ function submitForm() {
             form.value.startTime = parseTime(form.value.startTime, '{y}-{m}-{d} {h}:{i}:{s}');
             form.value.endTime = parseTime(form.value.endTime, '{y}-{m}-{d} {h}:{i}:{s}');
             if (form.value.id) {
-                uupdatePlan(form.value).then(res => {
+                updatePlan(form.value).then(res => {
                     calendar.value.updateEvent(form.value.id, "1", {
                         title: form.value.title,
                         category: 'time',
@@ -429,7 +431,7 @@ function setDateRangeText() {
 
 function getPlanList() {
     listPlan().then(res => {
-        planList.value = res.data
+        planList.value = res.rows
         const goalIds = [...new Set(planList.value.map(item => item.goalId))]
         goalIds.forEach((item, index) => {
             goalColorMap.value[item] = {
@@ -459,7 +461,11 @@ function getPlanList() {
 }
 
 function getGoalList() {
-    listGoal(loadAllParams).then(res => {
+    const params = {
+        ...loadAllParams,
+        userId: route.params.userId,
+    }
+    listGoal(params).then(res => {
         goalList.value = res.rows;
     })
 }
@@ -594,9 +600,11 @@ onMounted(() => {
         .status {
             display: flex;
             align-items: center;
+
             svg {
                 margin-right: 8px;
             }
+
             span {
                 font-size: 12px;
                 line-height: 2;
@@ -607,6 +615,7 @@ onMounted(() => {
             svg {
                 margin-right: 8px;
             }
+
             span {
                 font-size: 12px;
                 line-height: 2;

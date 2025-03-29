@@ -213,7 +213,7 @@ function handleExport() {
 
 function goToCompose(row) {
   const _paperId = row.id
-  router.push("/admin/exam/paper-compose/" + _paperId);
+  router.push("/admin/exams/paper-compose/" + _paperId);
 }
 
 getList();

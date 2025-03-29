@@ -12,10 +12,9 @@ import CourseComponents from '@/views/manage/course/components/CourseComponents.
 
 const router = useRouter();
 
-// 跳转到课程题库
+// 跳转到考试
 function goToExam(row) {
-  const _courseId = row.id;
-  router.push("/admin/exams/exams/" + _courseId);
+  router.push("/admin/exams/exams/" + row.id);
 }
 
 </script>
