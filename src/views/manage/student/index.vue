@@ -80,9 +80,9 @@
           <el-input v-model="form.email" placeholder="请输入邮箱" />
         </el-form-item>
         <el-form-item label="性别" prop="sex">
-          <el-select v-model="form.sex" placeholder="请选择性别">
-            <el-option v-for="dict in sys_user_sex" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
+          <el-radio-group v-model="form.sex">
+            <el-radio v-for="dict in sys_user_sex" :key="dict.value" :label="parseInt(dict.value)">{{ dict.label }}</el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -120,7 +120,6 @@
 
 <script setup name="Student">
 import { listStudent, getStudent, delStudent, addStudent, updateStudent, resetStudentPwd } from "@/api/manage/student";
-import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 const { sys_user_sex } = proxy.useDict("sys_user_sex");
@@ -181,8 +180,14 @@ function cancel() {
 // 表单重置
 function reset() {
   form.value = {
-    id: null,
     userId: null,
+    userName: null,
+    nickName: null,
+    email: null,
+    phonenumber: null,
+    sex: null,
+    avatar: null,
+    password: null,
   };
   proxy.resetForm("studentRef");
 }
@@ -201,7 +206,7 @@ function resetQuery() {
 
 // 多选框选中数据
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.id);
+  ids.value = selection.map(item => item.userId);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 }
@@ -216,7 +221,7 @@ function handleAdd() {
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _id = row.id || ids.value
+  const _id = row.userId || ids.value
   getStudent(_id).then(response => {
     form.value = response.data;
     open.value = true;
@@ -228,7 +233,7 @@ function handleUpdate(row) {
 function submitForm() {
   proxy.$refs["studentRef"].validate(valid => {
     if (valid) {
-      if (form.value.id != null) {
+      if (form.value.userId != null) {
         updateStudent(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
@@ -247,7 +252,7 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const _ids = row.id || ids.value;
+  const _ids = row.userId || ids.value;
   proxy.$modal.confirm('是否确认删除学生管理编号为"' + _ids + '"的数据项？').then(function () {
     return delStudent(_ids);
   }).then(() => {
@@ -278,7 +283,7 @@ function resetPwd(row) {
 /** 查看学生详情 */
 const stuInfoOpen = ref(false)
 function getStudentInfo(row) {
-  const _id = row.id
+  const _id = row.userId
   getStudent(_id).then(response => {
     form.value = response.data;
     stuInfoOpen.value = true

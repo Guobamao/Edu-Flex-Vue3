@@ -83,7 +83,7 @@
           <el-input v-model="materialForm.name" placeholder="请输入资料名称" />
         </el-form-item>
         <el-form-item label="上传文件" prop="fileId">
-          <file-upload v-model="materialForm.fileId" @fileList="getUploadFileList" />
+          <file-upload ref="fileUploadRef" v-model="materialForm.fileId" @fileList="getUploadFileList" />
         </el-form-item>
         <el-form-item label="文件类型" prop="materialType" v-if="materialForm.fileId">
           <el-select v-model="materialForm.materialType" placeholder="请选择文件类型">
@@ -117,6 +117,7 @@ import { listChapter, getChapter, delChapter, addChapter, updateChapter } from "
 import { listMaterial, getMaterial, delMaterial, addMaterial, updateMaterial } from "@/api/manage/material";
 import { previewFile } from "@/api/manage/file";
 import DPlayer from 'dplayer';
+import { nextTick } from "vue";
 
 const { proxy } = getCurrentInstance();
 const route = useRoute();
@@ -133,6 +134,7 @@ const refreshTable = ref(true);
 const videoOpen = ref(false);
 const dplayerRef = ref(null)
 const tableRef = ref(null);
+const fileUploadRef = ref(null);
 const dp = ref(null);
 
 const data = reactive({
@@ -198,6 +200,9 @@ function reset() {
   }
   proxy.resetForm("materialRef");
   proxy.resetForm("chapterRef");
+  setTimeout(() => {
+    fileUploadRef.value.fileList = [];
+  })
 }
 
 

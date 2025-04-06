@@ -77,7 +77,7 @@
       v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改题目管理对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="500px" append-to-body style="max-height: 80vh; overflow-y: auto">
       <el-form ref="questionRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="关联题库" prop="repoId">
           <el-select v-model="form.repoId" placeholder="请选择关联题库" clearable>
@@ -130,7 +130,8 @@
         </el-form-item>
         <el-form-item label="难易程度" prop="difficulty">
           <el-select v-model="form.difficulty" placeholder="请选择难易程度">
-            <el-option v-for="dict in question_difficulty" :key="dict.value" :label="dict.label" :value="parseInt(dict.value)" />
+            <el-option v-for="dict in question_difficulty" :key="dict.value" :label="dict.label"
+              :value="parseInt(dict.value)" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -350,19 +351,33 @@ getRepoList();
 </script>
 <style lang="scss" scoped>
 .answer-container {
-    .el-checkbox-group {
-      width: -webkit-fill-available;
+  .el-checkbox-group {
+    width: -webkit-fill-available;
 
-      .el-checkbox {
-        height: fit-content;
-        display: flex;
-        align-items: flex-start;
-      }
-
-      :deep(.el-checkbox__label) {
-        line-height: 20px;
-        white-space: break-spaces;
-      }
+    .el-checkbox {
+      height: fit-content;
+      display: flex;
+      align-items: flex-start;
     }
+
+    :deep(.el-checkbox__label) {
+      line-height: 20px;
+      white-space: break-spaces;
+    }
+  }
+
+  .el-radio-group {
+    .el-radio {
+      height: fit-content;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    :deep(.el-radio__label) {
+      line-height: 20px;
+      white-space: break-spaces;
+      word-break: break-all;
+    }
+  }
 }
 </style>

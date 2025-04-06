@@ -334,7 +334,7 @@ export const dynamicRoutes = [
     ],
   },
   {
-    path: "/admin/comment/",
+    path: "/admin/comments",
     hidden: true,
     component: Layout,
     roles: ["admin", "teacher"],

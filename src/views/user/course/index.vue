@@ -87,6 +87,9 @@ function getList() {
 }
 
 function handleClickDirection(id) {
+    if (selectedDirection.value !== id) {
+        selectedCategory.value = null;
+    }
     selectedDirection.value = id;
     if (id !== null) {
         listCategory(selectedDirection.value).then(res => {

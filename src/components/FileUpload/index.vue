@@ -47,7 +47,6 @@ const props = defineProps({
     default: true
   }
 });
-
 const { proxy } = getCurrentInstance();
 const emit = defineEmits();
 const number = ref(0);
@@ -58,6 +57,10 @@ const fileList = ref([]);
 const showTip = computed(
   () => props.isShowTip && props.fileSize
 );
+
+defineExpose({
+  fileList
+})
 
 // 上传前校检格式和大小
 function handleBeforeUpload(file) {
