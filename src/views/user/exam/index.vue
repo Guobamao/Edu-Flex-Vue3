@@ -21,15 +21,15 @@
             <div v-if="breakShow" style="cursor: pointer;" @click="toExam">
                 <el-alert :closable="false" title="您有正在进行的考试，离线太久考试将被作废哦，点击此处可继续考试！" type="error" />
             </div>
-            <el-collapse v-model="activeNames" @change="handleChange" class="mt5">
+            <el-collapse v-model="activeNames" @change="handleChange" accordion class="mt5">
                 <el-collapse-item v-for="course in filterCourseOptions" :key="course.id" :title="course.courseName"
                     :name="course.courseId">
                     <div class="exam-list">
-                        <template v-if="!examList.length">
-                            <el-empty description="暂无考试！" />
+                        <template v-if="!course.examList || course.examList.length === 0">
+                            <el-empty description="暂无考试！" :image-size="100" />
                         </template>
                         <template v-else>
-                            <el-card v-for="(item, index) in examList" :key="item.id" class="exam-card" shadow="never">
+                            <el-card v-for="(item, index) in course.examList" :key="item.id" class="exam-card" shadow="never">
                                 <el-tag class="orderNum">{{ index + 1 }}</el-tag>
                                 <div class="info">
                                     <div class="header">
@@ -176,6 +176,7 @@ getList();
 
     .exam-card {
         position: relative;
+        margin: 10px 20px 10px 20px;
 
         :deep(.el-card__body) {
             display: flex;

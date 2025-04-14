@@ -8,6 +8,9 @@ import { listRepo } from '@/api/manage/repo';
 import { loadAllParams } from '@/api/page';
 
 const props = defineProps({
+    courseId: {
+        type: String
+    },
     excludes: {
         type: Array
     }
@@ -20,6 +23,7 @@ const currentValue = ref('');
 function getRepoList() {
     listRepo({
         ...loadAllParams,
+        courseId: props.courseId,
         excludes: props.excludes
     }).then(res => {
         repoOptions.value = res.rows

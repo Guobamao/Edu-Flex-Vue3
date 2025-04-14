@@ -13,14 +13,15 @@
             <el-table :data="repoList" empty-text="请点击上面的`添加题库`进行设置">
                 <el-table-column label="题库名称" width="200">
                     <template #default="scope">
-                        <RepoSelect v-model="scope.row.repoId" :excludes="excludes" @change="handleRepoChange"></RepoSelect>
+                        <RepoSelect v-model="scope.row.repoId" :courseId="paperInfo.courseId" :excludes="excludes" @change="handleRepoChange">
+                        </RepoSelect>
                     </template>
                 </el-table-column>
                 <el-table-column label="单选题数量" align="center" width="150">
                     <template #default="scope">
                         <el-input-number v-model="scope.row.singleChoiceCount" :min="0"
                             :max="scope.row.singleChoiceTotal" :controls="false" style="width: 50px;" />
-                            /
+                        /
                         {{ scope.row.singleChoiceTotal }}
                     </template>
                 </el-table-column>
@@ -140,7 +141,7 @@
                     <!-- 判断题 -->
                     <template v-else-if="question.type === 3">
                         <el-radio-group v-model="question.answer">
-                            <el-radio :value="true"  class="options" @click.prevent>正确</el-radio>
+                            <el-radio :value="true" class="options" @click.prevent>正确</el-radio>
                             <el-radio :value="false" class="options" @click.prevent>错误</el-radio>
                         </el-radio-group>
                     </template>
@@ -151,7 +152,8 @@
                                 <span>答案：</span>
                             </el-col>
                             <el-col :span="12">
-                                <el-input v-model="question.answer" placeholder="请输入答案" class="options" readonly></el-input>
+                                <el-input v-model="question.answer" placeholder="请输入答案" class="options"
+                                    readonly></el-input>
                             </el-col>
                         </el-row>
                     </template>
@@ -165,7 +167,14 @@
 <script setup>
 import { loadAllParams } from '@/api/page';
 import { listRepo } from '@/api/manage/repo';
-import { generateQuestion, composePaper, listPaperRepo, listPaperQuestion } from '@/api/manage/paper';
+import {
+    generateQuestion,
+    composePaper,
+    listPaperRepo,
+    listPaperQuestion,
+    delPaperRepo,
+    getPaper
+} from '@/api/manage/paper';
 import RepoSelect from './components/RepoSelect.vue';
 
 const { proxy } = getCurrentInstance();
@@ -176,6 +185,7 @@ const { question_type } = proxy.useDict('question_type');
 const { question_difficulty } = proxy.useDict('question_difficulty');
 const route = useRoute();
 
+const paperInfo = ref({});
 const repoList = ref([]);
 const repoOptions = ref([]);
 
@@ -212,30 +222,44 @@ function handleRepoChange(value) {
 function handleDelete(row) {
     const index = repoList.value.indexOf(row);
     repoList.value.splice(index, 1);
+    delPaperRepo(row.id).then(res => {
+        proxy.$modal.msgSuccess("删除成功")
+    })
 }
 
 function getRepoList() {
-    listRepo(loadAllParams).then(res => {
+    const params = {
+        ...loadAllParams,
+        courseId: paperInfo.value.courseId
+    }
+    listRepo(params).then(res => {
         repoOptions.value = res.rows
     })
 }
 
 // 获取试卷关联题库列表
 function getData() {
+    // 获取试卷信息
+    getPaper(route.params.paperId).then(res => {
+        paperInfo.value = res.data
+    })
+    // 获取关联题库列表
     listPaperRepo(route.params.paperId).then(res => {
         repoList.value = res.data
     })
-    listPaperQuestion(route.params.paperId).then(res => {
-        questionMap.value = res.data
-        Object.keys(questionMap.value).forEach(key => {
-            questionMap.value[key].forEach(item => {
-                item.options = JSON.parse(item.options)
-                item.type = parseInt(item.type)
-                item.answer = item.type === 2 ? JSON.parse(item.answer) : JSON.parse(item.answer)[0]
+    // 获取关联题目列表
+    if (repoList.value.length > 0) {
+        listPaperQuestion(route.params.paperId).then(res => {
+            questionMap.value = res.data
+            Object.keys(questionMap.value).forEach(key => {
+                questionMap.value[key].forEach(item => {
+                    item.options = JSON.parse(item.options)
+                    item.type = parseInt(item.type)
+                    item.answer = item.type === 2 ? JSON.parse(item.answer) : JSON.parse(item.answer)[0]
+                })
             })
         })
-
-    })
+    }
 }
 
 // 自动组卷

@@ -354,6 +354,12 @@ export const dynamicRoutes = [
     roles: ["admin", "teacher"],
     children: [
       {
+        path: "goal/:userId(\\d+)",
+        component: () => import("@/views/manage/goal/goal"),
+        name: "StudentGoal",
+        meta: { title: "学习目标管理", activeMenu: "/admin/study/goal" },
+      },
+      {
         path: "plan/:userId(\\d+)",
         component: () => import("@/views/manage/plan/plan"),
         name: "StudentPlan",

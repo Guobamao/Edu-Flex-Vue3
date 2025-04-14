@@ -4,11 +4,6 @@
       <el-form-item label="作业标题" prop="title">
         <el-input v-model="queryParams.title" placeholder="请输入作业标题" clearable @keyup.enter="handleQuery" />
       </el-form-item>
-      <el-form-item label="截止日期">
-        <el-date-picker clearable v-model="dateRange" type="daterange" range-separator="-" value-format="YYYY-MM-DD"
-          start-placeholder="开始日期" end-placeholder="结束日期">
-        </el-date-picker>
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -39,11 +34,6 @@
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
       <el-table-column label="作业标题" align="center" prop="title" />
       <el-table-column label="作业内容" align="center" prop="content" />
-      <el-table-column label="截止日期" align="center" prop="deadline" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.deadline, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -65,11 +55,6 @@
         </el-form-item>
         <el-form-item label="作业内容">
           <editor v-model="form.content" :min-height="192" />
-        </el-form-item>
-        <el-form-item label="截止日期" prop="deadline">
-          <el-date-picker clearable v-model="form.deadline" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"
-            placeholder="请选择截止日期">
-          </el-date-picker>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -110,7 +95,6 @@ const data = reactive({
     pageSize: 10,
     courseId: route.params.courseId,
     title: null,
-    deadline: null,
   },
   rules: {
     title: [
@@ -118,9 +102,6 @@ const data = reactive({
     ],
     content: [
       { required: true, message: "作业内容不能为空", trigger: "blur" }
-    ],
-    deadline: [
-      { required: true, message: "截止日期不能为空", trigger: "blur" }
     ],
   }
 });
@@ -130,11 +111,6 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询作业管理列表 */
 function getList() {
   loading.value = true;
-  queryParams.value.params = {}
-  if (dateRange && dateRange.value) {
-    queryParams.value.params['startTime'] = dateRange.value[0];
-    queryParams.value.params['endTime'] = dateRange.value[1];
-  }
   listHomework(queryParams.value).then(response => {
     homeworkList.value = response.rows;
     total.value = response.total;
@@ -155,7 +131,6 @@ function reset() {
     courseId: route.params.courseId,
     title: null,
     content: null,
-    deadline: null,
   };
   proxy.resetForm("homeworkRef");
 }

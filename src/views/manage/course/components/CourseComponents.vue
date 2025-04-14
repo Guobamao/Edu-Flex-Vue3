@@ -24,15 +24,11 @@
             <el-table-column label="课程名称" align="center" prop="name" show-overflow-tooltip />
             <el-table-column label="任课老师" align="center" prop="teacherName">
             </el-table-column>
-            <el-table-column label="资源数" align="center" prop="resourceNum" />
+            <el-table-column label="课程方向" align="center" prop="directionName">
+            </el-table-column>
             <el-table-column label="课程分类" align="center" prop="categoryName">
             </el-table-column>
             <el-table-column label="选课人数" align="center" prop="selectedNum" />
-            <el-table-column label="综合评分" align="center" prop="avgScore">
-                <template #default="scope">
-                    {{ scope.row.avgScore ? scope.row.avgScore : '-' }}分
-                </template>
-            </el-table-column>
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                 <template #default="scope">
                     <slot name="action" :row="scope.row"></slot>

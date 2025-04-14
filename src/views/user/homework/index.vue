@@ -21,28 +21,37 @@
             <el-collapse v-model="activeNames" accordion @change="handleChange">
                 <el-collapse-item v-for="course in filterCourseOptions" :key="course.id" :title="course.courseName"
                     :name="course.courseId">
-                    <el-card v-for="(item, index) in course.homeworkList" :key="item.id"
-                        class="homework-card">
-                        <el-tag class="orderNum">{{ index + 1 }}</el-tag>
-                        <div class="info">
-                            <div class="header">
-                                <span class="title">{{ item.title }}</span>
-                            </div>
-                            <div class="body">
-                                <span class="time">截止时间: {{ item.deadline }}</span>
-                            </div>
-                            <div class="footer">
-                                <span class="content">作业内容: {{ item.content }}</span>
-                            </div>
-                        </div>
-                        <dict-tag :options="homework_status" :value="item.homeworkStatus" class="homework-status"
-                            :class="item.homeworkStatus == 0 ? 'undo' : item.homeworkStatus == 1 ? 'pending' : 'done'" />
-                        <dict-tag :options="common_status" :value="item.status" class="status" />
-                        <!-- 作业未结束 and 未做 -->
-                        <el-button v-if="item.status === 1 && item.homeworkStatus === 0" type="primary" icon="Edit" plain @click="handleEdit(item)" class="btn-edit">去完成</el-button>
-                        <!-- 作业已做 -->
-                        <el-button v-if="item.homeworkStatus !== 0" type="primary" icon="View" plain @click="handleEdit(item)" class="btn-edit">查看作业</el-button>
-                    </el-card>
+                    <div class="homework-list">
+                        <template v-if="!course.homeworkList || course.homeworkList.length === 0">
+                            <el-empty description="暂无作业！" :image-size="100" />
+                        </template>
+                        <template v-else>
+                            <el-card v-for="(item, index) in course.homeworkList" :key="item.id" class="homework-card">
+                                <el-tag class="orderNum">{{ index + 1 }}</el-tag>
+                                <div class="info">
+                                    <div class="header">
+                                        <span class="title">{{ item.title }}</span>
+                                    </div>
+                                    <div class="body">
+                                        <span class="time">截止时间: {{ item.deadline }}</span>
+                                    </div>
+                                    <div class="footer">
+                                        <span class="content">作业内容: {{ item.content }}</span>
+                                    </div>
+                                </div>
+                                <dict-tag :options="homework_status" :value="item.homeworkStatus"
+                                    class="homework-status"
+                                    :class="item.homeworkStatus == 0 ? 'undo' : item.homeworkStatus == 1 ? 'pending' : 'done'" />
+                                <dict-tag :options="common_status" :value="item.status" class="status" />
+                                <!-- 作业未结束 and 未做 -->
+                                <el-button v-if="item.status === 1 && item.homeworkStatus === 0" type="primary"
+                                    icon="Edit" plain @click="handleEdit(item)" class="btn-edit">去完成</el-button>
+                                <!-- 作业已做 -->
+                                <el-button v-if="item.homeworkStatus !== 0" type="primary" icon="View" plain
+                                    @click="handleEdit(item)" class="btn-edit">查看作业</el-button>
+                            </el-card>
+                        </template>
+                    </div>
                 </el-collapse-item>
             </el-collapse>
         </el-card>

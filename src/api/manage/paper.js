@@ -60,6 +60,14 @@ export function listPaperRepo(id) {
   })
 }
 
+// 删除关联题库
+export function delPaperRepo(id) {
+  return request({
+    url: '/manage/paper/repo/' + id,
+    method: 'delete',
+  })
+}
+
 // 组卷 - 提交试卷
 export function composePaper(data) {
   return request({

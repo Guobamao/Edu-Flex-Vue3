@@ -45,13 +45,15 @@
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
       <el-table-column label="课程封面" align="center" prop="cover">
         <template #default="scope">
-          <img :src="scope.row.cover" width="40%" height="10%" />
+          <img :src="scope.row.cover" width="40%" height="10%" @click="handlePreview(scope.row.cover)" />
         </template>
       </el-table-column>
       <el-table-column label="课程名称" align="center" prop="name" show-overflow-tooltip />
       <el-table-column label="任课老师" align="center" prop="teacherName">
       </el-table-column>
       <el-table-column label="资源数" align="center" prop="resourceNum" />
+      <el-table-column label="课程方向" align="center" prop="directionName">
+      </el-table-column>
       <el-table-column label="课程分类" align="center" prop="categoryName">
       </el-table-column>
       <el-table-column label="选课人数" align="center" prop="selectedNum" />
@@ -112,6 +114,13 @@
         </div>
       </template>
     </el-dialog>
+
+    
+    <!-- 图片预览 -->
+    <div>
+      <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
+        :url-list="previewList" />
+    </div>
   </div>
 </template>
 
@@ -137,6 +146,9 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+
+const showViewer = ref(false);
+const previewList = ref([])
 
 const data = reactive({
   form: {},
@@ -312,6 +324,12 @@ function getCategoryList() {
   listCategory(params).then(response => {
     categoryOptions.value = response.rows;
   })
+}
+
+// 预览图片
+function handlePreview(url) {
+  previewList.value = [url]
+  showViewer.value = true
 }
 
 getTeacherList();

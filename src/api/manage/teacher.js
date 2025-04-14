@@ -10,9 +10,9 @@ export function listTeacher(query) {
 }
 
 // 查询教师管理详细
-export function getTeacher(id) {
+export function getTeacher(userId) {
   return request({
-    url: '/manage/teacher/' + id,
+    url: '/manage/teacher/' + userId,
     method: 'get'
   })
 }

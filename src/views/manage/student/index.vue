@@ -1,12 +1,8 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" @submit.prevent>
-      <el-form-item label="登录名" prop="userName">
-        <el-input v-model="queryParams.userName" placeholder="请输入学生登录名" clearable @keyup.enter="handleQuery"
-          @clear="handleQuery" />
-      </el-form-item>
-      <el-form-item label="姓名" prop="nickName">
-        <el-input v-model="queryParams.nickName" placeholder="请输入学生姓名" clearable @keyup.enter="handleQuery"
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px" @submit.prevent>
+      <el-form-item label="搜索关键词" prop="searchValue">
+        <el-input v-model="queryParams.searchValue" placeholder="支持多条件搜素" clearable @keyup.enter="handleQuery"
           @clear="handleQuery" />
       </el-form-item>
       <el-form-item>
@@ -28,6 +24,9 @@
           v-hasRole="['admin']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
+        <el-button type="info" plain icon="Upload" @click="handleImport" v-hasRole="['admin']">导入</el-button>
+      </el-col>
+      <el-col :span="1.5">
         <el-button type="warning" plain icon="Download" @click="handleExport" v-hasRole="['admin']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
@@ -45,6 +44,7 @@
       <el-table-column label="学生姓名" align="center" prop="nickName" />
       <el-table-column label="手机号码" align="center" prop="phonenumber" />
       <el-table-column label="邮箱" align="center" prop="email" />
+      <el-table-column label="性别" align="center" prop="sex" :formatter="formatSex" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="300">
         <template #default="scope">
           <el-button link type="primary" icon="View" @click="getStudentInfo(scope.row)"
@@ -81,7 +81,8 @@
         </el-form-item>
         <el-form-item label="性别" prop="sex">
           <el-radio-group v-model="form.sex">
-            <el-radio v-for="dict in sys_user_sex" :key="dict.value" :label="parseInt(dict.value)">{{ dict.label }}</el-radio>
+            <el-radio v-for="dict in sys_user_sex" :key="dict.value"
+              :label="parseInt(dict.value)">{{ dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -110,6 +111,32 @@
       </el-descriptions>
     </el-dialog>
 
+    <!-- 学生导入对话框 -->
+    <el-dialog :title="upload.title" v-model="upload.open" width="400px" append-to-body>
+      <el-upload ref="uploadRef" :limit="1" accept=".xlsx, .xls" :headers="upload.headers"
+        :action="upload.url + '?updateSupport=' + upload.updateSupport" :disabled="upload.isUploading"
+        :on-progress="handleFileUploadProgress" :on-success="handleFileSuccess" :auto-upload="false" drag>
+        <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <template #tip>
+          <div class="el-upload__tip text-center">
+            <div class="el-upload__tip">
+              <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的用户数据
+            </div>
+            <span>仅允许导入xls、xlsx格式文件。</span>
+            <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;"
+              @click="importTemplate">下载模板</el-link>
+          </div>
+        </template>
+      </el-upload>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="submitFileForm">确 定</el-button>
+          <el-button @click="upload.open = false">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
     <!-- 图片预览 -->
     <div>
       <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
@@ -119,6 +146,7 @@
 </template>
 
 <script setup name="Student">
+import { getToken } from "@/utils/auth";
 import { listStudent, getStudent, delStudent, addStudent, updateStudent, resetStudentPwd } from "@/api/manage/student";
 
 const { proxy } = getCurrentInstance();
@@ -143,8 +171,7 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    userName: null,
-    nickName: null
+    searchValue: null,
   },
   rules: {
     userName: [
@@ -153,10 +180,39 @@ const data = reactive({
     nickName: [
       { required: true, message: "学生姓名不能为空", trigger: "blur" }
     ],
+    email: [
+      { required: true, message: "邮箱地址不能为空", trigger: "blur" },
+      { type: "email", message: "请输入正确的邮箱地址", trigger: ["blur", "change"] }
+    ],
+    phonenumber: [
+      { required: true, message: "手机号码不能为空", trigger: "blur" },
+      { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur" }
+    ],
+    password: [
+      { required: true, message: "密码不能为空", trigger: "blur" },
+      { min: 5, max: 20, message: "用户密码长度必须介于 5 和 20 之间", trigger: "blur" },
+      { pattern: /^[^<>"'|\\]+$/, message: "不能包含非法字符，默认：< > \" ' \\\ |", trigger: "blur" }
+    ]
   }
 });
 
 const { queryParams, form, rules } = toRefs(data);
+
+/*** 学生导入参数 */
+const upload = reactive({
+  // 是否显示弹出层（用户导入）
+  open: false,
+  // 弹出层标题（用户导入）
+  title: "",
+  // 是否禁用上传
+  isUploading: false,
+  // 是否更新已经存在的用户数据 0：更新已存在用户数据 1：过滤已存在用户数据
+  updateSupport: 0,
+  // 设置上传的请求头部
+  headers: { Authorization: "Bearer " + getToken() },
+  // 上传的地址
+  url: import.meta.env.VITE_APP_BASE_API + "/manage/student/importData"
+});
 
 /** 查询学生管理列表 */
 function getList() {
@@ -271,12 +327,14 @@ function handleExport() {
 /** 重置学生密码 */
 // 密码默认为 Axy+学号(登录名)
 function resetPwd(row) {
-  const data = {
-    userId: row.userId,
-    userName: row.userName
-  }
-  resetStudentPwd(data).then(response => {
-    proxy.$modal.msgSuccess("重置密码成功,密码为: Axy" + data.userName);
+  proxy.$modal.confirm('是否确认重置"' + row.userName + '"的密码？').then(function () {
+    const data = {
+      userId: row.userId,
+      userName: row.userName
+    }
+    resetStudentPwd(data).then(response => {
+      proxy.$modal.msgSuccess("重置密码成功,密码为: Axy" + data.userName);
+    })
   })
 }
 
@@ -292,8 +350,46 @@ function getStudentInfo(row) {
 
 // 预览图片
 function handlePreview(url) {
-    previewList.value = [url]
-    showViewer.value = true
+  previewList.value = [url]
+  showViewer.value = true
+}
+
+/** 导入按钮操作 */
+function handleImport() {
+  upload.title = "学生信息导入";
+  upload.open = true;
+};
+
+/** 下载模板操作 */
+function importTemplate() {
+  proxy.download("manage/student/importTemplate", {
+  }, `学生信息导入模板_${new Date().getTime()}.xlsx`);
+};
+
+/**文件上传中处理 */
+const handleFileUploadProgress = (event, file, fileList) => {
+  upload.isUploading = true;
+};
+
+/** 文件上传成功处理 */
+const handleFileSuccess = (response, file, fileList) => {
+  upload.open = false;
+  upload.isUploading = false;
+  proxy.$refs["uploadRef"].handleRemove(file);
+  proxy.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", { dangerouslyUseHTMLString: true });
+  getList();
+};
+
+/** 提交上传文件 */
+function submitFileForm() {
+  proxy.$refs["uploadRef"].submit();
+};
+
+// 表格性别格式化
+function formatSex(row, column) {
+  if (row.sex === 0) return '男'
+  if (row.sex === 1) return '女'
+  if (row.sex === 2) return '未知'
 }
 getList();
 </script>

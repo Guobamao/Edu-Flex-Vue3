@@ -85,7 +85,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="题目内容" prop="title">
-          <el-input v-model="form.title" type="textarea" placeholder="请输入题目内容" />
+          <editor v-model="form.title" :min-height="192" />
         </el-form-item>
         <el-form-item label="题目类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择题目类型" @change="handleTypeChange">
