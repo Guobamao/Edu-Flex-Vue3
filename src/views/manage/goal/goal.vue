@@ -277,7 +277,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/goal/export', {
     ...queryParams.value
-  }, `goal_${new Date().getTime()}.xlsx`)
+  }, `【${goalList.value[0].userName}】- 学习目标_${new Date().getTime()}.xlsx`)
 }
 
 

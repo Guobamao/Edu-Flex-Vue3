@@ -208,7 +208,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/paper/export', {
     ...queryParams.value
-  }, `paper_${new Date().getTime()}.xlsx`)
+  }, `【${paperList.value[0].courseName}】- 试卷数据_${new Date().getTime()}.xlsx`)
 }
 
 function goToCompose(row) {

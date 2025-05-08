@@ -1,11 +1,5 @@
 <template>
     <div class="app-container">
-        <!-- <el-row :gutter="10" class="mb8">
-            <el-col :span="1.5">
-                <el-button type="primary" icon="Download" @click="handleExport"
-                    v-hasRole="['admin', 'teacher']">导出</el-button>
-            </el-col>
-        </el-row> -->
         <el-table ref="tableRef" :data="chapterList" row-key="id" lazy :load="loadMaterials"
             :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" @row-click="handleRowClick"
             class="course-table">

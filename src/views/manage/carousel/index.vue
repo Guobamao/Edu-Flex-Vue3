@@ -216,13 +216,6 @@ function handleDelete(row) {
   }).catch(() => { });
 }
 
-/** 导出按钮操作 */
-function handleExport() {
-  proxy.download('manage/carousel/export', {
-    ...queryParams.value
-  }, `carousel_${new Date().getTime()}.xlsx`)
-}
-
 function handleBeforeChange(row) {
   loading1.value = true;
   if (row.enabled === 1) {

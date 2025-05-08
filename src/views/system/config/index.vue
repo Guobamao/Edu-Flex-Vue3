@@ -302,7 +302,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download("system/config/export", {
     ...queryParams.value
-  }, `config_${new Date().getTime()}.xlsx`);
+  }, `参数管理_${new Date().getTime()}.xlsx`);
 }
 
 /** 刷新缓存按钮操作 */

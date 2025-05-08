@@ -22,9 +22,10 @@ const tagsViewStore = useTagsViewStore()
 .app-main {
   /* 50= navbar  50  */
   min-height: calc(100vh - 50px);
+  max-height: 84vh;
   width: 100%;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   background-color: #f2f2f2;
 }
 

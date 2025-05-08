@@ -369,7 +369,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/exam/export', {
     ...queryParams.value
-  }, `exam_${new Date().getTime()}.xlsx`)
+  }, `【${examList.value[0].courseName}】- 考试数据_${new Date().getTime()}.xlsx`)
 }
 
 // 获取试卷列表

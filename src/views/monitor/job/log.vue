@@ -207,7 +207,7 @@ function handleClean() {
 function handleExport() {
    proxy.download("monitor/jobLog/export", {
       ...queryParams.value,
-   }, `job_log_${new Date().getTime()}.xlsx`);
+   }, `定时任务日志_${new Date().getTime()}.xlsx`);
 }
 
 (() => {

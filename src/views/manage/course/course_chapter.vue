@@ -101,7 +101,7 @@
     </el-dialog>
 
     <div>
-      <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
+      <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer" show-progress
         :url-list="previewList" />
     </div>
 

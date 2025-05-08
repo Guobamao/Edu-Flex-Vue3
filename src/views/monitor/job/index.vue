@@ -439,7 +439,7 @@ function handleDelete(row) {
 function handleExport() {
    proxy.download("monitor/job/export", {
       ...queryParams.value,
-   }, `job_${new Date().getTime()}.xlsx`);
+   }, `定时任务_${new Date().getTime()}.xlsx`);
 }
 
 getList();

@@ -33,7 +33,7 @@
 
     <el-table v-loading="loading" :data="fileList" border @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="序号" width="50" type="index" align="center" prop="id" />
+      <el-table-column label="序号" width="60" type="index" align="center" prop="id" />
       <el-table-column label="文件名" align="center" prop="originName" show-overflow-tooltip>
         <template #default="scope">
           <el-link type="primary" @click="handlePreview(scope.row)">{{ scope.row.originName }}</el-link>
@@ -96,7 +96,7 @@
     </el-dialog>
 
     <div>
-      <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer"
+      <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer" show-progress
         :url-list="previewList" />
     </div>
 
@@ -237,9 +237,9 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('manage/file/export', {
+  proxy.download('manage/files/export', {
     ...queryParams.value
-  }, `file_${new Date().getTime()}.xlsx`)
+  }, `系统资源_${new Date().getTime()}.xlsx`)
 }
 
 // 预览资料

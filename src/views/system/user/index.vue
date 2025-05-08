@@ -368,7 +368,7 @@ function handleDelete(row) {
 function handleExport() {
    proxy.download("system/user/export", {
       ...queryParams.value,
-   }, `user_${new Date().getTime()}.xlsx`);
+   }, `用户数据_${new Date().getTime()}.xlsx`);
 };
 
 /** 用户状态修改  */

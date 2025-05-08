@@ -226,7 +226,7 @@ function handleUnlock() {
 function handleExport() {
   proxy.download("monitor/logininfor/export", {
     ...queryParams.value,
-  }, `logininfor_${new Date().getTime()}.xlsx`);
+  }, `登录日志_${new Date().getTime()}.xlsx`);
 }
 
 getList();

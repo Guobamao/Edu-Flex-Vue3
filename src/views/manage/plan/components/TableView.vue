@@ -292,7 +292,7 @@ function handleDelete(row) {
 function handleExport() {
     proxy.download('manage/plan/export', {
         ...queryParams.value
-    }, `plan_${new Date().getTime()}.xlsx`)
+    }, `【${planList.value[0].userName}】- 学习计划_${new Date().getTime()}.xlsx`)
 }
 
 function getGoalList() {
