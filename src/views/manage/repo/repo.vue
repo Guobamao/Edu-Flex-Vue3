@@ -32,7 +32,7 @@
     <el-table v-loading="loading" :data="repoList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="题库名称" align="center" prop="name" />
-      <el-table-column label="关联课程" align="center" prop="courseName" />
+      <el-table-column label="关联课程" align="center" prop="courseName" show-overflow-tooltip />
       <el-table-column label="单选题" align="center" prop="singleChoiceCount" />
       <el-table-column label="多选题" align="center" prop="multipleChoiceCount" />
       <el-table-column label="判断题" align="center" prop="judgeCount" />
@@ -211,7 +211,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/repo/export', {
     ...queryParams.value
-  }, `repo_${new Date().getTime()}.xlsx`)
+  }, `【${repoList.value[0].courseName}】- 题库_${new Date().getTime()}.xlsx`)
 }
 
 /** 查看题目 */

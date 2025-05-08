@@ -1,5 +1,8 @@
 <template>
   <course-components>
+    <template #extColumn>
+      <el-table-column label="评价数" align="center" prop="evaluationNum" />
+    </template>
     <template #action="{ row }">
       <el-button link type="primary" icon="View" @click="goToEvaluation(row)"
         v-hasRole="['admin', 'teacher']">查看评价</el-button>

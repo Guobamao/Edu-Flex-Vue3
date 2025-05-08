@@ -1,5 +1,8 @@
 <template>
   <course-components>
+    <template #extColumn>
+      <el-table-column label="题库数" align="center" prop="repoNum" />
+    </template>
     <template #action="{ row }">
       <el-button link type="primary" icon="View" @click="goToRepo(row)"
         v-hasRole="['admin', 'teacher']">查看题库</el-button>

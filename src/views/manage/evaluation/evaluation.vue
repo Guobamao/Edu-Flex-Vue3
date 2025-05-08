@@ -227,13 +227,6 @@ function handleSelectionChange(selection) {
     multiple.value = !selection.length;
 }
 
-/** 新增按钮操作 */
-function handleAdd() {
-    reset();
-    open.value = true;
-    title.value = "添加课程评价管理";
-}
-
 /** 修改按钮操作 */
 function handleUpdate(row) {
     reset();
@@ -279,9 +272,12 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
+    if (queryParams.value.score === 0) {
+        queryParams.value.score = null;
+    }
     proxy.download('manage/evaluation/export', {
         ...queryParams.value
-    }, `evaluation_${new Date().getTime()}.xlsx`)
+    }, `【${evaluationList.value[0].courseName}】- 课程评价数据_${new Date().getTime()}.xlsx`)
 }
 
 /** 获取课程列表 */

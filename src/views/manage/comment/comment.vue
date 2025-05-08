@@ -197,7 +197,7 @@ function handleDelete(row) {
 function handleExport() {
     proxy.download('manage/comment/export', {
         ...queryParams.value
-    }, `comment_${new Date().getTime()}.xlsx`)
+    }, `【${commentList.value[0].courseName}】- 课程评论_${new Date().getTime()}.xlsx`)
 }
 
 function onSearchStudent(keyword) {

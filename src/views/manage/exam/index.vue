@@ -1,5 +1,8 @@
 <template>
   <course-components>
+    <template #extColumn>
+      <el-table-column label="考试数量" align="center" prop="examNum" />
+    </template>
     <template #action="{ row }">
       <el-button link type="primary" icon="View" @click="goToExam(row)"
         v-hasRole="['admin', 'teacher']">查看考试</el-button>

@@ -359,9 +359,15 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('manage/question/export', {
-    ...queryParams.value
-  }, `question_${new Date().getTime()}.xlsx`)
+  if (queryParams.value.repoId) {
+    proxy.download('manage/question/export', {
+      ...queryParams.value
+    }, `【${questionList.value[0].repoName}】- 题库题目数据_${new Date().getTime()}.xlsx`)
+  } else {
+    proxy.download('manage/question/export', {
+      ...queryParams.value
+    }, `题目数据_${new Date().getTime()}.xlsx`)
+  }
 }
 
 function getRepoList() {

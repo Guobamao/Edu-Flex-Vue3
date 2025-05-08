@@ -1,5 +1,8 @@
 <template>
   <course-components>
+    <template #extColumn>
+      <el-table-column label="试卷数量" align="center" prop="paperNum" />
+    </template>
     <template #action="{ row }">
       <el-button link type="primary" icon="View" @click="goToPaper(row)"
         v-hasRole="['admin', 'teacher']">查看试卷</el-button>

@@ -36,7 +36,7 @@
         <template #default="scope">
           <div class="img-list">
             <img v-for="(item, index) in scope.row.imgIds" :key="index" :src="item"
-              @click="handlePreview(scope.row.imgIds, index)" style="width: 50px; height: 50px;" />
+              @click="handlePreview(scope.row.imgIds, index)" style="height: 50px;" />
           </div>
         </template>
       </el-table-column>

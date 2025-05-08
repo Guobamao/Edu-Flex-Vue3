@@ -1,5 +1,8 @@
 <template>
   <course-components>
+    <template #extColumn>
+      <el-table-column label="作业数" align="center" prop="homeworkNum" />
+    </template>
     <template #action="{ row }">
       <el-button link type="primary" icon="View" @click="goToHomework(row)"
         v-hasRole="['admin', 'teacher']">查看作业</el-button>

@@ -29,6 +29,7 @@
             <el-table-column label="课程分类" align="center" prop="categoryName">
             </el-table-column>
             <el-table-column label="选课人数" align="center" prop="selectedNum" />
+            <slot name="extColumn" />
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
                 <template #default="scope">
                     <slot name="action" :row="scope.row"></slot>
