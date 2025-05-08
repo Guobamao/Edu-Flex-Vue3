@@ -40,6 +40,8 @@
       <el-table-column label="简答题" align="center" prop="shortAnswerCount" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
+          <el-button link type="primary" icon="View" @click="goToQuestion(scope.row)"
+            v-hasRole="['admin', 'teacher']">查看题目</el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasRole="['admin', 'teacher']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -74,6 +76,7 @@ import { listRepo, getRepo, delRepo, addRepo, updateRepo } from "@/api/manage/re
 const { proxy } = getCurrentInstance();
 
 const route = useRoute();
+const router = useRouter();
 
 const repoList = ref([]);
 const open = ref(false);
@@ -211,5 +214,9 @@ function handleExport() {
   }, `repo_${new Date().getTime()}.xlsx`)
 }
 
+/** 查看题目 */
+function goToQuestion(row) {
+  router.push({ name: 'Question', query: { repoId: row.id } })
+}
 getList();
 </script>

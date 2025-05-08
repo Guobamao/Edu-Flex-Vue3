@@ -2,8 +2,8 @@
     <div class="app-container">
         <el-card class="mb20">
             <el-carousel height="300px">
-                <el-carousel-item v-for="item in 4" :key="item">
-                    <h3 class="small justify-center" text="2xl">{{ item }}</h3>
+                <el-carousel-item v-for="item in carouselList" :key="item">
+                    <el-image :src="item" style="width: 100%; height: 300px;"></el-image>
                 </el-carousel-item>
             </el-carousel>
         </el-card>
@@ -89,6 +89,7 @@
 <script setup name="UserIndex">
 import { listDirection } from "@/api/user/direction";
 import { listCourse } from "@/api/user/course";
+import { listCarousel } from "@/api/user/carousel";
 
 const { proxy } = getCurrentInstance();
 const { common_status } = proxy.useDict('common_status')
@@ -98,21 +99,25 @@ const router = useRouter();
 const directionOptions = ref([]);
 const recommendCourseOptions = ref([]);
 const newCourseOptions = ref([]);
-const activeTab1 = ref('')
-const activeTab2 = ref('')
+const activeTab1 = ref('');
+const activeTab2 = ref('');
+const carouselList = ref([]);
 
 function getList() {
     const params = {
         pageNum: 1,
         pageSize: 5,
         status: 1
-    }
+    };
     listDirection(params).then(res => {
         directionOptions.value = res.rows;
         activeTab1.value = directionOptions.value[0].id
         activeTab2.value = directionOptions.value[0].id
         getCourseList(directionOptions.value[0].id, 'recommend')
         getCourseList(directionOptions.value[0].id, 'new')
+    });
+    listCarousel().then(res => {
+        carouselList.value = res.data.imgIds.split(",").map(item => proxy.$previewUrl + item);
     })
 }
 
@@ -151,6 +156,7 @@ function handleTab2Click(tab, event) {
 function handleRouterPush(courseId) {
     router.push({ name: 'UserCourseDetail', params: { courseId: courseId } });
 }
+
 document.title = '学智灵云课堂'
 getList();
 </script>
