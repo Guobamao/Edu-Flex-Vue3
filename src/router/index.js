@@ -256,17 +256,23 @@ export const dynamicRoutes = [
         meta: { title: "学生选课管理", activeMenu: "/admin/course/course" },
       },
       {
+        path: "record/:recordId(\\d+)",
+        component: () => import("@/views/manage/course/study_record"),
+        name: "StudyRecord",
+        meta: { title: "学习进度管理", activeMenu: "/admin/course/course" },
+      },
+      {
         path: "homeworks/:courseId(\\d+)",
         component: () => import("@/views/manage/homework/homework"),
         name: "CourseHomework",
         meta: { title: "课程作业管理", activeMenu: "/admin/course/homework" },
       },
       {
-        path: "record/:recordId(\\d+)",
-        component: () => import("@/views/manage/course/study_record"),
-        name: "StudyRecord",
-        meta: { title: "学习进度管理", activeMenu: "/admin/course/course" },
-      },
+        path: "student_homeworks/:homeworkId(\\d+)",
+        component: () => import("@/views/manage/homework/student_homework"),
+        name: "StudentHomework",
+        meta: { title: "学生作业管理", activeMenu: "/admin/course/homework" }
+      }
     ],
   },
   {

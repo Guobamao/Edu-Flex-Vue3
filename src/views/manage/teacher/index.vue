@@ -302,7 +302,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/teacher/export', {
     ...queryParams.value
-  }, `teacher_${new Date().getTime()}.xlsx`)
+  }, `教师信息_${new Date().getTime()}.xlsx`)
 }
 
 // 预览图片

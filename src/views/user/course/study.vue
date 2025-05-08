@@ -60,7 +60,7 @@
                         </el-table-column>
                         <el-table-column width="70" prop="progress" align="left">
                             <template #default="scope">
-                                <el-progress width="16" stroke-width="2" type="circle" :percentage="scope.row.progress"
+                                <el-progress :width="16" :stroke-width="2" type="circle" :percentage="scope.row.progress"
                                     class="progress" />
                             </template>
                         </el-table-column>

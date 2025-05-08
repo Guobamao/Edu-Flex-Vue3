@@ -284,7 +284,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/course/export', {
     ...queryParams.value
-  }, `course_${new Date().getTime()}.xlsx`)
+  }, `课程数据_${new Date().getTime()}.xlsx`)
 }
 
 const teacherList = ref([]);

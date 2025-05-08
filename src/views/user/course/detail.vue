@@ -54,7 +54,7 @@
                         <el-tab-pane label="课程章节" lazy>
                             <CourseChapter :courseInfo="courseInfo" />
                         </el-tab-pane>
-                        <el-tab-pane label="课程评价" lazy>
+                        <el-tab-pane label="学习评价" lazy>
                             <CourseEvaluation />
                         </el-tab-pane>
                         <el-tab-pane label="课程评论" lazy>

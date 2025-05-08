@@ -30,12 +30,8 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['manage:student_course:remove']">删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
         <el-button type="warning" plain icon="Download" @click="handleExport"
-          v-hasPermi="['manage:student_course:export']">导出</el-button>
+          v-hasRole="['admin', 'teacher']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -80,15 +76,6 @@
     <!-- 添加或修改学生选课对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="StudentCourseRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="关联学生" prop="userId">
-          <el-select v-model="form.userId" placeholder="请选择关联学生" clearable :options="studentOptions" filterable remote
-            :remote-method="onSearchStudent" :loading="stuLoading" :disabled="form.id">
-            <el-option v-for="item in studentOptions" :key="item.id" :label="item.nickName" :value="item.userId">
-              <span style="float: left;">{{ item.nickName }}</span>
-              <span style="float: right; color: #8492a6;">{{ item.userName }}</span>
-            </el-option>
-          </el-select>
-        </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select v-model="form.status" placeholder="请选择状态" clearable>
             <el-option v-for="dict in common_status" :key="dict.value" :label="dict.label"
@@ -191,11 +178,6 @@ function reset() {
     courseId: null,
     status: null,
     progress: null,
-    createBy: null,
-    createTime: null,
-    updateBy: null,
-    updateTime: null,
-    deleted: null
   };
   proxy.resetForm("StudentCourseRef");
 }
@@ -217,13 +199,6 @@ function handleSelectionChange(selection) {
   ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
-}
-
-/** 新增按钮操作 */
-function handleAdd() {
-  reset();
-  open.value = true;
-  title.value = "添加学生选课";
 }
 
 /** 修改按钮操作 */
@@ -278,7 +253,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/student_course/export', {
     ...queryParams.value
-  }, `StudentCourse_${new Date().getTime()}.xlsx`)
+  }, `学生学习进度_${new Date().getTime()}.xlsx`)
 }
 
 function onSearchStudent(keyword) {

@@ -32,10 +32,14 @@
     <el-table v-loading="loading" :data="homeworkList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
+      <el-table-column label="课程名称" align="center" prop="courseName" />
       <el-table-column label="作业标题" align="center" prop="title" />
-      <el-table-column label="作业内容" align="center" prop="content" />
+      <el-table-column label="作业内容" align="center" prop="content" show-overflow-tooltip />
+      <el-table-column label="已提交人数" width="100" align="center" prop="submitCount" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
+          <el-button link type="primary" icon="View" @click="goToStudentHomework(scope.row)"
+            v-hasRole="['admin', 'teacher']">查看学生作业</el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasRole="['admin', 'teacher']">修改</el-button>
           <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
@@ -69,11 +73,12 @@
 
 <script setup name="Homework">
 import { listHomework, getHomework, delHomework, addHomework, updateHomework } from "@/api/manage/homework";
-import { listCourse } from '@/api/manage/course';
+import { listCourse, getCourse } from '@/api/manage/course';
 import { loadAllParams } from '@/api/page';
 
 const { proxy } = getCurrentInstance();
 const route = useRoute();
+const router = useRouter();
 
 const homeworkList = ref([]);
 const open = ref(false);
@@ -107,6 +112,8 @@ const data = reactive({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+
+const courseInfo = ref({});
 
 /** 查询作业管理列表 */
 function getList() {
@@ -209,7 +216,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/homework/export', {
     ...queryParams.value
-  }, `homework_${new Date().getTime()}.xlsx`)
+  }, `【${courseInfo.value.name}】课程作业_${new Date().getTime()}.xlsx`)
 }
 
 const courseOptions = ref([])
@@ -220,6 +227,19 @@ function getCourseList() {
   })
 }
 
+function goToStudentHomework(row) {
+  router.push("/admin/course/student_homeworks/" + row.id);
+}
+
+function getCourseInfo() {
+  getCourse(route.params.courseId).then(res => {
+    courseInfo.value = res.data
+  })
+}
+
 getList();
+getCourseInfo();
 getCourseList();
 </script>
+<style lang="scss" scoped>
+</style>

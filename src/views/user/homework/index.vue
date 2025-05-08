@@ -32,22 +32,17 @@
                                     <div class="header">
                                         <span class="title">{{ item.title }}</span>
                                     </div>
-                                    <div class="body">
-                                        <span class="time">截止时间: {{ item.deadline }}</span>
-                                    </div>
                                     <div class="footer">
-                                        <span class="content">作业内容: {{ item.content }}</span>
+                                        作业内容: {{ item.content }}
                                     </div>
                                 </div>
-                                <dict-tag :options="homework_status" :value="item.homeworkStatus"
-                                    class="homework-status"
-                                    :class="item.homeworkStatus == 0 ? 'undo' : item.homeworkStatus == 1 ? 'pending' : 'done'" />
-                                <dict-tag :options="common_status" :value="item.status" class="status" />
-                                <!-- 作业未结束 and 未做 -->
-                                <el-button v-if="item.status === 1 && item.homeworkStatus === 0" type="primary"
-                                    icon="Edit" plain @click="handleEdit(item)" class="btn-edit">去完成</el-button>
+                                <dict-tag :options="homework_status" :value="item.status" class="homework-status"
+                                    :class="item.status == 0 ? 'undo' : item.status == 1 ? 'pending' : 'done'" />
+                                <!-- 未做 -->
+                                <el-button v-if="item.status === 0" type="primary" icon="Edit" plain
+                                    @click="handleEdit(item)" class="btn-edit">去完成</el-button>
                                 <!-- 作业已做 -->
-                                <el-button v-if="item.homeworkStatus !== 0" type="primary" icon="View" plain
+                                <el-button v-if="item.status !== 0" type="primary" icon="View" plain
                                     @click="handleEdit(item)" class="btn-edit">查看作业</el-button>
                             </el-card>
                         </template>
@@ -62,7 +57,6 @@ import { listStudentCourse } from "@/api/user/studentCourse";
 import { listHomework } from "@/api/user/homework"
 
 const { proxy } = getCurrentInstance();
-const { common_status } = proxy.useDict("common_status")
 const { homework_status } = proxy.useDict("homework_status")
 
 const router = useRouter();
@@ -97,7 +91,6 @@ function getList() {
 /** 搜索按钮操作 */
 function handleQuery() {
     queryParams.value.pageNum = 1;
-    // getList();
     filterCourseOptions.value = courseOptions.value.filter(item => item.courseId == queryParams.value.courseId)
 }
 
@@ -152,9 +145,15 @@ getList();
         }
 
         .footer {
-            .content {
-                color: #999;
-            }
+            width: 55%;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal;
+            color: #999;
         }
     }
 
@@ -180,12 +179,6 @@ getList();
     .homework-status.done {
         color: blue;
         border: 1px solid blue;
-    }
-
-    .status {
-        position: absolute;
-        right: 0;
-        top: 0;
     }
 
     .btn-edit {

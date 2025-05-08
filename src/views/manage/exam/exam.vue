@@ -25,19 +25,19 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['manage:exam:add']">新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasRole="['manage:exam:add']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
-          v-hasPermi="['manage:exam:edit']">修改</el-button>
+          v-hasRole="['admin', 'teacher']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-          v-hasPermi="['manage:exam:remove']">删除</el-button>
+          v-hasRole="['admin', 'teacher']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button type="warning" plain icon="Download" @click="handleExport"
-          v-hasPermi="['manage:exam:export']">导出</el-button>
+          v-hasRole="['admin', 'teacher']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -80,9 +80,9 @@
             发布
           </el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-            v-hasPermi="['manage:exam:edit']">修改</el-button>
+            v-hasRole="['admin', 'teacher']">修改</el-button>
           <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)"
-            v-hasPermi="['manage:exam:remove']">删除</el-button>
+            v-hasRole="['admin', 'teacher']">删除</el-button>
           <el-button link type="primary" icon="Connection" @click="goToExamUser(scope.row)">详情</el-button>
         </template>
       </el-table-column>

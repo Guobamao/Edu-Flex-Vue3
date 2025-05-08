@@ -16,35 +16,26 @@
             </div>
             <div class="body">
                 <div class="content">
-                    <span class="label">作业截止时间：</span>
-                    <span class="value">{{ homeworkInfo.deadline }}</span>
-                </div>
-                <div class="content">
                     <span class="label">作业内容：</span>
-                    <span class="value">{{ homeworkInfo.content }}</span>
+                    <span class="value" v-html="homeworkInfo.content"></span>
                 </div>
                 <div class="content">
                     <span class="label">当前提交状态：</span>
-                    <span class="value">{{ homeworkInfo.homeworkStatusLabel }}</span>
+                    <span class="value">{{ homeworkInfo.statusLabel }}</span>
                     <span class="label" v-if="homeworkInfo.submitTime">提交时间：</span>
                     <span class="value">{{ homeworkInfo.submitTime }}</span>
-                </div>
-                <div class="content">
-                    <span class="label">当前作业状态：</span>
-                    <span class="value">{{ homeworkInfo.statusLabel }}</span>
                 </div>
             </div>
         </el-card>
         <el-card class="homework-answer-card">
             <div class="header">作答区域</div>
-            <div class="body">
-                <span class="label">作业内容：</span>
-                <span class="value">{{ homeworkInfo.content }}</span>
-            </div>
-            <div class="footer">
+            <div class="footer" v-if="homeworkInfo.status === 0">
                 <editor v-model="homeworkInfo.answer" :min-height="192" placeholder="请输入作答内容" />
                 <el-button type="primary" class="btn-submit" :disabled="isAnswerEmpty"
-                    v-if="homeworkInfo.homeworkStatus === 0" @click="submit">提交作业</el-button>
+                    v-if="homeworkInfo.status === 0" @click="submit">提交作业</el-button>
+            </div>
+            <div class="footer" v-else>
+                <div class="content" v-html="homeworkInfo.answer"></div>
             </div>
         </el-card>
     </div>
@@ -69,8 +60,7 @@ const isAnswerEmpty = computed(() => {
 function getData() {
     getHomework(route.params.homeworkId).then(res => {
         homeworkInfo.value = res.data
-        homeworkInfo.value.statusLabel = getCommonStatusLabel(homeworkInfo.value.status)
-        homeworkInfo.value.homeworkStatusLabel = getHomeworkStatusLabel(homeworkInfo.value.homeworkStatus)
+        homeworkInfo.value.statusLabel = getDictLabel(homework_status, homeworkInfo.value.status)
     }).then(() => {
         getCourse(homeworkInfo.value.courseId).then(res => {
             courseInfo.value = res.data
@@ -100,13 +90,8 @@ function submit() {
     })
 }
 
-function getCommonStatusLabel(value) {
-    const item = common_status.value.find(item => item.value == value)
-    return item ? item.label : ''
-}
-
-function getHomeworkStatusLabel(value) {
-    const item = homework_status.value.find(item => item.value == value)
+function getDictLabel(dictType, value) {
+    const item = dictType.value.find(item => item.value == value)
     return item ? item.label : ''
 }
 getData()
@@ -134,6 +119,13 @@ getData()
             .value {
                 font-size: 14px;
             }
+
+            :deep(img) {
+                max-width: 100% !important;
+                height: auto !important;
+                display: block;
+                margin: 15px 0;
+            }
         }
     }
 }
@@ -144,10 +136,6 @@ getData()
     .header {
         font-size: 16px;
         font-weight: bold;
-    }
-
-    .body {
-        margin-top: 20px;
     }
 
     .footer {

@@ -321,7 +321,7 @@ function handleDelete(row) {
 function handleExport() {
   proxy.download('manage/student/export', {
     ...queryParams.value
-  }, `student_${new Date().getTime()}.xlsx`)
+  }, `学生信息_${new Date().getTime()}.xlsx`)
 }
 
 /** 重置学生密码 */
