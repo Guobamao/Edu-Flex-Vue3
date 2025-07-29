@@ -17,14 +17,14 @@
                                 :key="item.id">
                                 <el-card shadow="hover" class="course-card">
                                     <dict-tag :options="common_status" :value="item.status" class="course-status" />
-                                    <el-link :underline="false" @click="handleRouterPush(item.id)"
+                                    <el-link underline='never' @click="handleRouterPush(item.id)"
                                         style="width: 100%; overflow: hidden">
                                         <el-image :src="item.cover" style="width: 100%; height: 150px;"
                                             class="course-cover" />
                                     </el-link>
                                     <div class="info">
                                         <div class="title">
-                                            <el-link :underline="false"
+                                            <el-link underline='never'
                                                 @click="handleRouterPush(item.id)">{{ item.name }}</el-link>
                                         </div>
                                         <div class="meta">
@@ -55,14 +55,14 @@
                                 :key="item.id">
                                 <el-card shadow="hover" class="course-card">
                                     <dict-tag :options="common_status" :value="item.status" class="course-status" />
-                                    <el-link :underline="false" @click="handleRouterPush(item.id)"
+                                    <el-link underline='never' @click="handleRouterPush(item.id)"
                                         style="width: 100%; overflow: hidden">
                                         <el-image :src="item.cover" style="width: 100%; height: 150px;"
                                             class="course-cover" />
                                     </el-link>
                                     <div class="info">
                                         <div class="title">
-                                            <el-link :underline="false"
+                                            <el-link underline='never'
                                                 @click="handleRouterPush(item.id)">{{ item.name }}</el-link>
                                         </div>
                                         <div class="meta">

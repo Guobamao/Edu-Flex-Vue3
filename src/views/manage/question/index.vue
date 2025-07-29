@@ -159,7 +159,7 @@
         <template #tip>
           <div class="el-upload__tip text-center">
             <span>仅允许导入xls、xlsx格式文件。</span>
-            <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;"
+            <el-link type="primary" underline='never' style="font-size:12px;vertical-align: baseline;"
               @click="importTemplate">下载模板</el-link>
           </div>
         </template>

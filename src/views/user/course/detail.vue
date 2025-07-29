@@ -19,7 +19,7 @@
                             {{ teacherInfo.nickName }}
                         </el-avatar>
                         <span class="teacher-name">
-                            <el-link :underline="false" @click="gotoTeacher(teacherInfo.id)">
+                            <el-link underline='never' @click="gotoTeacher(teacherInfo.id)">
                                 {{ teacherInfo.nickName }}
                             </el-link>
                         </span>

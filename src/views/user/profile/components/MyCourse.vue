@@ -7,13 +7,13 @@
             <el-row :gutter="20">
                 <el-col :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="item in courseList" :key="item.id">
                     <el-card shadow="hover" class="course-card">
-                        <el-link :underline="false" style="width: 100%; overflow: hidden"
+                        <el-link underline='never' style="width: 100%; overflow: hidden"
                             @click="handleRouterPush(item.courseId)">
                             <el-image :src="item.cover" style="width: 100%; height: 150px;" class="course-cover" />
                         </el-link>
                         <div class="info">
                             <div class="title">
-                                <el-link :underline="false" @click="handleRouterPush(item.courseId)">
+                                <el-link underline='never' @click="handleRouterPush(item.courseId)">
                                     {{ item.courseName }}
                                 </el-link>
                             </div>

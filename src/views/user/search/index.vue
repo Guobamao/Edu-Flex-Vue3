@@ -20,14 +20,14 @@
                             <div v-for="item in courseList" :key="item.id" class="course-item">
                                 <el-row :gutter="10">
                                     <el-col :span="7">
-                                        <el-link :underline="false" style="width: 100%; overflow: hidden"
+                                        <el-link underline='never' style="width: 100%; overflow: hidden"
                                             @click="handleRouterPush(item.id)">
                                             <el-image :src="item.cover" fit="cover"
                                                 style="width: 100%; height: 100px;" />
                                         </el-link>
                                     </el-col>
                                     <el-col :span="16" style="line-height: 25px;">
-                                        <el-link :underline="false" @click="handleRouterPush(item.id)">
+                                        <el-link underline='never' @click="handleRouterPush(item.id)">
                                             {{ item.name }}</el-link>
                                         <div class="desc">{{ item.description }}</div>
                                         <div class="meta">
@@ -54,7 +54,7 @@
                             </el-col>
                             <el-col :span="16" style="line-height: 25px;">
                                 <div class="title">
-                                    <el-link :underline="false" @click="handleRouterPush(item.id)">{{ item.name
+                                    <el-link underline='never' @click="handleRouterPush(item.id)">{{ item.name
                                     }}</el-link>
                                 </div>
                                 <div class="meta">
