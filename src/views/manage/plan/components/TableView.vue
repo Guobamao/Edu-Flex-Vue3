@@ -101,8 +101,8 @@
             </el-form-item>
             <el-form-item label="是否提醒" prop="remind">
                 <el-radio-group v-model="form.remind">
-                    <el-radio label="0">不提醒</el-radio>
-                    <el-radio label="1">提醒</el-radio>
+                    <el-radio value="0">不提醒</el-radio>
+                    <el-radio value="1">提醒</el-radio>
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="提醒时间" prop="reminderTime" v-if="form.remind == '1'">

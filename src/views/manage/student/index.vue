@@ -82,7 +82,7 @@
         <el-form-item label="性别" prop="sex">
           <el-radio-group v-model="form.sex">
             <el-radio v-for="dict in sys_user_sex" :key="dict.value"
-              :label="parseInt(dict.value)">{{ dict.label }}</el-radio>
+              :value="parseInt(dict.value)">{{ dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
