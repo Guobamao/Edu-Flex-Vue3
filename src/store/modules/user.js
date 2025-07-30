@@ -81,7 +81,6 @@ const useUserStore = defineStore("user", {
                     // 学生跳转用户个人中心页面
                     router.push({
                       name: "UserProfile",
-                      params: { activeTab: "resetPwd" },
                     });
                   }
                 })

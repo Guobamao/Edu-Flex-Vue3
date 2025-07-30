@@ -100,12 +100,11 @@ router.beforeEach((to, from, next) => {
           });
       } else {
         if (
-          useUserStore().roles.indexOf("admin") > -1 ||
-          useUserStore().roles.indexOf("teacher") > -1
+          (useUserStore().roles.indexOf("admin") > -1 ||
+            useUserStore().roles.indexOf("teacher") > -1) &&
+          to.fullPath === "/index"
         ) {
-          if (to?.redirectedFrom?.fullPath === "/") {
-            next({ path: "/admin/index" });
-          }
+          next({ path: "/admin/index" });
         }
         next();
       }
