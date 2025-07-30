@@ -8,7 +8,7 @@ import { isRelogin } from "@/utils/request";
 import useUserStore from "@/store/modules/user";
 import useSettingsStore from "@/store/modules/settings";
 import usePermissionStore from "@/store/modules/permission";
-import Layout from '@/layout'
+import Layout from "@/layout";
 
 NProgress.configure({ showSpinner: false });
 
@@ -42,20 +42,23 @@ router.beforeEach((to, from, next) => {
           .then((res) => {
             // 根据用户角色动态生成首页路由
             const defaultRoute = ref({});
-            if (res.roles.indexOf('admin') > -1 || res.roles.indexOf('teacher') > -1) {
+            if (
+              res.roles.indexOf("admin") > -1 ||
+              res.roles.indexOf("teacher") > -1
+            ) {
               defaultRoute.value = {
-                pathL: '',
-                redirect: '/admin/index',
+                pathL: "",
+                redirect: "/admin/index",
                 component: Layout,
                 children: [
                   {
-                    path: '/admin/index',
+                    path: "/admin/index",
                     component: () => import("@/views/index"),
-                    name: 'Index',
-                    meta: { title: '首页' }
-                  }
-                ]
-              }
+                    name: "Index",
+                    meta: { title: "首页" },
+                  },
+                ],
+              };
             }
             router.addRoute(defaultRoute.value);
             isRelogin.show = false;
@@ -65,16 +68,23 @@ router.beforeEach((to, from, next) => {
                 // 根据roles权限生成可访问的路由表
                 accessRoutes.forEach((route) => {
                   if (!isHttp(route.path)) {
-                    if (res.roles.indexOf('admin') > -1 || res.roles.indexOf('teacher') > -1) {
-                      if (route.children[0].path === 'admin/index') {
+                    if (
+                      res.roles.indexOf("admin") > -1 ||
+                      res.roles.indexOf("teacher") > -1
+                    ) {
+                      if (route.children[0].path === "admin/index") {
                         route.children[0].meta.affix = true; // 设置首页为固定标签页
                       }
                     }
                     router.addRoute(route); // 动态添加可访问路由表
                   }
                 });
-                if ((res.roles.indexOf('admin') > -1 || res.roles.indexOf('teacher') > -1) && (from.path === '/login' || from.path === '/')) {
-                  next({ path: '/admin/index', replace: true });
+                if (
+                  (res.roles.indexOf("admin") > -1 ||
+                    res.roles.indexOf("teacher") > -1) &&
+                  (from.path === "/login" || from.path === "/")
+                ) {
+                  next({ path: "/admin/index", replace: true });
                 } else {
                   next({ ...to, replace: true }); // hack方法 确保addRoutes已完成
                 }
@@ -89,6 +99,14 @@ router.beforeEach((to, from, next) => {
               });
           });
       } else {
+        if (
+          useUserStore().roles.indexOf("admin") > -1 ||
+          useUserStore().roles.indexOf("teacher") > -1
+        ) {
+          if (to?.redirectedFrom?.fullPath === "/") {
+            next({ path: "/admin/index" });
+          }
+        }
         next();
       }
     }
