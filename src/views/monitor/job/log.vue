@@ -98,7 +98,7 @@
 
       <el-table v-loading="loading" :data="jobLogList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="日志编号" width="80" align="center" prop="jobLogId" />
+         <el-table-column label="日志编号" width="80" align="center" prop="jobLogId" show-overflow-tooltip />
          <el-table-column label="任务名称" align="center" prop="jobName" :show-overflow-tooltip="true" />
          <el-table-column label="任务组名" align="center" prop="jobGroup" :show-overflow-tooltip="true">
             <template #default="scope">
@@ -212,7 +212,7 @@ function getList() {
 
 // 返回按钮
 function handleClose() {
-  const obj = { path: "/monitor/job" }
+  const obj = { path: "/admin/monitor/job" }
   proxy.$tab.closeOpenPage(obj)
 }
 

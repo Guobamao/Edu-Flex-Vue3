@@ -89,7 +89,7 @@
 
       <el-table v-loading="loading" :data="jobList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="任务编号" width="100" align="center" prop="jobId" />
+         <el-table-column label="任务编号" width="100" align="center" prop="jobId" show-overflow-tooltip />
          <el-table-column label="任务名称" align="center" prop="jobName" :show-overflow-tooltip="true" />
          <el-table-column label="任务组名" align="center" prop="jobGroup">
             <template #default="scope">
@@ -438,7 +438,7 @@ function crontabFill(value) {
 /** 任务日志列表查询 */
 function handleJobLog(row) {
   const jobId = row.jobId || 0
-  router.push('/monitor/job-log/index/' + jobId)
+  router.push('/admin/monitor/job-log/index/' + jobId)
 }
 
 /** 新增按钮操作 */

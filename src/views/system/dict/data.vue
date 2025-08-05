@@ -88,7 +88,7 @@
 
       <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="字典编码" align="center" prop="dictCode" />
+         <el-table-column label="字典编码" align="center" prop="dictCode" :show-overflow-tooltip="true" />
          <el-table-column label="字典标签" align="center" prop="dictLabel">
             <template #default="scope">
                <span v-if="(scope.row.listClass == '' || scope.row.listClass == 'default') && (scope.row.cssClass == '' || scope.row.cssClass == null)">{{ scope.row.dictLabel }}</span>
@@ -278,7 +278,7 @@ function handleQuery() {
 
 /** 返回按钮操作 */
 function handleClose() {
-  const obj = { path: "/system/dict" }
+  const obj = { path: "/admin/system/dict" }
   proxy.$tab.closeOpenPage(obj)
 }
 

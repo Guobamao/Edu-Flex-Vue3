@@ -31,7 +31,7 @@
 
     <el-table v-loading="loading" :data="carouselList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="序号" type="index" width="50" align="center" prop="id" />
+      <el-table-column label="序号" type="index" width="50" align="center" prop="id" :show-overflow-tooltip="true" />
       <el-table-column label="图片集合" align="center" prop="imgIds">
         <template #default="scope">
           <div class="img-list">
