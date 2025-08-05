@@ -2,7 +2,7 @@
   <div class="upload-file">
     <el-upload
       multiple
-      :action="proxy.$uploadUrl"
+      :action="props.action"
       :before-upload="handleBeforeUpload"
       :file-list="fileList"
       :data="data"
@@ -58,6 +58,11 @@ import Sortable from "sortablejs";
 
 const props = defineProps({
   modelValue: [String, Object, Array],
+  // 上传接口地址
+  action: {
+    type: String,
+    default: import.meta.env.VITE_APP_BASE_API + "/common/upload",
+  },
   // 上传携带的参数
   data: {
     type: Object,

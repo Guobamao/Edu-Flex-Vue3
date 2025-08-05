@@ -57,6 +57,9 @@ const app = createApp(App);
 
 // 全局变量挂载
 app.config.globalProperties.$uploadUrl = globalConfig.uploadUrl;
+app.config.globalProperties.$uploadAvatarUrl = globalConfig.uploadAvatarUrl;
+app.config.globalProperties.$uploadCoverUrl = globalConfig.uploadCoverUrl;
+app.config.globalProperties.$uploadMaterialUrl = globalConfig.uploadMaterialUrl;
 app.config.globalProperties.$previewUrl = globalConfig.previewUrl;
 app.config.globalProperties.$previewFileUrl = globalConfig.previewFileUrl;
 app.config.globalProperties.$previewVideo = globalConfig.previewVideo;

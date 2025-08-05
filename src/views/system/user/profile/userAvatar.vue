@@ -1,12 +1,26 @@
 <template>
   <div class="user-info-head" @click="editCropper()">
     <img :src="options.img" title="点击上传头像" class="img-circle img-lg" />
-    <el-dialog :title="title" v-model="open" width="800px" append-to-body @opened="modalOpened" @close="closeDialog">
+    <el-dialog
+      :title="title"
+      v-model="open"
+      width="800px"
+      append-to-body
+      @opened="modalOpened"
+      @close="closeDialog">
       <el-row>
         <el-col :xs="24" :md="12" :style="{ height: '350px' }">
-          <vue-cropper ref="cropper" :img="options.img" :info="true" :autoCrop="options.autoCrop"
-            :autoCropWidth="options.autoCropWidth" :autoCropHeight="options.autoCropHeight" :fixedBox="options.fixedBox"
-            :outputType="options.outputType" @realTime="realTime" v-if="visible" />
+          <vue-cropper
+            ref="cropper"
+            :img="options.img"
+            :info="true"
+            :autoCrop="options.autoCrop"
+            :autoCropWidth="options.autoCropWidth"
+            :autoCropHeight="options.autoCropHeight"
+            :fixedBox="options.fixedBox"
+            :outputType="options.outputType"
+            @realTime="realTime"
+            v-if="visible" />
         </el-col>
         <el-col :xs="24" :md="12" :style="{ height: '350px' }">
           <div class="avatar-upload-preview">
@@ -17,7 +31,11 @@
       <br />
       <el-row>
         <el-col :lg="2" :md="2">
-          <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
+          <el-upload
+            action="#"
+            :http-request="requestUpload"
+            :show-file-list="false"
+            :before-upload="beforeUpload">
             <el-button>
               选择
               <el-icon class="el-icon--right">
@@ -50,7 +68,7 @@
 import "vue-cropper/dist/index.css";
 import { VueCropper } from "vue-cropper";
 import { uploadAvatar } from "@/api/system/user";
-import { uploadFile } from "@/api/manage/common"
+import { uploadAvatar as uploadFile } from "@/api/manage/common";
 import useUserStore from "@/store/modules/user";
 
 const userStore = useUserStore();
@@ -62,14 +80,14 @@ const title = ref("修改头像");
 
 //图片裁剪数据
 const options = reactive({
-  img: userStore.avatar,     // 裁剪图片的地址
-  autoCrop: true,            // 是否默认生成截图框
-  autoCropWidth: 200,        // 默认生成截图框宽度
-  autoCropHeight: 200,       // 默认生成截图框高度
-  fixedBox: true,            // 固定截图框大小 不允许改变
-  outputType: "png",         // 默认生成截图为PNG格式
-  filename: 'avatar',        // 文件名称
-  previews: {}               //预览数据
+  img: userStore.avatar, // 裁剪图片的地址
+  autoCrop: true, // 是否默认生成截图框
+  autoCropWidth: 200, // 默认生成截图框宽度
+  autoCropHeight: 200, // 默认生成截图框高度
+  fixedBox: true, // 固定截图框大小 不允许改变
+  outputType: "png", // 默认生成截图为PNG格式
+  filename: "avatar", // 文件名称
+  previews: {}, //预览数据
 });
 
 /** 编辑头像 */
@@ -83,7 +101,7 @@ function modalOpened() {
 }
 
 /** 覆盖默认上传行为 */
-function requestUpload() { }
+function requestUpload() {}
 
 /** 向左旋转 */
 function rotateLeft() {
@@ -117,18 +135,18 @@ function beforeUpload(file) {
 
 /** 上传图片 */
 function uploadImg() {
-  proxy.$refs.cropper.getCropBlob(data => {
+  proxy.$refs.cropper.getCropBlob((data) => {
     let formData = new FormData();
     formData.append("file", data, options.filename);
-    uploadFile(formData).then(res => {
+    uploadFile(formData).then((res) => {
       uploadAvatar(res.fileId).then(() => {
         open.value = false;
         options.img = proxy.$previewUrl + res.fileId;
         userStore.avatar = options.img;
         proxy.$modal.msgSuccess("修改成功");
         visible.value = false;
-      })
-    })
+      });
+    });
   });
 }
 
@@ -144,7 +162,7 @@ function closeDialog() {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .user-info-head {
   position: relative;
   display: inline-block;

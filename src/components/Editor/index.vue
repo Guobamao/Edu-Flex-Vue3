@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-upload
-      :action="uploadUrl"
+      :action="proxy.$uploadUrl"
       :before-upload="handleBeforeUpload"
       :on-success="handleUploadSuccess"
       :on-error="handleUploadError"
@@ -35,7 +35,6 @@ import { getToken } from "@/utils/auth"
 const { proxy } = getCurrentInstance()
 
 const quillEditorRef = ref()
-const uploadUrl = ref(import.meta.env.VITE_APP_BASE_API + "/common/upload") // 上传的图片服务器地址
 const headers = ref({
   Authorization: "Bearer " + getToken()
 })
@@ -189,7 +188,7 @@ function handlePasteCapture(e) {
 function insertImage(file) {
   const formData = new FormData()
   formData.append("file", file)
-  axios.post(uploadUrl.value, formData, { headers: { "Content-Type": "multipart/form-data", Authorization: headers.value.Authorization } }).then(res => {
+  axios.post(proxy.$uploadUrl, formData, { headers: { "Content-Type": "multipart/form-data", Authorization: headers.value.Authorization } }).then(res => {
     handleUploadSuccess(res.data)
   })
 }

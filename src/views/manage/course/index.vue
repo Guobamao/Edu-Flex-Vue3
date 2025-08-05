@@ -104,7 +104,7 @@
           <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
         </el-form-item>
         <el-form-item label="课程封面" prop="cover">
-          <image-upload v-model="form.cover" :limit="1" :file-type="['image/jpeg', 'image/png']" />
+          <image-upload v-model="form.cover" :limit="1" :file-type="['image/jpeg', 'image/png']" :action="proxy.$uploadCoverUrl" />
         </el-form-item>
       </el-form>
       <template #footer>

@@ -2,14 +2,27 @@
   <div class="app-container">
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleChapterAdd"
-          v-hasRole="['admin', 'teacher']">新增</el-button>
+        <el-button
+          type="primary"
+          plain
+          icon="Plus"
+          @click="handleChapterAdd"
+          v-hasRole="['admin', 'teacher']"
+          >新增</el-button
+        >
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table ref="tableRef" v-if="refreshTable" v-loading="loading" :data="chapterList" row-key="id" lazy
-      :load="loadMaterials" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+    <el-table
+      ref="tableRef"
+      v-if="refreshTable"
+      v-loading="loading"
+      :data="chapterList"
+      row-key="id"
+      lazy
+      :load="loadMaterials"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       @row-click="handleRowClick">
       <el-table-column label="章节名称" align="left" prop="chapterName">
         <template #default="scope">
@@ -32,18 +45,60 @@
       </el-table-column>
       <el-table-column label="操作" align="left" width="400" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click.stop="handleChapterUpdate(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">修改章节</el-button>
-          <el-button link type="primary" icon="Edit" @click.stop="handleMaterialUpdate(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-else>修改资料</el-button>
-          <el-button link type="primary" icon="View" @click.stop="viewMaterial(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-if="scope.row.chapterId">查看资料</el-button>
-          <el-button link type="primary" icon="Plus" @click.stop="handleMaterialAdd(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">新增资料</el-button>
-          <el-button link type="primary" icon="Delete" @click.stop="handleChapterDelete(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-if="!scope.row.chapterId">删除</el-button>
-          <el-button link type="primary" icon="Delete" @click.stop="handleMaterialDelete(scope.row)"
-            v-hasRole="['admin', 'teacher']" v-else>删除</el-button>
+          <el-button
+            link
+            type="primary"
+            icon="Edit"
+            @click.stop="handleChapterUpdate(scope.row)"
+            v-hasRole="['admin', 'teacher']"
+            v-if="!scope.row.chapterId"
+            >修改章节</el-button
+          >
+          <el-button
+            link
+            type="primary"
+            icon="Edit"
+            @click.stop="handleMaterialUpdate(scope.row)"
+            v-hasRole="['admin', 'teacher']"
+            v-else
+            >修改资料</el-button
+          >
+          <el-button
+            link
+            type="primary"
+            icon="View"
+            @click.stop="viewMaterial(scope.row)"
+            v-hasRole="['admin', 'teacher']"
+            v-if="scope.row.chapterId"
+            >查看资料</el-button
+          >
+          <el-button
+            link
+            type="primary"
+            icon="Plus"
+            @click.stop="handleMaterialAdd(scope.row)"
+            v-hasRole="['admin', 'teacher']"
+            v-if="!scope.row.chapterId"
+            >新增资料</el-button
+          >
+          <el-button
+            link
+            type="primary"
+            icon="Delete"
+            @click.stop="handleChapterDelete(scope.row)"
+            v-hasRole="['admin', 'teacher']"
+            v-if="!scope.row.chapterId"
+            >删除</el-button
+          >
+          <el-button
+            link
+            type="primary"
+            icon="Delete"
+            @click.stop="handleMaterialDelete(scope.row)"
+            v-hasRole="['admin', 'teacher']"
+            v-else
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -71,11 +126,12 @@
       <el-form ref="materialRef" :model="materialForm" :rules="rules" label-width="80px">
         <el-form-item label="关联章节" prop="chapterId">
           <el-select v-model="materialForm.chapterId" placeholder="请选择关联章节">
-            <el-option v-for="chapter in chapterList" :key="chapter.id" :label="chapter.chapterName"
+            <el-option
+              v-for="chapter in chapterList"
+              :key="chapter.id"
+              :label="chapter.chapterName"
               :value="chapter.id">
-              <template #default>
-                第{{ chapter.sort }}章 {{ chapter.chapterName }}
-              </template>
+              <template #default> 第{{ chapter.sort }}章 {{ chapter.chapterName }} </template>
             </el-option>
           </el-select>
         </el-form-item>
@@ -83,11 +139,18 @@
           <el-input v-model="materialForm.name" placeholder="请输入资料名称" />
         </el-form-item>
         <el-form-item label="上传文件" prop="fileId">
-          <file-upload ref="fileUploadRef" v-model="materialForm.fileId" @fileList="getUploadFileList" />
+          <file-upload
+            ref="fileUploadRef"
+            v-model="materialForm.fileId"
+            @fileList="getUploadFileList"
+            :action="proxy.$uploadMaterialUrl" />
         </el-form-item>
         <el-form-item label="文件类型" prop="materialType" v-if="materialForm.fileId">
           <el-select v-model="materialForm.materialType" placeholder="请选择文件类型">
-            <el-option v-for="dict in material_type" :key="dict.value" :label="dict.label"
+            <el-option
+              v-for="dict in material_type"
+              :key="dict.value"
+              :label="dict.label"
               :value="parseInt(dict.value)"></el-option>
           </el-select>
         </el-form-item>
@@ -101,22 +164,46 @@
     </el-dialog>
 
     <div>
-      <el-image-viewer hide-on-click-modal @close="() => { showViewer = false }" v-if="showViewer" show-progress
+      <el-image-viewer
+        hide-on-click-modal
+        @close="
+          () => {
+            showViewer = false;
+          }
+        "
+        v-if="showViewer"
+        show-progress
         :url-list="previewList" />
     </div>
 
-
-    <el-dialog title="视频预览" v-model="videoOpen" width="800px" append-to-body @close="onClosePlayer">
+    <el-dialog
+      title="视频预览"
+      v-model="videoOpen"
+      width="800px"
+      append-to-body
+      @close="onClosePlayer">
       <div ref="dplayerRef"></div>
     </el-dialog>
   </div>
 </template>
 
 <script setup name="CourseChapter">
-import { listChapter, getChapter, delChapter, addChapter, updateChapter } from "@/api/manage/chapter";
-import { listMaterial, getMaterial, delMaterial, addMaterial, updateMaterial } from "@/api/manage/material";
+import {
+  listChapter,
+  getChapter,
+  delChapter,
+  addChapter,
+  updateChapter,
+} from "@/api/manage/chapter";
+import {
+  listMaterial,
+  getMaterial,
+  delMaterial,
+  addMaterial,
+  updateMaterial,
+} from "@/api/manage/material";
 import { previewFile } from "@/api/manage/file";
-import DPlayer from 'dplayer';
+import DPlayer from "dplayer";
 import { nextTick } from "vue";
 
 const { proxy } = getCurrentInstance();
@@ -132,7 +219,7 @@ const showSearch = ref(true);
 const title = ref("");
 const refreshTable = ref(true);
 const videoOpen = ref(false);
-const dplayerRef = ref(null)
+const dplayerRef = ref(null);
 const tableRef = ref(null);
 const fileUploadRef = ref(null);
 const dp = ref(null);
@@ -141,37 +228,27 @@ const data = reactive({
   chapterForm: {},
   materialForm: {},
   queryParams: {
-    courseId: route.params.courseId
+    courseId: route.params.courseId,
   },
   rules: {
-    name: [
-      { required: true, message: "章节名称不能为空", trigger: "blur" }
-    ],
-    chapterId: [
-      { required: true, message: "关联章节不能为空", trigger: "blur" }
-    ],
-    name: [
-      { required: true, message: "资料名称不能为空", trigger: "blur" }
-    ],
-    fileId: [
-      { required: true, message: "文件不能为空", trigger: "blur" }
-    ],
-    materialType: [
-      { required: true, message: "文件类型不能为空", trigger: "blur" }
-    ]
-  }
+    name: [{ required: true, message: "章节名称不能为空", trigger: "blur" }],
+    chapterId: [{ required: true, message: "关联章节不能为空", trigger: "blur" }],
+    name: [{ required: true, message: "资料名称不能为空", trigger: "blur" }],
+    fileId: [{ required: true, message: "文件不能为空", trigger: "blur" }],
+    materialType: [{ required: true, message: "文件类型不能为空", trigger: "blur" }],
+  },
 });
 
 const showViewer = ref(false);
-const previewList = ref([])
+const previewList = ref([]);
 
 const { queryParams, chapterForm, materialForm, rules } = toRefs(data);
 
 /** 查询课程内容章节管理列表 */
 function getList() {
   loading.value = true;
-  listChapter(queryParams.value).then(response => {
-    chapterList.value = response.data
+  listChapter(queryParams.value).then((response) => {
+    chapterList.value = response.data;
     loading.value = false;
   });
 }
@@ -196,15 +273,14 @@ function reset() {
     chapterId: null,
     name: null,
     fileId: null,
-    duration: null
-  }
+    duration: null,
+  };
   proxy.resetForm("materialRef");
   proxy.resetForm("chapterRef");
   setTimeout(() => {
     fileUploadRef.value.fileList = [];
-  })
+  });
 }
-
 
 /** 新增按钮操作 */
 function handleChapterAdd(row) {
@@ -212,7 +288,6 @@ function handleChapterAdd(row) {
   chapterOpen.value = true;
   title.value = "添加课程内容章节管理";
 }
-
 
 function handleMaterialAdd(row) {
   reset();
@@ -226,7 +301,7 @@ function handleMaterialAdd(row) {
 /** 修改按钮操作 */
 async function handleChapterUpdate(row) {
   reset();
-  getChapter(row.id).then(res => {
+  getChapter(row.id).then((res) => {
     chapterForm.value = res.data;
     chapterOpen.value = true;
     title.value = "修改课程内容章节管理";
@@ -236,7 +311,7 @@ async function handleChapterUpdate(row) {
 function handleMaterialUpdate(row) {
   reset();
   const _id = row.id.split("-")[0];
-  getMaterial(_id).then(response => {
+  getMaterial(_id).then((response) => {
     materialForm.value = response.data;
     materialOpen.value = true;
     title.value = "修改课程资料";
@@ -245,16 +320,16 @@ function handleMaterialUpdate(row) {
 
 /** 提交按钮 */
 function submitChapterForm() {
-  proxy.$refs["chapterRef"].validate(valid => {
+  proxy.$refs["chapterRef"].validate((valid) => {
     if (valid) {
       if (chapterForm.value.id != null) {
-        updateChapter(chapterForm.value).then(response => {
+        updateChapter(chapterForm.value).then((response) => {
           proxy.$modal.msgSuccess("修改成功");
           chapterOpen.value = false;
           getList();
         });
       } else {
-        addChapter(chapterForm.value).then(response => {
+        addChapter(chapterForm.value).then((response) => {
           proxy.$modal.msgSuccess("新增成功");
           chapterOpen.value = false;
           getList();
@@ -265,56 +340,64 @@ function submitChapterForm() {
 }
 
 function submitMaterialForm() {
-  proxy.$refs["materialRef"].validate(valid => {
+  proxy.$refs["materialRef"].validate((valid) => {
     if (valid) {
       if (materialForm.value.id != null) {
-        updateMaterial(materialForm.value).then(response => {
+        updateMaterial(materialForm.value).then((response) => {
           proxy.$modal.msgSuccess("修改成功");
           materialOpen.value = false;
           getList();
           // 重新获取资料数据
-          listMaterial({ chapterId: materialForm.value.chapterId }).then(response => {
-            response.rows.map(item => {
-              item.id = item.id + '-' + materialForm.value.chapterId
-            })
+          listMaterial({ chapterId: materialForm.value.chapterId }).then((response) => {
+            response.rows.map((item) => {
+              item.id = item.id + "-" + materialForm.value.chapterId;
+            });
             // 过滤出ChapterList中id = chapterId的数据并设置其children
-            chapterList.value.map(item => {
+            chapterList.value.map((item) => {
               if (item.id == materialForm.value.chapterId) {
-                item.children = response.rows
+                item.children = response.rows;
               }
-            })
-          })
+            });
+          });
         });
       } else {
-        addMaterial(materialForm.value).then(response => {
+        addMaterial(materialForm.value).then((response) => {
           proxy.$modal.msgSuccess("新增成功");
           materialOpen.value = false;
           refreshTableData(materialForm.value.chapterId);
-        })
+        });
       }
     }
-  })
+  });
 }
 
 /** 删除按钮操作 */
 function handleChapterDelete(row) {
-  proxy.$modal.confirm('是否确认删除课程内容章节管理编号为"' + row.id + '"的数据项？').then(function () {
-    return delChapter(row.id);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => { });
+  proxy.$modal
+    .confirm('是否确认删除课程内容章节管理编号为"' + row.id + '"的数据项？')
+    .then(function () {
+      return delChapter(row.id);
+    })
+    .then(() => {
+      getList();
+      proxy.$modal.msgSuccess("删除成功");
+    })
+    .catch(() => {});
 }
 
 /** 删除资料操作 */
 function handleMaterialDelete(row) {
   const _id = row.id.split("-")[0];
-  proxy.$modal.confirm('是否确认删除课程资料编号为"' + _id + '"的数据项？').then(function () {
-    return delMaterial(_id);
-  }).then(() => {
-    refreshTableData(row.chapterId);
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => { });
+  proxy.$modal
+    .confirm('是否确认删除课程资料编号为"' + _id + '"的数据项？')
+    .then(function () {
+      return delMaterial(_id);
+    })
+    .then(() => {
+      refreshTableData(row.chapterId);
+      proxy.$modal.msgSuccess("删除成功");
+    })
+    .catch(() => {});
 }
 
 // 存储懒加载的数据
@@ -325,13 +408,13 @@ function loadMaterials(row, treeNode, resolve) {
   // 懒加载时，将数据存储到maps中
   maps.set(_chapterId, { row, treeNode, resolve });
 
-  listMaterial({ chapterId: _chapterId }).then(response => {
+  listMaterial({ chapterId: _chapterId }).then((response) => {
     if (response.rows.length > 0) {
-      resolve(response.rows)
+      resolve(response.rows);
     } else {
-      tableRef.value.store.states.lazyTreeNodeMap.value[_chapterId] = []
+      tableRef.value.store.states.lazyTreeNodeMap.value[_chapterId] = [];
     }
-  })
+  });
 }
 
 // 刷新表格
@@ -347,7 +430,7 @@ function refreshTableData(chapterId) {
 function getUploadFileList(fileList) {
   const file = fileList[0];
   materialForm.value.name = file.name;
-  materialForm.value.materialType = file.type
+  materialForm.value.materialType = file.type;
   materialForm.value.duration = file.duration;
 }
 
@@ -355,18 +438,18 @@ function getUploadFileList(fileList) {
 function viewMaterial(row) {
   if (row.materialType === 1 || row.materialType === 4 || row.materialType === 5) {
     // 文本文件 / PPT / PDF，以图片方式预览
-    previewFile(row.fileId).then(res => {
-      const ids = res.data.map(item => item.id)
-      previewList.value = ids.map(id => proxy.$previewFileUrl + id)
-      showViewer.value = true
-    })
+    previewFile(row.fileId).then((res) => {
+      const ids = res.data.map((item) => item.partFileId);
+      previewList.value = ids.map((id) => proxy.$previewFileUrl + id);
+      showViewer.value = true;
+    });
   } else if (row.materialType === 2) {
     // 图片类型
-    previewList.value = [proxy.$previewUrl + row.fileId]
-    showViewer.value = true
+    previewList.value = [proxy.$previewUrl + row.fileId];
+    showViewer.value = true;
   } else if (row.materialType === 3) {
     // 音视频类型
-    videoOpen.value = true
+    videoOpen.value = true;
     nextTick(() => {
       dp.value = new DPlayer({
         container: dplayerRef.value,
@@ -374,32 +457,32 @@ function viewMaterial(row) {
         live: false,
         loop: false,
         theme: "#b7daff",
-        lang: 'zh-cn',
+        lang: "zh-cn",
         screenshot: false,
         hotkey: true,
         video: {
-          type: 'auto',
+          type: "auto",
           url: proxy.$previewVideo + row.fileId,
-        }
-      })
-    })
+        },
+      });
+    });
   }
 }
 
 function onClosePlayer() {
-  dp.value.destroy()
+  dp.value.destroy();
 }
 
-// 树形列表点击事件 
+// 树形列表点击事件
 function handleRowClick(row, column, event) {
   row.expanded = !row.expanded;
   if (row.hasChildren) {
-    const expandBtn = event.currentTarget.querySelector('.el-table__expand-icon')
+    const expandBtn = event.currentTarget.querySelector(".el-table__expand-icon");
     if (expandBtn) {
-      expandBtn.click()
+      expandBtn.click();
     }
   } else {
-    tableRef.value.toggleRowExpansion(row, row.expanded)
+    tableRef.value.toggleRowExpansion(row, row.expanded);
   }
 }
 getList();

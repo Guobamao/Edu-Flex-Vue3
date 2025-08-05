@@ -63,7 +63,7 @@
     <el-dialog :title="title" v-model="open" width="800px" append-to-body>
       <el-form ref="carouselRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="轮播图图片" prop="imgIds">
-          <image-upload v-model="form.imgIds" />
+          <image-upload v-model="form.imgIds" :action="proxy.$uploadUrl" />
         </el-form-item>
       </el-form>
       <template #footer>
